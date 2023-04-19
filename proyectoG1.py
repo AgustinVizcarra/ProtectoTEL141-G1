@@ -39,7 +39,7 @@ def obtenerInfoRemoto(ipWorker,nombre):
     ssh = paramiko.SSHClient()
     try: 
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(ipWorker, username='ubuntu', password='##########')
+        ssh.connect(ipWorker, username='ubuntu', password='Soyelnumero28')
         cmd = "initial=$(cat /proc/stat | grep cpu | awk '{print $5}'); echo $initial; sleep 3; final=$(cat /proc/stat | grep cpu | awk '{print $5}'); echo $final"
         stdin, stdout, stderr = ssh.exec_command(cmd)     
         output = stdout.read().decode('utf-8')
@@ -54,7 +54,10 @@ def obtenerInfoRemoto(ipWorker,nombre):
             utilizacionCPU.append(cpu_value)
         #Recordar que el orden es primero el core 0 luego el core 1
         #Posteriormente analizamos la memoria
+        ###############################################
         cmd = "free -h | awk '/^Mem:/{print $2,$3,$7}'"
+        # proc/meminfo -> probar
+        ###############################################
         stdin, stdout, stderr = ssh.exec_command(cmd)     
         output = stdout.read().decode('utf-8')
         infoMemoria = output.replace("\n"," ").strip(" ").split(" ")
