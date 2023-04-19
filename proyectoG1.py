@@ -39,7 +39,7 @@ def obtenerInfoRemoto(ipWorker,nombre):
     ssh = paramiko.SSHClient()
     try: 
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(ipWorker, username='ubuntu', password='Soyelnumero28')
+        ssh.connect(ipWorker, username='ubuntu', password='##########')
         cmd = "initial=$(cat /proc/stat | grep cpu | awk '{print $5}'); echo $initial; sleep 3; final=$(cat /proc/stat | grep cpu | awk '{print $5}'); echo $final"
         stdin, stdout, stderr = ssh.exec_command(cmd)     
         output = stdout.read().decode('utf-8')
