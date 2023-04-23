@@ -55,7 +55,8 @@ def obtenerInfoRemoto(ipWorker,nombre):
         #Recordar que el orden es primero el core 0 luego el core 1
         #Posteriormente analizamos la memoria
         ###############################################
-        cmd = "free -h | awk '/^Mem:/{print $2,$3,$7}'"
+        cmd = "free -b | awk '/^Mem:/{printf \"%.1f GB , %.1f MB , %.1f GB\\n\", $2/1000000000, $3/1000000, $7/1000000000}'"
+        # grep -E "MemTotal|MemFree|MemAvailable" /proc/meminfo
         # proc/meminfo -> probar
         ###############################################
         stdin, stdout, stderr = ssh.exec_command(cmd)     
@@ -90,9 +91,9 @@ def obtenerInfoRemoto(ipWorker,nombre):
             print("|-Core"+str(i)+": "+str(round(utilizacionCPU[i],1))+" %")
         print("|-Consumo total: "+str(round(sum(utilizacionCPU),1))+" %")            
         print("|-Informacion de la RAM: ")
-        print("| Memoria usada: "+infoMemoria[0])
-        print("| Memoria disponible: "+infoMemoria[1])
-        print("| Memoria total: "+infoMemoria[2])
+        print("| Memoria usada: "+infoMemoria[0]+" "+infoMemoria[1])
+        print("| Memoria disponible: "+infoMemoria[3]+" "+infoMemoria[4])
+        print("| Memoria total: "+infoMemoria[6]+" "+infoMemoria[7])
         print("|-Informacion del almacenamiento: ")
         print("| Almacenamiento usado: "+infoAlmacenamiento[1])
         print("| Almacenamiento usado(%): "+infoAlmacenamiento[3])
