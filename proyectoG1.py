@@ -25,6 +25,19 @@ def menuPrincipal(username):
     print("|- Opcion 9 -> Salir                                         |")
     opcion = input("| Ingrese una opción: ")
     return opcion
+
+#New Menu
+def menuPrincipal2(username):
+    print("                 |---------------------Bienvenido "+username+" al menú principal-----------------|")
+    print("                 |- Opción 1 -> Listar información                                               |")
+    print("                 |- Opción 2 -> Crear nueva topología                                            |")
+    print("                 |- Opción 3 -> Editar información                                               |")
+    print("                 |- Opcion 4 -> Salir                                                            |")
+    print("                 |-------------------------------------------------------------------------------|\n")
+    opcion = input("Ingrese una opción: ")
+    print("\n")
+    return opcion
+
 # Display info de servidores
 def menuInfoServidores():
     print("|- Opción 1 -> Información de los servidores                     |")
@@ -34,6 +47,32 @@ def menuInfoServidores():
     print("|- Opcion 9 -> Salir                                             |")
     opcion = input("| Ingrese una opción: ")
     return opcion
+
+#New Menu Listar Informacion
+def menuListarInformacion():
+    print("                 |-------------------------------------------------------------------------------|")
+    print("                 |- Opción 1 -> Lista resumen de todas las topologías                            |")
+    print("                 |- Opción 2 -> Lista detalle de una topología                                   |")
+    print("                 |- Opción 3 -> Visualizar una topología                                         |")
+    print("                 |- Opcion 4 -> Salir                                                            |")
+    print("                 |-------------------------------------------------------------------------------|\n")
+    opcion = input("Ingrese una opción: ")
+    print("\n")
+    return opcion
+
+def menuCrearTopologia():
+    print("Ingrese el tipo de topología:")
+    print("                 |---------------------------------|")
+    print("                 |- Opción 1 -> Lineal             |")
+    print("                 |- Opción 2 -> Malla              |")
+    print("                 |- Opción 3 -> Árbol              |")
+    print("                 |- Opcion 4 -> Anillo             |")
+    print("                 |- Opcion 5 -> Bus                |")
+    print("                 |---------------------------------|\n")
+    opcion = input("Ingrese una opción: ")
+    print("\n")
+    return opcion
+
 # Funciones
 def obtenerInfoRemoto(ipWorker,nombre):
     ssh = paramiko.SSHClient()
@@ -196,6 +235,58 @@ def menu(opcion,nivel,jerarquia):
         print("Usted ha ingresado una opción inválida")
         print("Por favor ingresa una opción valida")
         return True
+
+# Menú logico 2
+def menu2(opcion,nivel,jerarquia):
+    try:
+        opcion = int(opcion)
+        if opcion == 1:
+            # Mapea desde qué menú se está ingresando p.e Menú principal -> Nivel 0 / Así se permite reusar el menú
+            if(nivel == 0):
+                # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
+                if(jerarquia == 3 or jerarquia == 1):
+                    while True:
+                        #opcion = menuInfoServidores()
+                        opcion = menuListarInformacion()
+                        #resultado = menu(opcion,1,jerarquia)
+                        if not (resultado):
+                            break
+                else:
+                    #Quiere decir que no tengo los privilegios para poder ingresar
+                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
+            elif(nivel == 1):
+                # No es necesario validar porque la validacion se hace a nivel de menu
+                obtenerInfoServidores(hashmapWorkers)
+            return True
+        elif opcion == 2:
+            if(nivel == 0):
+                pass
+            if(nivel == 1):
+                #Posteriormente este nivel se vinculará con OpenStack
+                #editarNivelAprovisionamiento()
+                opcion = menuCrearTopologia()
+            return True
+        elif opcion == 3:
+            if(nivel == 0):
+                pass
+            if(nivel == 1):
+                #Posteriormente este nivel se vinculará con OpenStack
+                mostrarNivelAprovionamiento()
+            return True
+        ##... Para implementaciones futuras
+        elif opcion == 9:
+            return False
+        else:
+            print("Usted ha ingresado una opción inválida")
+            print("Por favor ingresa una opción valida")
+            return True
+    except Exception as e:
+        print(e)
+        print("Usted ha ingresado una opción inválida")
+        print("Por favor ingresa una opción valida")
+        return True
+
+
 def validarCredenciales(username,pwd):
     usuarios = credenciales.keys()
     pwds = credenciales.values()
@@ -231,11 +322,13 @@ privilegios = -1
 while(int(privilegios)<0):
     username = input("| Ingrese su nombre de usuario: ")
     password = getpass("| Ingrese su contraseña: ")
-    privilegios = validarCredenciales(username,password)
+    privilegios = validarCredenciales(username,password) #Aca viene la implementación de la autenticación
 if(int(privilegios)>0):
     while True:
-        opcion = menuPrincipal(username)
-        resultado = menu(opcion,0,privilegios)
+        #opcion = menuPrincipal(username)
+        opcion = menuPrincipal2(username)
+        #resultado = menu(opcion,0,privilegios)
+        resultado = menu2(opcion,0,privilegios)
         if not (resultado):
             print("------------------------------------------------------------")
             print("Gracias por usar nuestro sistema!")
