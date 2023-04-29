@@ -16,25 +16,16 @@ jerarquias = {'admin':3}
 nivelMaximoAprovisionamiento = 0
 #Posteriormente se podrá leer desde una base de datos
 #Se trabajará con un esquema de programacion modular
+
+############################################    F   U   N   C   I   O   N   E   S   ############################################
 # Display principal
 def menuPrincipal(username):
-    print("|------------Bienvenido "+username+" al menú principal-----------|")
+    print("   |---------Bienvenido "+username+" al menú principal----------|")
     print("|- Opción 1 -> Información del consumo de recursos           |")
     print("|- Opción 2 -> Información de los recursos creados           |")
-    print("|- Otras opciones proximamente ...                           |")
+    print("|- Opción 3 -> Información de topologías                     |")
     print("|- Opcion 9 -> Salir                                         |")
     opcion = input("| Ingrese una opción: ")
-    return opcion
-
-#New Menu
-def menuPrincipal2(username):
-    print("                 |---------------------Bienvenido "+username+" al menú principal-----------------|")
-    print("                 |- Opción 1 -> Listar información                                               |")
-    print("                 |- Opción 2 -> Crear nueva topología                                            |")
-    print("                 |- Opción 3 -> Editar información                                               |")
-    print("                 |- Opcion 4 -> Salir                                                            |")
-    print("                 |-------------------------------------------------------------------------------|\n")
-    opcion = input("Ingrese una opción: ")
     print("\n")
     return opcion
 
@@ -46,32 +37,38 @@ def menuInfoServidores():
     print("|- Otras opciones proximamente ...                               |")
     print("|- Opcion 9 -> Salir                                             |")
     opcion = input("| Ingrese una opción: ")
-    return opcion
-
-#New Menu Listar Informacion
-def menuListarInformacion():
-    print("                 |-------------------------------------------------------------------------------|")
-    print("                 |- Opción 1 -> Lista resumen de todas las topologías                            |")
-    print("                 |- Opción 2 -> Lista detalle de una topología                                   |")
-    print("                 |- Opción 3 -> Visualizar una topología                                         |")
-    print("                 |- Opcion 4 -> Salir                                                            |")
-    print("                 |-------------------------------------------------------------------------------|\n")
-    opcion = input("Ingrese una opción: ")
     print("\n")
     return opcion
 
+# Display info topology
+def menuInfoTopologias():
+    print("|----------------------------------------------------------------|")
+    print("|- Opción 1 -> Lista de topologías existentes                    |")
+    print("|- Opción 2 -> Lista detalle de una topología                    |")
+    print("|- Opción 3 -> Crear una nueva topología                         |")
+    print("|- Opción 4 -> Editar una topología existente                    |")
+    print("|- Opción 5 -> Visualización de una topología                    |")
+    print("|- Opción 6 -> Borrar una topología existente                    |")
+    print("|- Opcion 9 -> Salir                                             |")
+    opcion = input("| Ingrese una opción: ")
+    print("\n")
+    return opcion
+
+# Display create topology
 def menuCrearTopologia():
-    print("Ingrese el tipo de topología:")
-    print("                 |---------------------------------|")
-    print("                 |- Opción 1 -> Lineal             |")
-    print("                 |- Opción 2 -> Malla              |")
-    print("                 |- Opción 3 -> Árbol              |")
-    print("                 |- Opcion 4 -> Anillo             |")
-    print("                 |- Opcion 5 -> Bus                |")
-    print("                 |---------------------------------|\n")
-    opcion = input("Ingrese una opción: ")
-    print("\n")
-    return opcion
+    print("|---------------------------------|")
+    nombreTopologia = input("| Ingrese el nombre de su topología: ")
+    print("|---Ingrese el tipo de topología--|")
+    print("|- Opción 1 -> Lineal             |")
+    print("|- Opción 2 -> Malla              |")
+    print("|- Opción 3 -> Árbol              |")
+    print("|- Opcion 4 -> Anillo             |")
+    print("|- Opcion 5 -> Bus                |")
+    print("|---------------------------------|")
+    tipoTopologia = input("| Ingrese una opción: ")
+    #Validaciones
+    print("[*]Topología creada exitosamente\n")
+    #Se crea aca la topologia y se guarda en db 
 
 # Funciones
 def obtenerInfoRemoto(ipWorker,nombre):
@@ -148,12 +145,14 @@ def obtenerInfoRemoto(ipWorker,nombre):
         print("El worker con direccion IP "+ipWorker+" se encuentra caido")
     finally:
         ssh.close()
+        
 def mostrarNivelAprovionamiento():
     global nivelMaximoAprovisionamiento
     if(nivelMaximoAprovisionamiento==0):
         print("Aún no se ha definido el nivel de aprovionamiento en el sistema!")
     else:
         print("El nivel de aprovisionamiento máximo en el sistema es "+str(nivelMaximoAprovisionamiento)+"% ")
+        
 def editarNivelAprovisionamiento():
     global nivelMaximoAprovisionamiento
     if(nivelMaximoAprovisionamiento==0):
@@ -176,6 +175,7 @@ def editarNivelAprovisionamiento():
                 print("Debe ser un valor que se encuentre entre ]0;100[ (%)")
         except Exception as e:
             print("Debe ingresar un valor entero!")
+            
 def obtenerInfoServidores(workers):
     workers_nombres = workers.keys()
     #creacion de los hilos
@@ -188,12 +188,15 @@ def obtenerInfoServidores(workers):
     #fin de los hilos:
     for hilo in hilos:
         hilo.join()
+        
 # Menú logico
 def menu(opcion,nivel,jerarquia):
     try:
         opcion = int(opcion)
         if opcion == 1:
             # Mapea desde qué menú se está ingresando p.e Menú principal -> Nivel 0 / Así se permite reusar el menú
+            # Mapea desde qué menú se está ingresando p.e MenuInfoServidores -> Nivel 1 / Así se permite reusar el menú
+            # Mapea desde qué menú se está ingresando p.e MenuInfoTopologia -> Nivel 2 / Así se permite reusar el menú
             if(nivel == 0):
                 # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
                 if(jerarquia == 3 or jerarquia == 1):
@@ -208,84 +211,127 @@ def menu(opcion,nivel,jerarquia):
             elif(nivel == 1):
                 # No es necesario validar porque la validacion se hace a nivel de menu
                 obtenerInfoServidores(hashmapWorkers)
+                
+            elif(nivel == 2):
+                pass #ELIMINAR
+            
+            elif(nivel == 3):
+                pass #ELIMINAR
+            
             return True
+        
         elif opcion == 2:
             if(nivel == 0):
                 pass
+            
             if(nivel == 1):
                 #Posteriormente este nivel se vinculará con OpenStack
                 editarNivelAprovisionamiento()
+                
+            if(nivel == 2):
+                pass #ELIMINAR
+            
+            if(nivel == 3):
+                pass #ELIMINAR
+            
             return True
+        
         elif opcion == 3:
             if(nivel == 0):
-                pass
-            if(nivel == 1):
-                #Posteriormente este nivel se vinculará con OpenStack
-                mostrarNivelAprovionamiento()
-            return True
-        ##... Para implementaciones futuras
-        elif opcion == 9:
-            return False
-        else:
-            print("Usted ha ingresado una opción inválida")
-            print("Por favor ingresa una opción valida")
-            return True
-    except Exception as e:
-        print(e)
-        print("Usted ha ingresado una opción inválida")
-        print("Por favor ingresa una opción valida")
-        return True
-
-# Menú logico 2
-def menu2(opcion,nivel,jerarquia):
-    try:
-        opcion = int(opcion)
-        if opcion == 1:
-            # Mapea desde qué menú se está ingresando p.e Menú principal -> Nivel 0 / Así se permite reusar el menú
-            if(nivel == 0):
-                # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
                 if(jerarquia == 3 or jerarquia == 1):
                     while True:
-                        #opcion = menuInfoServidores()
-                        opcion = menuListarInformacion()
-                        #resultado = menu(opcion,1,jerarquia)
+                        opcion = menuInfoTopologias()
+                        resultado = menu(opcion,2,jerarquia)
                         if not (resultado):
                             break
                 else:
                     #Quiere decir que no tengo los privilegios para poder ingresar
                     print("Lo sentimos usted no tiene los privilegios para poder ingresar")
-            elif(nivel == 1):
-                # No es necesario validar porque la validacion se hace a nivel de menu
-                obtenerInfoServidores(hashmapWorkers)
-            return True
-        elif opcion == 2:
-            if(nivel == 0):
-                pass
-            if(nivel == 1):
-                #Posteriormente este nivel se vinculará con OpenStack
-                #editarNivelAprovisionamiento()
-                opcion = menuCrearTopologia()
-            return True
-        elif opcion == 3:
-            if(nivel == 0):
-                pass
+                    
             if(nivel == 1):
                 #Posteriormente este nivel se vinculará con OpenStack
                 mostrarNivelAprovionamiento()
+    
+            if(nivel == 2):
+                if(jerarquia == 3 or jerarquia == 1):
+                    menuCrearTopologia()
+                    resultado = menu(3,0,jerarquia)
+ 
+                else:
+                    #Quiere decir que no tengo los privilegios para poder ingresar
+                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
+            
+            if(nivel == 3):
+                pass #ELIMINAR
+                  
             return True
-        ##... Para implementaciones futuras
+        
+        elif opcion == 4:
+            if(nivel == 0):
+                pass #ELIMINAR
+            
+            if(nivel == 1):
+                pass #ELIMINAR
+            
+            if(nivel == 2):
+                pass #ELIMINAR
+            
+            if(nivel == 3):
+                pass #ELIMINAR
+            
+            return True
+        
+        elif opcion == 5:
+            if(nivel == 0):
+                pass #ELIMINAR
+            
+            if(nivel == 1):
+               pass #ELIMINAR
+           
+            if(nivel == 2):
+                print("|---------------------------------|")
+                nombreTopologia = input("| Ingrese el nombre de su topología: ")
+                #validaciones
+                print("[*]Topología lista para ser visualizada\n")
+                resultado = menu(3,0,jerarquia)
+            
+            if(nivel == 3):
+                pass #ELIMINAR
+            
+            return True
+        
+        elif opcion == 6:
+            if(nivel == 0):
+                pass
+            if(nivel == 1):
+                pass
+            if(nivel == 2):
+                print("|---------------------------------|")
+                nombreTopologia = input("| Ingrese el nombre de su topología: ")
+                #validaciones
+                confirmacion = input("|¿Está seguro de borrar la topología "+nombreTopologia+" ?[Y/N]: ")
+                
+                if (confirmacion == "Y"):
+                    #se borra la topologia
+                    print("[*]Topología borrada exitosamente\n")
+                
+                resultado = menu(3,0,jerarquia) 
+            
+            return True
+            
         elif opcion == 9:
             return False
+        
         else:
             print("Usted ha ingresado una opción inválida")
             print("Por favor ingresa una opción valida")
             return True
+        
     except Exception as e:
         print(e)
         print("Usted ha ingresado una opción inválida")
         print("Por favor ingresa una opción valida")
         return True
-
 
 def validarCredenciales(username,pwd):
     usuarios = credenciales.keys()
@@ -293,18 +339,20 @@ def validarCredenciales(username,pwd):
     attemptcounter = 3
     while True:
         if (username in usuarios) and (pwd in pwds):
-            print("Usuario logueado exitosamente!")
+            print("[*]Usuario logueado exitosamente!\n")
             return jerarquias[username]
         else:
             if attemptcounter > 0:
-                print("Usuario y/o contraseñas incorrectas")
+                print("[*]Usuario y/o contraseñas incorrectas")
                 attemptcounter -= 1
-                print("Le quedan "+str(attemptcounter)+" intentos")
+                print("[*]Le quedan "+str(attemptcounter)+" intentos\n")
                 return -1
             else:
                 #Quiere decir que excedio
-                print("Excedió el número de intentos para el proceso de logueo")
+                print("[*]Excedió el número de intentos para el proceso de logueo\n")
                 return 0
+      
+############################################    M   A   I   N   ############################################      
 #Mensaje de bienvenida
 print("----------------Ingeniería de Redes Cloud--------------------")
 print("|                        TEL141                             |")
@@ -325,10 +373,8 @@ while(int(privilegios)<0):
     privilegios = validarCredenciales(username,password) #Aca viene la implementación de la autenticación
 if(int(privilegios)>0):
     while True:
-        #opcion = menuPrincipal(username)
-        opcion = menuPrincipal2(username)
-        #resultado = menu(opcion,0,privilegios)
-        resultado = menu2(opcion,0,privilegios)
+        opcion = menuPrincipal(username)
+        resultado = menu(opcion,0,privilegios)
         if not (resultado):
             print("------------------------------------------------------------")
             print("Gracias por usar nuestro sistema!")
