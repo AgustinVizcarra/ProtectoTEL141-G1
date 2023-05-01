@@ -6,6 +6,7 @@ import requests
 #Para uso futuro
 """
 from getpass import getpass
+from keystone import KeystoneAuth
 import threading
 import paramiko
 #Array que contiene la direccion IP de los workers
@@ -24,6 +25,8 @@ def menuPrincipal(username):
     print("|- Opción 1 -> Información del consumo de recursos           |")
     print("|- Opción 2 -> Información de los recursos creados           |")
     print("|- Opción 3 -> Información de topologías                     |")
+    print("|- Opción 4 -> Crear nuevo usuario                           |")
+    print("|- Opción 5 -> Editar usuario existente                      |") #rol y passwd
     print("|- Opcion 9 -> Salir                                         |")
     opcion = input("| Ingrese una opción: ")
     print("\n")
@@ -333,6 +336,11 @@ def menu(opcion,nivel,jerarquia):
         print("Por favor ingresa una opción valida")
         return True
 
+def getTokensito(username,pwd):
+    Keystone = KeystoneAuth(username, password)
+    tokensito = Keystone.get_token()
+    return tokensito
+
 def validarCredenciales(username,pwd):
     usuarios = credenciales.keys()
     pwds = credenciales.values()
@@ -351,6 +359,9 @@ def validarCredenciales(username,pwd):
                 #Quiere decir que excedio
                 print("[*]Excedió el número de intentos para el proceso de logueo\n")
                 return 0
+    
+     
+     
       
 ############################################    M   A   I   N   ############################################      
 #Mensaje de bienvenida
@@ -370,12 +381,20 @@ privilegios = -1
 while(int(privilegios)<0):
     username = input("| Ingrese su nombre de usuario: ")
     password = getpass("| Ingrese su contraseña: ")
-    privilegios = validarCredenciales(username,password) #Aca viene la implementación de la autenticación
+    tokensito = getTokensito(username,password)
+    print("Tu tokensito es: "+str(tokensito))
+    
+    if tokensito == None:
+        privilegios = 0
+    else:
+        #privilegios = validarCredenciales(username,password)
+        privilegios = 1 #Harcodeado
+    
 if(int(privilegios)>0):
     while True:
         opcion = menuPrincipal(username)
         resultado = menu(opcion,0,privilegios)
         if not (resultado):
             print("------------------------------------------------------------")
-            print("Gracias por usar nuestro sistema!")
+            print("[*]Gracias por usar nuestro sistema!")
             break
