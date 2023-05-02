@@ -192,9 +192,19 @@ class KeystoneAuth(object):
             print("Error al actualizar el usuario: {}".format(response.text))
 
 
+    #Listar Roles
+    def listar_roles(self):
+        response = requests.get(self.auth_url + '/roles', headers=self.headers)
+        if response.status_code == 200:
+            roles = response.json().get('roles', [])
+            return roles
+        else:
+            print(f"Error al listar los roles: {response.status_code} - {response.text}")
+            return None
+
     #Listar Usuario
     def list_users(self):
-        response = requests.get(self.auth.auth_url + '/users',
+        response = requests.get(self.auth_url + '/users',
                                 headers=self.headers)
         return response.json()
 
