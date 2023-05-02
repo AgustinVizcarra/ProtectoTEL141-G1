@@ -125,11 +125,7 @@ class KeystoneAuth(object):
         
         user_id = None
         
-<<<<<<< HEAD
-        if response.status_code == 201:
-=======
         if response.status_code == 200:
->>>>>>> 50673c8a8cf4c12881a5e2b994b5678895a5b683
             users = response.json()['users']
             if len(users) == 1:
                 user_id = users[0]['id']
@@ -162,11 +158,7 @@ class KeystoneAuth(object):
             
             role_id = None
             
-<<<<<<< HEAD
-            if response.status_code == 201:
-=======
             if response.status_code == 200:
->>>>>>> 50673c8a8cf4c12881a5e2b994b5678895a5b683
                 roles = response.json()['roles']
                 for role in roles:
                     if role['name'] == rol_name:
@@ -194,11 +186,7 @@ class KeystoneAuth(object):
                                 headers={'Content-Type': 'application/json',
                                         'X-Auth-Token': self.token})
         
-<<<<<<< HEAD
-        if response.status_code == 201:
-=======
         if response.status_code == 200:
->>>>>>> 50673c8a8cf4c12881a5e2b994b5678895a5b683
             print("Usuario actualizado exitosamente")
         else:
             print("Error al actualizar el usuario: {}".format(response.text))
