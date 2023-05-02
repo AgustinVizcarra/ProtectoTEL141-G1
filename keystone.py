@@ -122,7 +122,7 @@ class KeystoneAuth(object):
         
         user_id = None
         
-        if response.status_code == 201:
+        if response.status_code == 200:
             users = response.json()['users']
             user_id = users[0]['id']
             
@@ -186,6 +186,16 @@ class KeystoneAuth(object):
                         print("[*]Error al asignar el rol: {}".format(response.text))
                         return
 
+
+    #Listar Roles
+    def listar_roles(self):
+        response = requests.get(self.auth_url + '/roles', headers=self.headers)
+        if response.status_code == 200:
+            roles = response.json().get('roles', [])
+            return roles
+        else:
+            print(f"Error al listar los roles: {response.status_code} - {response.text}")
+            return None
 
     #Listar Usuario
     def list_users(self):
