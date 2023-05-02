@@ -1,10 +1,7 @@
 import requests
-
-
 class KeystoneAuth(object):
-
     def __init__(self,username, password):
-        self.auth_url = "http://10.20.12.39:5000/v3/auth/tokens"
+        self.auth_url = "http://10.20.12.39:5000/v3"
         self.username = username
         self.password = password
         self.token = None
@@ -26,24 +23,24 @@ class KeystoneAuth(object):
                 }
             }
         }
-        response = requests.post(self.auth_url,
+        response = requests.post(self.auth_url+"/auth/tokens",
                                  json=auth_data,
                                  headers=self.headers)
 
         if response.status_code == 201:
             self.token = response.headers['X-Subject-Token']
-            print("La solicitud se completó correctamente")
+            print("[*]La solicitud se completó correctamente")
             
         elif response.status_code == 401:
-            print("Error de autorización, verifique credenciales")
+            print("[*]Error de autorización, verifique credenciales")
             
         else:
-            print("Se produjo un error. Codigo de estado;", response.status_code)
+            print("[*]Se produjo un error. Codigo de estado;", response.status_code)
 
         return self.token
     
-    #CREAR ROL
-
+    
+    #Crear rol
     def crear_Rol(self, name, description):
         roles = {
             'role': {
@@ -53,18 +50,18 @@ class KeystoneAuth(object):
         }
         response = requests.post(self.auth_url + '/roles',
                                  json=roles,
-                                 headers=self.headers)
+                                headers={'Content-Type': 'application/json',
+                                          'X-Auth-Token': self.token})
         
-
         if response.status_code == 201:
-            print("Rol creado exitosamente")
+            print("[*]Rol creado exitosamente")
         else:
-            print("Error al crear el rol: {}".format(response.text))
+            print("[*]Error al crear el rol: {}".format(response.text))
 
         return response.json()
     
-    #CREAR USUARIO
-
+    
+    #Crear Usuario
     def crear_usuario(self, username, password, email, rol_name):
         # Primero creamos el usuario
         user_data = {
@@ -81,42 +78,42 @@ class KeystoneAuth(object):
                                           'X-Auth-Token': self.token})
 
         if response.status_code == 201:
-            print("Usuario creado exitosamente")
+            print("[*]Usuario creado exitosamente")
+            
+            # Después, obtenemos el ID del rol a asignar
+            response = requests.get(self.auth_url + '/roles',
+                                headers={'Content-Type': 'application/json',
+                                         'X-Auth-Token': self.token})
+
+            role_id = None
+            if response.status_code == 201:
+                roles = response.json()['roles']
+                for role in roles:
+                    if role['name'] == rol_name:
+                        role_id = role['id']
+                        break
+
+            if role_id is None:
+                print("[*]No se encontró el rol especificado")
+                
+            else:
+                # Finalmente, asignamos el rol al usuario
+                url = "{}/roles/{}/users/{}".format(self.auth_url, role_id, username)
+                response = requests.put(url,
+                                        headers={'Content-Type': 'application/json',
+                                                'X-Auth-Token': self.token})
+
+                if response.status_code == 201:
+                    print("[*]Rol asignado exitosamente")
+                    
+                else:
+                    print("[*]Error al asignar el rol: {}".format(response.text))
+            
         else:
             print("Error al crear el usuario: {}".format(response.text))
-            return
 
-        # Después, obtenemos el ID del rol a asignar
-        response = requests.get(self.auth_url + '/roles',
-                                headers={'Content-Type': 'application/json',
-                                         'X-Auth-Token': self.token})
-
-        role_id = None
-
-        if response.status_code == 201:
-            roles = response.json()['roles']
-            for role in roles:
-                if role['name'] == rol_name:
-                    role_id = role['id']
-                    break
-
-        if role_id is None:
-            print("No se encontró el rol especificado")
-            return
-
-        # Finalmente, asignamos el rol al usuario
-        url = "{}/roles/{}/users/{}".format(self.auth_url, role_id, username)
-        response = requests.put(url,
-                                headers={'Content-Type': 'application/json',
-                                         'X-Auth-Token': self.token})
-
-        if response.status_code == 201:
-            print("Rol asignado exitosamente")
-        else:
-            print("Error al asignar el rol: {}".format(response.text))
 
     #Editar usuario y Rol
-
     def editar_usuario(self, username, password=None, email=None, rol_name=None):
         # Primero, obtenemos el ID del usuario
         response = requests.get(self.auth_url + '/users?name=' + username,
@@ -127,76 +124,75 @@ class KeystoneAuth(object):
         
         if response.status_code == 201:
             users = response.json()['users']
-            if len(users) == 1:
-                user_id = users[0]['id']
-            else:
-                print("No se encontró un usuario con el nombre especificado")
-                return
-        
+            user_id = users[0]['id']
+            
         if user_id is None:
-            print("No se encontró un usuario con el nombre especificado")
-            return
-        
-        # Luego, actualizamos los campos del usuario
-        user_data = {
-            'user': {
-                'id': user_id,
-            }
-        }
-        
-        if password is not None:
-            user_data['user']['password'] = password
+            print("[*]No se encontró un usuario con el nombre especificado")
             
-        if email is not None:
-            user_data['user']['email'] = email
-        
-        if rol_name is not None:
-            # Obtenemos el ID del nuevo rol
-            response = requests.get(self.auth_url + '/roles',
-                                    headers={'Content-Type': 'application/json',
-                                            'X-Auth-Token': self.token})
-            
-            role_id = None
-            
-            if response.status_code == 201:
-                roles = response.json()['roles']
-                for role in roles:
-                    if role['name'] == rol_name:
-                        role_id = role['id']
-                        break
-            
-            if role_id is None:
-                print("No se encontró el rol especificado")
-                return
-            
-            # Asignamos el nuevo rol al usuario
-            url = "{}/roles/{}/users/{}".format(self.auth_url, role_id, username)
-            response = requests.put(url,
-                                    headers={'Content-Type': 'application/json',
-                                            'X-Auth-Token': self.token})
-            
-            if response.status_code == 201:
-                print("Rol asignado exitosamente")
-            else:
-                print("Error al asignar el rol: {}".format(response.text))
-                return
-        
-        response = requests.patch(self.auth_url + '/users/' + user_id,
-                                json=user_data,
-                                headers={'Content-Type': 'application/json',
-                                        'X-Auth-Token': self.token})
-        
-        if response.status_code == 201:
-            print("Usuario actualizado exitosamente")
         else:
-            print("Error al actualizar el usuario: {}".format(response.text))
+            # Luego, actualizamos los campos del usuario
+            user_data = {
+                'user': {
+                    'id': user_id,
+                }
+            }
+            
+            if password is not None:
+                user_data['user']['password'] = password
+                
+            if email is not None:
+                user_data['user']['email'] = email
+            
+            if rol_name is not None:
+                # Obtenemos el ID del nuevo rol
+                response = requests.get(self.auth_url + '/roles',
+                                        headers={'Content-Type': 'application/json',
+                                                'X-Auth-Token': self.token})
+                
+                role_id = None
+                
+                if response.status_code == 201:
+                    roles = response.json()['roles']
+                    for role in roles:
+                        if role['name'] == rol_name:
+                            role_id = role['id']
+                            break
+                
+                if role_id is None:
+                    print("[*]No se encontró el rol especificado")
+                    
+                else:
+                    # Asignamos el nuevo rol al usuario
+                    url = "{}/roles/{}/users/{}".format(self.auth_url, role_id, username)
+                    response = requests.put(url,
+                                            headers={'Content-Type': 'application/json',
+                                                    'X-Auth-Token': self.token})
+                    
+                    if response.status_code == 201:
+                        print("[*]Rol asignado exitosamente")
+                        
+                        response = requests.patch(self.auth_url + '/users/' + user_id,
+                                    json=user_data,
+                                    headers={'Content-Type': 'application/json',
+                                            'X-Auth-Token': self.token})
+            
+                        if response.status_code == 201:
+                            print("[*]Usuario actualizado exitosamente")
+                            
+                        else:
+                            print("[*]Error al actualizar el usuario: {}".format(response.text))
+                         
+                    else:
+                        print("[*]Error al asignar el rol: {}".format(response.text))
+                        return
 
 
     #Listar Usuario
     def list_users(self):
-        response = requests.get(self.auth.auth_url + '/users',
-                                headers=self.headers)
-        return response.json()
+        response = requests.get(self.auth_url + '/users',
+                                headers={'Content-Type': 'application/json',
+                                                    'X-Auth-Token': self.token})
+        print(response.json())
 
 
 
