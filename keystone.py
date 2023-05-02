@@ -125,9 +125,7 @@ class KeystoneAuth(object):
         
         user_id = None
         
-
         if response.status_code == 200:
-
             users = response.json()['users']
             if len(users) == 1:
                 user_id = users[0]['id']
@@ -159,11 +157,7 @@ class KeystoneAuth(object):
                                             'X-Auth-Token': self.token})
             
             role_id = None
-
-
             if response.status_code == 200:
-
-    
                 roles = response.json()['roles']
                 for role in roles:
                     if role['name'] == rol_name:
@@ -191,9 +185,7 @@ class KeystoneAuth(object):
                                 headers={'Content-Type': 'application/json',
                                         'X-Auth-Token': self.token})
         
-        
         if response.status_code == 200:
-
             print("Usuario actualizado exitosamente")
         else:
             print("Error al actualizar el usuario: {}".format(response.text))
