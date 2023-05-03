@@ -50,6 +50,21 @@ async def startup():
     print("Iniciando el API de Monitoreo")
     print("Esperando solicitudes")
     
+@app.get("/recursos")
+def get_recursos():
+    #Obtener los ultimos recursos de cada worker
+    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    mydb = myclient["Estadisticas"]
+    info = {}
+    for x in collection:
+        mycol = mydb[collection[x]]
+        data = mycol.find_one()
+        print(collection[x])
+        data.pop("_id")
+        print(data)
+        #info[collection[x]] = data
+    return info
+
 if __name__ == "__main__":
     import uvicorn
     #Inicializando servicio de socket
