@@ -21,12 +21,16 @@ nivelMaximoAprovisionamiento = 0
 ############################################    F   U   N   C   I   O   N   E   S   ############################################
 # Display principal
 def menuPrincipal(username):
+    print("\n")
     print("   |---------Bienvenido "+username+" al menú principal----------|")
     print("|- Opción 1 -> Información del consumo de recursos           |")
     print("|- Opción 2 -> Información de los recursos creados           |")
     print("|- Opción 3 -> Información de topologías                     |")
     print("|- Opción 4 -> Crear nuevo usuario                           |")
-    print("|- Opción 5 -> Editar usuario existente                      |") #rol y passwd
+    print("|- Opción 5 -> Editar usuario existente                      |")
+    print("|- Opción 6 -> Listar usuarios existentes                    |")
+    print("|- Opción 7 -> Crear nuevo rol                               |")
+    print("|- Opción 8 -> Listar roles existentes                       |")
     print("|- Opcion 9 -> Salir                                         |")
     opcion = input("| Ingrese una opción: ")
     print("\n")
@@ -191,7 +195,66 @@ def obtenerInfoServidores(workers):
     #fin de los hilos:
     for hilo in hilos:
         hilo.join()
+
+#Crear Rol
+def crearRol():
+    while True:
+        nombreRol = input("| Ingrese el nombre del rol: ")
         
+        if(nombreRol is not None):
+            descripcionRol = input("| Ingrese una descripción del rol: ")
+            keystone.crear_Rol(nombreRol, descripcionRol)
+            break
+        
+        else:
+            print("[*]Ingrese un nombre de rol válido")
+            continue
+
+#Crear Usuario
+def crearUsuario():
+    while True:
+        username = input("| Ingrese un nombre de usuario: ")
+        
+        if(username is not None):
+            password = getpass("| Ingrese su contraseña: ")
+            email = input("| Ingrese una dirección de correo: ")
+            rol_name = input("| Ingrese un rol al usuario: ") #O tiene que ser ya uno por defecto?
+            keystone.crear_usuario(username, password, email, rol_name)
+            break
+            
+        else:
+            print("[*]Ingrese un nombre de usuario válido")
+            continue
+
+#Editar Usuario
+def editarUsuario():
+    while True:
+        username = input("| Ingrese su nombre de usuario: ")
+        
+        if(username is not None):
+            verificarPass = input("| ¿Desea cambiar su contraseña?[Y/N]: ")
+            password = None
+            if verificarPass == "Y":
+                password = getpass("| Ingrese su nueva contraseña: ")
+
+            verificarEmail = input("| ¿Desea cambiar su email?[Y/N]: ")
+            email = None
+            if verificarEmail == "Y":
+                email = input("| Ingrese su nueva dirección de correo: ")
+            
+            verificarRol = input("| ¿Desea cambiar su rol?[Y/N]: ")
+            rol = None
+            if verificarRol == "Y":
+                rol = input("| Ingrese su nuevo rol: ")
+                
+            keystone.editar_usuario(username,password,email,rol)
+            
+            break
+            
+        else:
+            print("[*]Ingrese un nombre de usuario válido")
+            continue
+
 # Menú logico
 def menu(opcion,nivel,jerarquia):
     try:
@@ -271,7 +334,13 @@ def menu(opcion,nivel,jerarquia):
         
         elif opcion == 4:
             if(nivel == 0):
-                pass #ELIMINAR
+                # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
+                if(jerarquia == 3 or jerarquia == 1):
+                    crearUsuario()
+                        
+                else:
+                    #Quiere decir que no tengo los privilegios para poder ingresar
+                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
             
             if(nivel == 1):
                 pass #ELIMINAR
@@ -286,7 +355,14 @@ def menu(opcion,nivel,jerarquia):
         
         elif opcion == 5:
             if(nivel == 0):
-                pass #ELIMINAR
+                # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
+                if(jerarquia == 3 or jerarquia == 1):
+                    editarUsuario()
+                    return False
+                
+                else:
+                    #Quiere decir que no tengo los privilegios para poder ingresar
+                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
             
             if(nivel == 1):
                pass #ELIMINAR
@@ -305,7 +381,14 @@ def menu(opcion,nivel,jerarquia):
         
         elif opcion == 6:
             if(nivel == 0):
-                pass
+                # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
+                if(jerarquia == 3 or jerarquia == 1):
+                    keystone.list_users()
+                        
+                else:
+                    #Quiere decir que no tengo los privilegios para poder ingresar
+                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
+                    
             if(nivel == 1):
                 pass
             if(nivel == 2):
@@ -321,7 +404,31 @@ def menu(opcion,nivel,jerarquia):
                 resultado = menu(3,0,jerarquia) 
             
             return True
-            
+        
+        elif opcion == 7:
+            if(nivel == 0):
+                 # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
+                if(jerarquia == 3 or jerarquia == 1):
+                    crearRol()
+                        
+                else:
+                    #Quiere decir que no tengo los privilegios para poder ingresar
+                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
+                
+            return True
+        
+        elif opcion == 8:
+            if(nivel == 0):
+                 # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
+                if(jerarquia == 3 or jerarquia == 1):
+                    keystone.listar_roles()
+                        
+                else:
+                    #Quiere decir que no tengo los privilegios para poder ingresar
+                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
+                
+            return True
+        
         elif opcion == 9:
             return False
         
@@ -336,8 +443,7 @@ def menu(opcion,nivel,jerarquia):
         print("Por favor ingresa una opción valida")
         return True
 
-def getTokensito(username,pwd):
-    Keystone = KeystoneAuth(username, password)
+def getTokensito(Keystone):
     tokensito = Keystone.get_token()
     return tokensito
 
@@ -381,7 +487,9 @@ privilegios = -1
 while(int(privilegios)<0):
     username = input("| Ingrese su nombre de usuario: ")
     password = getpass("| Ingrese su contraseña: ")
-    tokensito = getTokensito(username,password)
+    
+    keystone = KeystoneAuth(username, password)
+    tokensito = getTokensito(keystone)
     print("Tu tokensito es: "+str(tokensito))
     
     if tokensito == None:

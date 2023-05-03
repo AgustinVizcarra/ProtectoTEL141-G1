@@ -62,7 +62,7 @@ def get_recursos():
         print(collection[x])
         data.pop("_id")
         print(data)
-        #info[collection[x]] = data
+        info[collection[x]] = data
     return info
 
 if __name__ == "__main__":
