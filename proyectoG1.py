@@ -21,6 +21,7 @@ nivelMaximoAprovisionamiento = 0
 ############################################    F   U   N   C   I   O   N   E   S   ############################################
 # Display principal
 def menuPrincipal(username):
+    print("\n")
     print("   |---------Bienvenido "+username+" al menú principal----------|")
     print("|- Opción 1 -> Información del consumo de recursos           |")
     print("|- Opción 2 -> Información de los recursos creados           |")
@@ -29,6 +30,7 @@ def menuPrincipal(username):
     print("|- Opción 5 -> Editar usuario existente                      |")
     print("|- Opción 6 -> Listar usuarios existentes                    |")
     print("|- Opción 7 -> Crear nuevo rol                               |")
+    print("|- Opción 8 -> Listar roles existentes                       |")
     print("|- Opcion 9 -> Salir                                         |")
     opcion = input("| Ingrese una opción: ")
     print("\n")
@@ -246,6 +248,7 @@ def editarUsuario():
                 rol = input("| Ingrese su nuevo rol: ")
                 
             keystone.editar_usuario(username,password,email,rol)
+            
             break
             
         else:
@@ -355,7 +358,8 @@ def menu(opcion,nivel,jerarquia):
                 # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
                 if(jerarquia == 3 or jerarquia == 1):
                     editarUsuario()
-                        
+                    return False
+                
                 else:
                     #Quiere decir que no tengo los privilegios para poder ingresar
                     print("Lo sentimos usted no tiene los privilegios para poder ingresar")
@@ -412,7 +416,19 @@ def menu(opcion,nivel,jerarquia):
                     print("Lo sentimos usted no tiene los privilegios para poder ingresar")
                 
             return True
-            
+        
+        elif opcion == 8:
+            if(nivel == 0):
+                 # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
+                if(jerarquia == 3 or jerarquia == 1):
+                    keystone.listar_roles()
+                        
+                else:
+                    #Quiere decir que no tengo los privilegios para poder ingresar
+                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
+                
+            return True
+        
         elif opcion == 9:
             return False
         
@@ -481,7 +497,6 @@ while(int(privilegios)<0):
     else:
         #privilegios = validarCredenciales(username,password)
         privilegios = 1 #Harcodeado
-    print("\n")
     
 if(int(privilegios)>0):
     while True:

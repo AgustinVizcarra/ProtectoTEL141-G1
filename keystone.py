@@ -20,6 +20,14 @@ class KeystoneAuth(object):
                             'domain': {'id': 'default'}
                         }
                     }
+                },
+                "scope": {
+                    "project": {
+                        "domain": {
+                            "id": "default"
+                        },
+                        "name": "admin"
+                    }
                 }
             }
         }
@@ -178,24 +186,23 @@ class KeystoneAuth(object):
             
                         if response.status_code == 201:
                             print("[*]Usuario actualizado exitosamente")
-                            
+                            print("[*]Se cerrará la aplicación.Vuelva a iniciar sesión nuevamente.")
                         else:
                             print("[*]Error al actualizar el usuario: {}".format(response.text))
                          
                     else:
                         print("[*]Error al asignar el rol: {}".format(response.text))
-                        return
 
 
     #Listar Roles
     def listar_roles(self):
-        response = requests.get(self.auth_url + '/roles', headers=self.headers)
+        response = requests.get(self.auth_url + '/roles', headers={'Content-Type': 'application/json',
+                                                    'X-Auth-Token': self.token})
         if response.status_code == 200:
-            roles = response.json().get('roles', [])
-            return roles
+            print(response.json().get('roles', []))
+            
         else:
             print(f"Error al listar los roles: {response.status_code} - {response.text}")
-            return None
 
     #Listar Usuario
     def list_users(self):
