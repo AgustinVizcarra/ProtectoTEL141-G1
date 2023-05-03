@@ -7,10 +7,8 @@ import requests
 """
 from getpass import getpass
 from keystone import KeystoneAuth
-import threading
-import paramiko
-#Array que contiene la direccion IP de los workers
-hashmapWorkers = {'Worker1':'192.168.200.201','Worker2':'192.168.200.202','Worker3':'192.168.200.203'}
+import threading # Para uso futuro
+import requests
 #Posteriormente se podría leer desde un archivo
 credenciales = {'admin':'admin'}
 jerarquias = {'admin':3}
@@ -38,6 +36,7 @@ def menuPrincipal(username):
 
 # Display info de servidores
 def menuInfoServidores():
+    print("|----------------------------------------------------------------|")
     print("|- Opción 1 -> Información de los servidores                     |")
     print("|- Opción 2 -> Editar el nivel máximo de sobre aprovisionamiento |")
     print("|- Opción 3 -> Mostrar el nivel máximo de sobre aprovisionamiento|")
@@ -78,80 +77,14 @@ def menuCrearTopologia():
     #Se crea aca la topologia y se guarda en db 
 
 # Funciones
-def obtenerInfoRemoto(ipWorker,nombre):
-    ssh = paramiko.SSHClient()
-    try: 
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        ssh.connect(ipWorker, username='ubuntu', password='##########')
-        cmd = "initial=$(cat /proc/stat | grep cpu | awk '{print $5}'); echo $initial; sleep 3; final=$(cat /proc/stat | grep cpu | awk '{print $5}'); echo $final"
-        stdin, stdout, stderr = ssh.exec_command(cmd)     
-        output = stdout.read().decode('utf-8')
-        size = int(len(output.replace("\n"," ").strip(" ").split(" ")))
-        informacionCPU1 = output.replace("\n"," ").strip(" ").split(" ")[:int(size/2)]
-        informacionCPU2 = output.replace("\n"," ").strip(" ").split(" ")[int(size/2):]
-        utilizacionCPU = []
-        for i in range(1,int(size/2)):
-            delta = int(informacionCPU2[i]) - int(informacionCPU1[i])
-            #Tener en cuenta que en 3 s hay 300 jiffys -> esto se podría hacer de manera dinámica
-            cpu_value = ((300-delta)/300)*100
-            utilizacionCPU.append(cpu_value)
-        #Recordar que el orden es primero el core 0 luego el core 1
-        #Posteriormente analizamos la memoria
-        ###############################################
-        cmd = "free -b | awk '/^Mem:/{printf \"%.1f GB , %.1f MB , %.1f GB\\n\", $2/1000000000, $3/1000000, $7/1000000000}'"
-        # grep -E "MemTotal|MemFree|MemAvailable" /proc/meminfo
-        # proc/meminfo -> probar
-        ###############################################
-        stdin, stdout, stderr = ssh.exec_command(cmd)     
-        output = stdout.read().decode('utf-8')
-        infoMemoria = output.replace("\n"," ").strip(" ").split(" ")
-        #Recordar 1° -> Memoria Total, 2° -> Memoria Usada, 3° -> Memoria Disponible
-        #Ahora analizamos el almacenamiento
-        cmd = "lsblk -o FSSIZE,FSUSED,FSUSE% | sed -n '9p'"
-        stdin, stdout, stderr = ssh.exec_command(cmd)     
-        output = stdout.read().decode('utf-8')
-        infoAlmacenamiento = output.replace("\n"," ").replace("   "," ").strip(" ").split(" ")
-        #Trabajar con los indices 0 1 3
-        #Ahora finalmente toca ver el networking
-        cmd = "cat /proc/net/dev | grep -E 'ens3|ens4' | awk '{print $2, $10}'; sleep 3;cat /proc/net/dev | grep -E 'ens3|ens4' | awk '{print $2, $10}'"
-        stdin, stdout, stderr = ssh.exec_command(cmd)     
-        output = stdout.read().decode('utf-8')
-        size = int(len(output.replace("\n"," ").strip(" ").split(" ")))
-        infoRed1 = sorted(int(valor) for valor in output.replace("\n"," ").strip(" ").split(" ")[:int(size/2)])
-        infoRed2 = sorted(int(valor) for valor in output.replace("\n"," ").strip(" ").split(" ")[int(size/2):])
-        velocidadTX = []
-        velocidadRX = []
-        for i in range(0,int(size/2)):
-            delta = infoRed2[i] - infoRed1[i]
-            if i%2 == 0:
-                velocidadRX.append(round(float(delta/3.0),1))
-            else:
-                velocidadTX.append(round(float(delta/3.0),1))
-        #Con toda la informacion recolectada toca mostrar los resultados
-        print("------------------"+nombre+"--------------------")
-        print("|-Informacion del CPU: ")
-        for i in range(len(utilizacionCPU)):
-            print("|-Core"+str(i)+": "+str(round(utilizacionCPU[i],1))+" %")
-        print("|-Consumo total: "+str(round(sum(utilizacionCPU),1))+" %")            
-        print("|-Informacion de la RAM: ")
-        print("| Memoria usada: "+infoMemoria[0]+" "+infoMemoria[1])
-        print("| Memoria disponible: "+infoMemoria[3]+" "+infoMemoria[4])
-        print("| Memoria total: "+infoMemoria[6]+" "+infoMemoria[7])
-        print("|-Informacion del almacenamiento: ")
-        print("| Almacenamiento usado: "+infoAlmacenamiento[1])
-        print("| Almacenamiento usado(%): "+infoAlmacenamiento[3])
-        print("| Almacenamiento total:"+ infoAlmacenamiento[0])
-        print("|-Informacion de red: ")
-        print("| Interfaz ens3 (RX): "+str(velocidadRX[0])+" Bps ")
-        print("| Interfaz ens3 (TX): "+str(velocidadTX[0])+" Bps ")
-        print("| Interfaz ens4 (RX): "+str(velocidadRX[1])+" Bps ")
-        print("| Interfaz ens4 (TX): "+str(velocidadTX[1])+" Bps ")
-        print("---------------------------------------------")
-    except Exception as e:
-        print(e)
-        print("El worker con direccion IP "+ipWorker+" se encuentra caido")
-    finally:
-        ssh.close()
+def obtenerInfoRemoto():
+    monitoringAPI = "http://10.20.12.39:9090/recursos"
+    response = requests.get(monitoringAPI,headers={'Content-Type': 'application/json'})
+    if response.status_code == 200:
+        return response.json()
+    else:
+        print("El servicio de monitoreo se encuentra caído")
+        return "Error"
         
 def mostrarNivelAprovionamiento():
     global nivelMaximoAprovisionamiento
@@ -183,19 +116,34 @@ def editarNivelAprovisionamiento():
         except Exception as e:
             print("Debe ingresar un valor entero!")
             
-def obtenerInfoServidores(workers):
-    workers_nombres = workers.keys()
-    #creacion de los hilos
-    hilos = []
-    for nombre_worker in workers_nombres:
-        hilos.append(threading.Thread(target=obtenerInfoRemoto,args=(workers[nombre_worker],nombre_worker)))
-    #inicio de los hilos
-    for hilo in hilos:
-        hilo.start()
-    #fin de los hilos:
-    for hilo in hilos:
-        hilo.join()
-
+def obtenerInfoServidores():
+    #Con toda la informacion recolectada toca mostrar los resultados
+    output = obtenerInfoRemoto()
+    if ( output == "Error"):
+        print("Hubo error obteniendo la información del cluster")
+    else:
+        workers  = output.keys()
+        for worker in workers:
+            infoWorker = output[worker]
+            print("------------------"+worker+"--------------------")
+            print("|-Informacion del CPU: ")
+            print("|-Core0 : "+infoWorker["Core0(%)"]+"%")
+            print("|-Core1 : "+infoWorker["Core1(%)"]+"%")       
+            print("|-Informacion de la RAM: ")
+            print("| Memoria usada: "+infoWorker["MemoriaUsada"])
+            print("| Memoria disponible: "+infoWorker["MemoriaDisponible"])
+            print("| Memoria total: "+infoWorker["MemoriaTotal"])
+            print("|-Informacion del almacenamiento: ")
+            print("| Almacenamiento usado: "+infoWorker["AlmacenamientoUsado"])
+            print("| Almacenamiento usado(%): "+infoWorker["AlmacenamientoUsado(%)"])
+            print("| Almacenamiento total:"+ infoWorker["AlmacenamientoTotal"])
+            print("|-Informacion de red: ")
+            print("| Interfaz ens3 (RX): "+str(infoWorker["ens3(RX)bps"])+"bps")
+            print("| Interfaz ens3 (TX): "+str(infoWorker["ens3(TX)bps"])+"bps")
+            print("| Interfaz ens4 (RX): "+str(infoWorker["ens4(RX)bps"])+"bps")
+            print("| Interfaz ens4 (TX): "+str(infoWorker["ens4(TX)bps"])+"bps")
+            print("---------------------------------------------")
+    
 #Crear Rol
 def crearRol():
     while True:
@@ -276,7 +224,7 @@ def menu(opcion,nivel,jerarquia):
                     print("Lo sentimos usted no tiene los privilegios para poder ingresar")
             elif(nivel == 1):
                 # No es necesario validar porque la validacion se hace a nivel de menu
-                obtenerInfoServidores(hashmapWorkers)
+                obtenerInfoServidores()
                 
             elif(nivel == 2):
                 pass #ELIMINAR

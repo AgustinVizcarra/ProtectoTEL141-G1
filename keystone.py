@@ -137,14 +137,6 @@ class KeystoneAuth(object):
         if user_id is None:
             print("[*]No se encontró un usuario con el nombre especificado")
             
-<<<<<<< HEAD
-            if response.status_code == 200:
-                roles = response.json()['roles']
-                for role in roles:
-                    if role['name'] == rol_name:
-                        role_id = role['id']
-                        break
-=======
         else:
             # Luego, actualizamos los campos del usuario
             user_data = {
@@ -152,7 +144,6 @@ class KeystoneAuth(object):
                     'id': user_id,
                 }
             }
->>>>>>> 3fb919534a6bd93e05e25e16572c2db7a9ac2eeb
             
             if password is not None:
                 user_data['user']['password'] = password
@@ -193,23 +184,6 @@ class KeystoneAuth(object):
                                     headers={'Content-Type': 'application/json',
                                             'X-Auth-Token': self.token})
             
-<<<<<<< HEAD
-            if response.status_code == 201:
-                print("Rol asignado exitosamente")
-            else:
-                print("Error al asignar el rol: {}".format(response.text))
-                return
-        
-        response = requests.patch(self.auth_url + '/users/' + user_id,
-                                json=user_data,
-                                headers={'Content-Type': 'application/json',
-                                        'X-Auth-Token': self.token})
-        
-        if response.status_code == 200:
-            print("Usuario actualizado exitosamente")
-        else:
-            print("Error al actualizar el usuario: {}".format(response.text))
-=======
                         if response.status_code == 201:
                             print("[*]Usuario actualizado exitosamente")
                             print("[*]Se cerrará la aplicación.Vuelva a iniciar sesión nuevamente.")
@@ -218,7 +192,6 @@ class KeystoneAuth(object):
                          
                     else:
                         print("[*]Error al asignar el rol: {}".format(response.text))
->>>>>>> 3fb919534a6bd93e05e25e16572c2db7a9ac2eeb
 
 
     #Listar Roles
