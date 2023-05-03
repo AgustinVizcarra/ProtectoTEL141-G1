@@ -58,11 +58,13 @@ def get_recursos():
     info = {}
     for x in collection:
         mycol = mydb[collection[x]]
-        data = mycol.find_one()
+        data = mycol.find().limit(1).sort("$natural",-1)
         print(collection[x])
-        data.pop("_id")
-        print(data)
-        info[collection[x]] = data
+        print(data[0])
+        infoW = data[0]
+        infoW.pop("_id")
+        print(infoW)
+        info[collection[x]] = infoW
     return info
 
 if __name__ == "__main__":
