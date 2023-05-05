@@ -194,8 +194,11 @@ def editarUsuario():
             rol = None
             if verificarRol == "Y":
                 rol = input("| Ingrese su nuevo rol: ")
+            
+            if (verificarPass == "N") and (verificarEmail=="N") and (verificarRol=="N"):
+                break 
                 
-            keystone.editar_usuario(username,password,email,rol)
+            keystone.editar_usuario(username,rol,password,email)
             
             break
             
