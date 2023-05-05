@@ -29,6 +29,8 @@ def menuPrincipal(username):
     print("|- Opción 6 -> Listar usuarios existentes                    |")
     print("|- Opción 7 -> Crear nuevo rol                               |")
     print("|- Opción 8 -> Listar roles existentes                       |")
+    print("|- Opción 10 -> Eliminar usuario existente                   |")
+    print("|- Opción 11 -> Eliminar rol existente                       |")
     print("|- Opcion 9 -> Salir                                         |")
     opcion = input("| Ingrese una opción: ")
     print("\n")
