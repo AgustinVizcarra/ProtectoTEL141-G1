@@ -180,21 +180,23 @@ class KeystoneAuth(object):
 
             
         user_id = None
-            
+        #print(len(response.json()['users']))   
         if response.status_code == 200:
             users = response.json()['users']
-            user_id = users[0]['id']
+            if len(response.json()['users'])==0:
+                user_id=None
+            else:
+                user_id = users[0]['id']
+
+        if user_id is None:
+            print("[*]No se encontró un usuario con el nombre especificado")
+                
+        else:    
             url="{}/users/{}/projects".format(self.auth_url,user_id)
             response = requests.get(url,headers={'Content-Type': 'application/json','X-Auth-Token': self.token})
             proyecto=response.json()['projects']
             project=proyecto[0]
             project_id = project['id']
-            
-                
-        if user_id is None:
-            print("[*]No se encontró un usuario con el nombre especificado")
-                
-        else:    
             # Actualizamos el rol del usuario si se especificó
             if rol_name is not None:
                 # Verificar si el usuario ya tiene un rol asignado en el proyecto
@@ -204,34 +206,42 @@ class KeystoneAuth(object):
                 if response.status_code == 200:
                     roles = response.json()['roles']
                     for role in roles:
-                        if role['name'] != rol_name:
-                            # Eliminar el rol anterior
-                            url = self.auth_url + '/projects/' + project_id + '/users/' + user_id + '/roles/' + role['id']
-                            response = requests.delete(url, headers={'X-Auth-Token': self.token})
-                            if response.status_code == 204:
-                                print("[*]Rol eliminado exitosamente")
-                                
-                                # Obtenemos el ID del nuevo rol
-                                response = requests.get(self.auth_url + '/roles',
-                                                        headers={'Content-Type': 'application/json',
-                                                                'X-Auth-Token': self.token})
-                                role_id = None 
-                                #print(rol_name)
-                                #print(response.status_code)
-                                if response.status_code == 200:
-                                    roles = response.json()['roles']
-                                    for role in roles:
-                                        #print(role['name'])
-                                        if role['name'] == rol_name:
-                                            role_id = role['id']
-                                            break
-                                            
-                                if role_id is None:
-                                    print("[*]No se encontró el rol especificado")
+
+                        response = requests.get(self.auth_url + '/roles', headers={'Content-Type': 'application/json','X-Auth-Token': self.token})
+                       
+                        if response.status_code == 200:
+                            rolsitos=response.json().get('roles')
+                            rol_exist=False
+                            for rolsito in rolsitos:
+                                if rolsito['name']==rol_name:
+                                    rol_exist=True
+                                    break
+                            if rol_exist:
+                                # Eliminar el rol anterior
+                                url = self.auth_url + '/projects/' + project_id + '/users/' + user_id + '/roles/' + role['id']
+                                response = requests.delete(url, headers={'X-Auth-Token': self.token})
+                                if response.status_code == 204:
+                                    print("[*]Rol eliminado exitosamente")
+                                    
+                                    '''# Obtenemos el ID del nuevo rol
+                                    response = requests.get(self.auth_url + '/roles',
+                                                            headers={'Content-Type': 'application/json',
+                                                                    'X-Auth-Token': self.token})
+                                    role_id = None 
+                                    if response.status_code == 200:
+                                        roles = response.json()['roles']
+                                        for role in roles:
+                                            #print(role['name'])
+                                            if role['name'] == rol_name:
+                                                role_id = role['id']
+                                                break
                                                 
-                                else:
+                                    if role_id is None:
+                                        print("[*]No se encontró el rol especificado")'''
+                                                    
+                                    '''else:'''
                                     # Actualizamos el rol del usuario
-                                    url = "{}/projects/{}/users/{}/roles/{}".format(self.auth_url, project_id, user_id, role_id)
+                                    url = "{}/projects/{}/users/{}/roles/{}".format(self.auth_url, project_id, user_id, rolsito['id'])
                                     response = requests.put(url,
                                                             headers={'Content-Type': 'application/json',
                                                                     'X-Auth-Token': self.token})
@@ -240,10 +250,8 @@ class KeystoneAuth(object):
                                         print("[*]Rol asignado exitosamente")
                                     else:
                                         print("[*]Error al asignar el rol: {}".format(response.text))
-                                 
                             else:
-                                print("[*]Error al eliminar el rol: {}".format(response.text))
-                            
+                                print("El rol especificado no existe")
             # Actualizamos el email y/o contraseña del usuario si se especificaron
             if ((email is not None) or (password is not None)):
                 user_data = {}
@@ -260,6 +268,74 @@ class KeystoneAuth(object):
                     print("[*]Usuario actualizado exitosamente")
                 else:
                     print("[*]Error al actualizar el usuario: {}".format(response.text))
+
+    #Eliminar usuario
+    def delete_user(self,username):
+        response=requests.get(self.auth_url+'/users?name=' + username,
+                              headers={'Content-Type':'application/json','X-Auth-Token':self.token})
+        
+        user_id=None
+
+        if response.status_code==200:
+            if len(response.json()['users'])==0:
+                user_id=None
+            else:
+                user_id = users[0]['id']
+        if user_id is not None:
+            response=requests.delete(self.auth_url+'/users/'+user_id,headers={'Content-Type': 'application/json',
+                                        'X-Auth-Token': self.token})
+            if response.status_code == 204:
+                print("[*]Usuario eliminado exitosamente")
+            else:
+                print("[*]Error al eliminar el usuario: {}".format(response.text))
+
+
+    #Eliminar Rol
+    def delete_rol(self, rol_name):
+        # Obtener el ID del rol
+        response = requests.get(self.auth_url + '/roles?name=' + rol_name,
+                                headers={'Content-Type': 'application/json',
+                                        'X-Auth-Token': self.token})
+        if response.status_code == 200:
+            roles = response.json()['roles']
+            if len(roles) == 0:
+                print("[*]El rol especificado no existe")
+                return
+                
+            role_id = roles[0]['id']
+                
+            # Verificar si hay usuarios asignados a este rol
+            response = requests.get(self.auth_url + '/roles/' + role_id + '/users',
+                                    headers={'Content-Type': 'application/json',
+                                            'X-Auth-Token': self.token})
+
+            
+            if response.status_code == 200:
+                users = response.json()['users']
+                if len(users) > 0:
+                    print("[*]Hay usuarios asignados a este rol. ¿Está seguro de que desea eliminar el rol? (s/n)")
+                    respuesta = input()
+                    if respuesta.lower() == 'n':
+                        return
+            
+            # Eliminar el rol
+            response = requests.delete(self.auth_url + '/roles/' + role_id,
+                                    headers={'Content-Type': 'application/json',
+                                                'X-Auth-Token': self.token})
+            if response.status_code == 204:
+                print("[*]Rol eliminado exitosamente")
+            else:
+                print("[*]Error al eliminar el rol: {}".format(response.text))
+        else:
+            print("[*]Error al obtener el ID del rol: {}".format(response.text))
+
+
+
+
+
+
+
+
 
     #Listar Roles
     def listar_roles(self):
