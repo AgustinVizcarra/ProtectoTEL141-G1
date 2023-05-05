@@ -178,23 +178,17 @@ class KeystoneAuth(object):
         response = requests.get(self.auth_url + '/users?name=' + username,
                                 headers={'Content-Type': 'application/json',
                                         'X-Auth-Token': self.token})
-
-        usuario=response.json()['users']
-        if len(usuario) > 0:
-            user = usuario[0]  # Obtener el primer usuario de la lista
-            id_user=user['id']
-            url="{}/users/{}/projects".format(self.auth_url,id_user)
-            response = requests.get(url,headers={'Content-Type': 'application/json','X-Auth-Token': self.token})
-            print(response.json())
-
-        else:
-            print(f"No se encontró el usuario con nombre {username}")
-        
+                
         user_id = None
         
         if response.status_code == 200:
             users = response.json()['users']
             user_id = users[0]['id']
+            url="{}/users/{}/projects".format(self.auth_url,user_id)
+            response = requests.get(url,headers={'Content-Type': 'application/json','X-Auth-Token': self.token})
+            proyecto=response.json()['projects']
+            project=proyecto[0]
+            id_project=project['id']
             
         if user_id is None:
             print("[*]No se encontró un usuario con el nombre especificado")
@@ -232,20 +226,20 @@ class KeystoneAuth(object):
                     
                 else:
                     # Asignamos el nuevo rol al usuario
-                    url = "{}/projects/{}/roles/{}/users/{}".format(self.auth_url,project_id, role_id, username)
+                    url = "{}/projects/{}/users/{}/roles/{}".format(self.auth_url,id_project,user_id,role_id)
                     response = requests.put(url,
                                             headers={'Content-Type': 'application/json',
                                                     'X-Auth-Token': self.token})
-                    
-                    if response.status_code == 201:
+                                     
+                    if response.status_code == 204:
                         print("[*]Rol asignado exitosamente")
                         
                         response = requests.patch(self.auth_url + '/users/' + user_id,
                                     json=user_data,
                                     headers={'Content-Type': 'application/json',
                                             'X-Auth-Token': self.token})
-            
-                        if response.status_code == 201:
+                        print(response.status_code)
+                        if response.status_code == 200:
                             print("[*]Usuario actualizado exitosamente")
                             print("[*]Se cerrará la aplicación.Vuelva a iniciar sesión nuevamente.")
                         else:
@@ -271,7 +265,7 @@ class KeystoneAuth(object):
         response = requests.get(self.auth_url + '/users',
                                 headers={'Content-Type': 'application/json',
                                         'X-Auth-Token': self.token})
-        print(response.json())
+        #print(response.json())
 
         
 
