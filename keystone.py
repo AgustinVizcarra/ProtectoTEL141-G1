@@ -303,7 +303,6 @@ class KeystoneAuth(object):
                 return
                 
             role_id = roles[0]['id']
-                
             # Verificar si hay usuarios asignados a este rol
             response = requests.get(self.auth_url + '/roles/' + role_id + '/users',
                                     headers={'Content-Type': 'application/json',
@@ -328,15 +327,6 @@ class KeystoneAuth(object):
                 print("[*]Error al eliminar el rol: {}".format(response.text))
         else:
             print("[*]Error al obtener el ID del rol: {}".format(response.text))
-
-
-
-
-
-
-
-
-
     #Listar Roles
     def listar_roles(self):
         response = requests.get(self.auth_url + '/roles', headers={'Content-Type': 'application/json',
