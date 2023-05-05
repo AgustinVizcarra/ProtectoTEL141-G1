@@ -148,8 +148,7 @@ def obtenerInfoServidores():
 def crearRol():
     while True:
         nombreRol = input("| Ingrese el nombre del rol: ")
-        
-        if(nombreRol is not None):
+        if(nombreRol != ''):
             descripcionRol = input("| Ingrese una descripción del rol: ")
             keystone.crear_Rol(nombreRol, descripcionRol)
             break
@@ -162,14 +161,22 @@ def crearRol():
 def crearUsuario():
     while True:
         username = input("| Ingrese un nombre de usuario: ")
-        
-        if(username is not None):
-            password = getpass("| Ingrese su contraseña: ")
-            email = input("| Ingrese una dirección de correo: ")
-            rol_name = input("| Ingrese un rol al usuario: ") #O tiene que ser ya uno por defecto?
-            keystone.crear_usuario(username, password, email, rol_name)
-            break
-            
+        if(username != ''):
+            while True:
+                password = getpass("| Ingrese su contraseña: ")
+                if(password != ''):
+                    email = input("| Ingrese una dirección de correo: ") #Es obligatorio ingresar un correo?
+                    while True:
+                        rol_name = input("| Ingrese un rol al usuario: ")
+                        if(rol_name != ''):
+                            keystone.crear_usuario(username, password, email, rol_name)
+                            return
+                        else:
+                            print("[*]Ingrese un rol válido")
+                        continue
+                else:
+                    print("[*]Ingrese una contraseña válida")
+                    continue
         else:
             print("[*]Ingrese un nombre de usuario válido")
             continue
@@ -177,25 +184,37 @@ def crearUsuario():
 #Editar Usuario
 def editarUsuario():
     while True:
-        username = input("| Ingrese su nombre de usuario: ")
-        
-        if(username is not None):
+        username = input("| Ingrese un nombre de usuario: ")
+        if(username != ''):
             verificarPass = input("| ¿Desea cambiar su contraseña?[Y/N]: ")
             password = None
-            if verificarPass == "Y":
-                password = getpass("| Ingrese su nueva contraseña: ")
-
+            if verificarPass == "Y" or verificarPass == "y":
+                while True:
+                    password = getpass("| Ingrese la nueva contraseña: ")
+                    if(password == ''):
+                        print("[*]Ingrese una contraseña válida")
+                        continue
+                    else:
+                        break
+                    
             verificarEmail = input("| ¿Desea cambiar su email?[Y/N]: ")
             email = None
-            if verificarEmail == "Y":
-                email = input("| Ingrese su nueva dirección de correo: ")
+            if verificarEmail == "Y" or verificarEmail == "y":
+                email = input("| Ingrese la nueva dirección de correo: ") #Es obligatorio ingresar un correo?
             
             verificarRol = input("| ¿Desea cambiar su rol?[Y/N]: ")
             rol = None
-            if verificarRol == "Y":
-                rol = input("| Ingrese su nuevo rol: ")
-            
+            if verificarRol == "Y" or verificarRol == "y":
+                while True:
+                    rol = input("| Ingrese el nuevo rol: ")
+                    if (rol == ''):
+                        print("[*]Ingrese un rol válido")
+                        continue
+                    else:
+                        break
+                    
             if (verificarPass == "N") and (verificarEmail=="N") and (verificarRol=="N"):
+                print("[*]No te creas hábil ctm")
                 break 
                 
             keystone.editar_usuario(username,rol,password,email)
@@ -309,7 +328,6 @@ def menu(opcion,nivel,jerarquia):
                 # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
                 if(jerarquia == 3 or jerarquia == 1):
                     editarUsuario()
-                    return False
                 
                 else:
                     #Quiere decir que no tengo los privilegios para poder ingresar
@@ -441,13 +459,18 @@ while(int(privilegios)<0):
     
     keystone = KeystoneAuth(username, password)
     tokensito = getTokensito(keystone)
-    print("Tu tokensito es: "+str(tokensito))
+    #print("Tu tokensito es: "+str(tokensito))
     
     if tokensito == None:
         privilegios = 0
+        
     else:
+        rol = keystone.getUserRol(username)
+        if rol == "admin":
+            privilegios = 1
+        else:
+            privilegios = 2
         #privilegios = validarCredenciales(username,password)
-        privilegios = 1 #Harcodeado
     
 if(int(privilegios)>0):
     while True:
