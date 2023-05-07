@@ -177,8 +177,8 @@ def eliminarUsuario():
     while True:
         nombreUsuario = input("| Ingrese el nombre de usuario a eliminar: ")
         if(nombreUsuario != ''):
-            keystone.delete_user(nombreUsuario)
-            break
+            keystone.delete_user(nombreUsuario)   
+            return nombreUsuario
         
         else:
             print("[*]Ingrese un nombre de usuario válido")
@@ -429,7 +429,11 @@ def menu(opcion,nivel,jerarquia):
             if(nivel == 0):
                  # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
                 if(jerarquia == 3 or jerarquia == 1):
-                    eliminarUsuario()    
+                    name = eliminarUsuario()
+                    if name == username:
+                        print("[*]Se cerrará su sesión. Vuelva a logearse")
+                        return False    
+                        
                 else:
                     #Quiere decir que no tengo los privilegios para poder ingresar
                     print("Lo sentimos usted no tiene los privilegios para poder ingresar")

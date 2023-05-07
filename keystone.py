@@ -377,6 +377,7 @@ class KeystoneAuth(object):
         if response.status_code == 200:
         # Imprimir id y nombre de cada usuario
             users = response.json()['users']
+            print("Usuarios con rol en el proyecto:")
             for user in users:
                 url='{}/projects/{}/users/{}/roles'.format(self.auth_url,project_id,user['id'])
                 headers = {
