@@ -29,9 +29,9 @@ def menuPrincipal(username):
     print("|- Opción 6 -> Listar usuarios existentes                    |")
     print("|- Opción 7 -> Crear nuevo rol                               |")
     print("|- Opción 8 -> Listar roles existentes                       |")
-    print("|- Opción 10 -> Eliminar usuario existente                   |")
-    print("|- Opción 11 -> Eliminar rol existente                       |")
-    print("|- Opcion 9 -> Salir                                         |")
+    print("|- Opción 9 -> Eliminar usuario existente                    |")
+    print("|- Opción 10 -> Eliminar rol existente                       |")
+    print("|- Opcion 11 -> Salir                                        |")
     opcion = input("| Ingrese una opción: ")
     print("\n")
     return opcion
@@ -157,6 +157,31 @@ def crearRol():
         
         else:
             print("[*]Ingrese un nombre de rol válido")
+            continue
+
+
+#Eliminar Rol
+def eliminarRol():
+    while True:
+        nombreRol = input("| Ingrese el nombre del rol a eliminar: ")
+        if(nombreRol != ''):
+            keystone.delete_rol(nombreRol)
+            break
+        
+        else:
+            print("[*]Ingrese un nombre de rol válido")
+            continue
+        
+#Eliminar Usuario
+def eliminarUsuario():
+    while True:
+        nombreUsuario = input("| Ingrese el nombre de usuario a eliminar: ")
+        if(nombreUsuario != ''):
+            keystone.delete_user(nombreUsuario)
+            break
+        
+        else:
+            print("[*]Ingrese un nombre de usuario válido")
             continue
 
 #Crear Usuario
@@ -401,6 +426,29 @@ def menu(opcion,nivel,jerarquia):
             return True
         
         elif opcion == 9:
+            if(nivel == 0):
+                 # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
+                if(jerarquia == 3 or jerarquia == 1):
+                    eliminarUsuario()    
+                else:
+                    #Quiere decir que no tengo los privilegios para poder ingresar
+                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
+                
+            return True
+        
+        
+        elif opcion == 10:
+            if(nivel == 0):
+                 # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
+                if(jerarquia == 3 or jerarquia == 1):
+                    eliminarRol()    
+                else:
+                    #Quiere decir que no tengo los privilegios para poder ingresar
+                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
+                
+            return True
+            
+        elif opcion == 11:
             return False
         
         else:

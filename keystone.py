@@ -277,6 +277,7 @@ class KeystoneAuth(object):
         user_id=None
 
         if response.status_code==200:
+            users = response.json()['users']
             if len(response.json()['users'])==0:
                 user_id=None
             else:
@@ -288,7 +289,8 @@ class KeystoneAuth(object):
                 print("[*]Usuario eliminado exitosamente")
             else:
                 print("[*]Error al eliminar el usuario: {}".format(response.text))
-
+        else:
+            print("[*]Error al eliminar el usuario")
 
     #Eliminar Rol
     def delete_rol(self, rol_name):
