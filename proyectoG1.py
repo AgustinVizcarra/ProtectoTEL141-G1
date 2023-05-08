@@ -9,6 +9,7 @@ from getpass import getpass
 from keystone import KeystoneAuth
 import threading # Para uso futuro
 import requests
+
 #Posteriormente se podría leer desde un archivo
 credenciales = {'admin':'admin'}
 jerarquias = {'admin':3}
@@ -148,10 +149,17 @@ def obtenerInfoServidores():
     
 #Crear Rol
 def crearRol():
+    print("**Escriba ESC para poder salir de esta opción**")
     while True:
         nombreRol = input("| Ingrese el nombre del rol: ")
         if(nombreRol != ''):
+            if(nombreRol == "ESC"):
+                print("[*]Ha salido de la opción de -Crear Rol-")
+                return
             descripcionRol = input("| Ingrese una descripción del rol: ")
+            if(descripcionRol == "ESC"):
+                print("[*]Ha salido de la opción de -Crear Rol-")
+                return
             keystone.crear_Rol(nombreRol, descripcionRol)
             break
         
@@ -162,9 +170,13 @@ def crearRol():
 
 #Eliminar Rol
 def eliminarRol():
+    print("**Escriba ESC para poder salir de esta opción**")
     while True:
         nombreRol = input("| Ingrese el nombre del rol a eliminar: ")
         if(nombreRol != ''):
+            if(nombreRol == "ESC"):
+                print("[*]Ha salido de la opción de -Eliminar Rol-")
+                return
             keystone.delete_rol(nombreRol)
             break
         
@@ -174,9 +186,13 @@ def eliminarRol():
         
 #Eliminar Usuario
 def eliminarUsuario():
+    print("**Escriba ESC para poder salir de esta opción**")
     while True:
         nombreUsuario = input("| Ingrese el nombre de usuario a eliminar: ")
         if(nombreUsuario != ''):
+            if(nombreUsuario == "ESC"):
+                print("[*]Ha salido de la opción de -Eliminar Usuario-")
+                return
             keystone.delete_user(nombreUsuario)   
             return nombreUsuario
         
@@ -186,16 +202,29 @@ def eliminarUsuario():
 
 #Crear Usuario
 def crearUsuario():
+    print("**Escriba ESC para poder salir de esta opción**")
     while True:
         username = input("| Ingrese un nombre de usuario: ")
         if(username != ''):
+            if(username == "ESC"):
+                print("[*]Ha salido de la opción de -Crear Usuario-")
+                return
             while True:
                 password = getpass("| Ingrese su contraseña: ")
                 if(password != ''):
-                    email = input("| Ingrese una dirección de correo: ") #Es obligatorio ingresar un correo?
+                    if(password == "ESC"):
+                        print("[*]Ha salido de la opción de -Crear Usuario-")
+                        return
+                    email = input("| Ingrese una dirección de correo: ")
+                    if(email == "ESC"):
+                        print("[*]Ha salido de la opción de -Crear Usuario-")
+                        return
                     while True:
                         rol_name = input("| Ingrese un rol al usuario: ")
                         if(rol_name != ''):
+                            if(rol_name == "ESC"):
+                                print("[*]Ha salido de la opción de -Crear Usuario-")
+                                return
                             keystone.crear_usuario(username, password, email, rol_name)
                             return
                         else:
@@ -210,9 +239,14 @@ def crearUsuario():
 
 #Editar Usuario
 def editarUsuario():
+    print("**Escriba ESC para poder salir de esta opción**")
     while True:
         username = input("| Ingrese un nombre de usuario: ")
         if(username != ''):
+            if(username == "ESC"):
+                print("[*]Ha salido de la opción de -Editar Usuario-")
+                return
+            
             verificarPass = input("| ¿Desea cambiar su contraseña?[Y/N]: ")
             password = None
             if verificarPass == "Y" or verificarPass == "y":
@@ -222,12 +256,25 @@ def editarUsuario():
                         print("[*]Ingrese una contraseña válida")
                         continue
                     else:
+                        if(password == "ESC"):
+                            print("[*]Ha salido de la opción de -Editar Usuario-")
+                            return
                         break
+            elif(verificarPass == "ESC"):
+                print("[*]Ha salido de la opción de -Editar Usuario-")
+                return     
                     
             verificarEmail = input("| ¿Desea cambiar su email?[Y/N]: ")
             email = None
             if verificarEmail == "Y" or verificarEmail == "y":
-                email = input("| Ingrese la nueva dirección de correo: ") #Es obligatorio ingresar un correo?
+                email = input("| Ingrese la nueva dirección de correo: ")
+                if(email == "ESC"):
+                    print("[*]Ha salido de la opción de -Editar Usuario-")
+                    return 
+                
+            elif(verificarEmail == "ESC"):
+                print("[*]Ha salido de la opción de -Editar Usuario-")
+                return
             
             verificarRol = input("| ¿Desea cambiar su rol?[Y/N]: ")
             rol = None
@@ -238,10 +285,16 @@ def editarUsuario():
                         print("[*]Ingrese un rol válido")
                         continue
                     else:
+                        if(rol == "ESC"):
+                            print("[*]Ha salido de la opción de -Editar Usuario-")
+                            return
                         break
+            elif(verificarRol == "ESC"):
+                print("[*]Ha salido de la opción de -Editar Usuario-")
+                return 
                     
             if (verificarPass == "N") and (verificarEmail=="N") and (verificarRol=="N"):
-                print("[*]No te creas hábil ctm")
+                print("[*]Ha decidido no realizar ningún cambio al usuario")
                 break 
                 
             keystone.editar_usuario(username,rol,password,email)
@@ -507,6 +560,7 @@ print("|                Agustin Vizcarra Lizarbe (L)               |")
 print("-------------------------------------------------------------")
 print("|-----------------Ingrese sus crendenciales-----------------|")
 privilegios = -1
+
 while(int(privilegios)<0):
     username = input("| Ingrese su nombre de usuario: ")
     password = getpass("| Ingrese su contraseña: ")
