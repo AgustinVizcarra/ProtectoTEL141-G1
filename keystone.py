@@ -1,6 +1,6 @@
 import requests
 import time
-
+import json
 class KeystoneAuth(object):
     def __init__(self,username, password):
         self.auth_url = "http://10.20.12.39:5000/v3"
@@ -334,7 +334,7 @@ class KeystoneAuth(object):
         response = requests.get(self.auth_url + '/roles', headers={'Content-Type': 'application/json',
                                                     'X-Auth-Token': self.token})
         if response.status_code == 200:
-            print(response.json().get('roles', []))
+            print(json.dumps(response.json().get('roles', []), indent=2))
         
         else:
             print(f"Error al listar los roles: {response.status_code} - {response.text}")
@@ -346,7 +346,10 @@ class KeystoneAuth(object):
         response = requests.get(self.auth_url + '/users',
                                 headers={'Content-Type': 'application/json',
                                         'X-Auth-Token': self.token})
-        print(response.json())
+    
+        print(json.dumps(response.json(), indent=2))
+        print("")
+        
         # Obtener lista de proyectos
         url = '{}/projects'.format(self.auth_url)
         headers = {
