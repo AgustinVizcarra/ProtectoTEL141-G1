@@ -49,6 +49,35 @@ class KeystoneAuth(object):
 
         return self.token
     
+    #Obtener TOKEN de ADMIN
+    def get_token_admin(self):
+        auth_data = {
+            'auth': {
+                'identity': {
+                    'methods': ['password'],
+                    'password': {
+                        'user': {
+                            'name': "admin",
+                            'password': "alonso",
+                            'domain': {'id': 'default'}
+                        }
+                    }
+                },
+                "scope": {
+                    "project": {
+                        "domain": {
+                            "id": "default"
+                        },
+                        "name": "admin"
+                    }
+                }
+            }
+        }
+        response = requests.post(self.auth_url+"/auth/tokens",
+                                 json=auth_data,
+                                 headers=self.headers)
+
+        self.token = response.headers['X-Subject-Token']
     
     #Crear rol
     def crear_Rol(self, name, description):
@@ -329,6 +358,7 @@ class KeystoneAuth(object):
                 print("[*]Error al eliminar el rol: {}".format(response.text))
         else:
             print("[*]Error al obtener el ID del rol: {}".format(response.text))
+            
     #Listar Roles
     def listar_roles(self):
         response = requests.get(self.auth_url + '/roles', headers={'Content-Type': 'application/json',
