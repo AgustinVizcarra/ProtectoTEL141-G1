@@ -1,13 +1,26 @@
 import requests
 import time
 import json
+import hashlib
+
 class KeystoneAuth(object):
     def __init__(self,username, password):
+        
+        #Obtener el hash 256 de la cadena
+        #hash_object=hashlib.sha256(username.encode())
+        #hash_ex_username=hash_object.hexdigest()
+
+        #hash_object1=hashlib.sha256(password.encode())
+        #hash_ex_password=hash_object1.hexdigest()
+        
         self.auth_url = "http://10.20.12.39:5000/v3"
         self.username = username
         self.password = password
         self.token = None
         self.headers = {'Content-Type': 'application/json'}
+
+        #print(self.username)
+        #print(self.password)
 
     #Obtener TOKEN
     def get_token(self):
@@ -17,8 +30,8 @@ class KeystoneAuth(object):
                     'methods': ['password'],
                     'password': {
                         'user': {
-                            'name': self.username,
-                            'password': self.password,
+                            'name': self.username, 
+                            'password': self.password, 
                             'domain': {'id': 'default'}
                         }
                     }
@@ -74,8 +87,8 @@ class KeystoneAuth(object):
             }
         }
         response = requests.post(self.auth_url+"/auth/tokens",
-                                 json=auth_data,
-                                 headers=self.headers)
+                                json=auth_data,
+                                headers=self.headers) 
 
         self.token = response.headers['X-Subject-Token']
     
@@ -201,7 +214,7 @@ class KeystoneAuth(object):
 
 
     #Editar usuario y Rol
-    def editar_usuario(self, username, rol_name, email, password):
+    def editar_usuario(self, username, rol_name, password, email):
         # Primero, obtenemos el ID del usuario
         response = requests.get(self.auth_url + '/users?name=' + username,
                                 headers={'Content-Type': 'application/json',
@@ -251,24 +264,7 @@ class KeystoneAuth(object):
                                 response = requests.delete(url, headers={'X-Auth-Token': self.token})
                                 if response.status_code == 204:
                                     print("[*]Rol eliminado exitosamente")
-                                    
-                                    '''# Obtenemos el ID del nuevo rol
-                                    response = requests.get(self.auth_url + '/roles',
-                                                            headers={'Content-Type': 'application/json',
-                                                                    'X-Auth-Token': self.token})
-                                    role_id = None 
-                                    if response.status_code == 200:
-                                        roles = response.json()['roles']
-                                        for role in roles:
-                                            #print(role['name'])
-                                            if role['name'] == rol_name:
-                                                role_id = role['id']
-                                                break
-                                                
-                                    if role_id is None:
-                                        print("[*]No se encontró el rol especificado")'''
-                                                    
-                                    '''else:'''
+
                                     # Actualizamos el rol del usuario
                                     url = "{}/projects/{}/users/{}/roles/{}".format(self.auth_url, project_id, user_id, rolsito['id'])
                                     response = requests.put(url,
@@ -282,21 +278,27 @@ class KeystoneAuth(object):
                             else:
                                 print("El rol especificado no existe")
             # Actualizamos el email y/o contraseña del usuario si se especificaron
-            if ((email is not None) or (password is not None)):
-                user_data = {}
-                if email is not None:
-                    user_data['email'] = email
+            if ( (password is not None) or (email is not None)):
+                user_data = {'user': {}}
                 if password is not None:
-                    user_data['password'] = password
-                url = "{}/users/{}".format(self.auth_url, user_id)
-                response = requests.patch(url,
-                                        headers={'Content-Type': 'application/json',
-                                                'X-Auth-Token': self.token},
-                                        json=user_data)
-                if response.status_code == 200:
-                    print("[*]Usuario actualizado exitosamente")
+                    user_data['user']['password'] = password
+                if email is not None:
+                    user_data['user']['email'] = email
+                print(user_data)
+                if not user_data:
+                    print("[*] No se especificaron propiedades para actualizar")
                 else:
-                    print("[*]Error al actualizar el usuario: {}".format(response.text))
+                    url = "{}/users/{}".format(self.auth_url, user_id)
+                    response = requests.patch(url,
+                                            headers={'Content-Type': 'application/json',
+                                                    'X-Auth-Token': self.token},
+                                            json=user_data)
+                    if response.status_code == 200:
+                        print("[*]Usuario actualizado exitosamente")
+                    else:
+                        #print("No se logró")
+                        #print("[*]Error al actualizar el usuario: {}".format(response.text))
+                        print("[*]Respuesta JSON del servidor: {}".format(response.json()))
 
     #Eliminar usuario
     def delete_user(self,username):
