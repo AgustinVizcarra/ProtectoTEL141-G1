@@ -19,64 +19,124 @@ nivelMaximoAprovisionamiento = 0
 
 ############################################    F   U   N   C   I   O   N   E   S   ############################################
 # Display principal
-def menuPrincipal(username):
+def menuPrincipal(username,privilegios):
     print("\n")
     print("   |---------Bienvenido "+username+" al menú principal----------|")
-    print("|- Opción 1 -> Información del consumo de recursos           |")
-    print("|- Opción 2 -> Información de los recursos creados           |")
-    print("|- Opción 3 -> Información de topologías                     |")
-    print("|- Opción 4 -> Crear nuevo usuario                           |")
-    print("|- Opción 5 -> Editar usuario existente                      |")
-    print("|- Opción 6 -> Listar usuarios existentes                    |")
-    print("|- Opción 7 -> Crear nuevo rol                               |")
-    print("|- Opción 8 -> Listar roles existentes                       |")
-    print("|- Opción 9 -> Eliminar usuario existente                    |")
-    print("|- Opción 10 -> Eliminar rol existente                       |")
-    print("|- Opcion 11 -> Salir                                        |")
-    opcion = input("| Ingrese una opción: ")
+    
+    if (privilegios == 1):
+        print("|- Opción 1 -> Información del consumo de recursos           |")
+        #print("|- Opción 2 -> Información de los recursos creados           |")
+        #print("|- Opción 3 -> Información de topologías                     |")
+        print("|- Opción 4 -> Crear nuevo usuario                           |")
+        print("|- Opción 5 -> Editar usuario existente                      |") 
+        print("|- Opción 6 -> Listar usuarios existentes                    |") 
+        print("|- Opción 7 -> Crear nuevo rol                               |") 
+        print("|- Opción 8 -> Listar roles existentes                       |") 
+        print("|- Opción 9 -> Eliminar usuario existente                    |") 
+        print("|- Opción 10 -> Eliminar rol existente                       |") 
+        print("|- Opcion 11 -> Salir                                        |") 
+        opcion = input("| Ingrese una opción: ")
+            
+        if (opcion == 2 or opcion == 3):
+            opcion = 20 #Le mapeamos una opcion incorrecta
+            
+            
+    elif (privilegios == 2):
+        print("|- Opción 1 -> Información del consumo de recursos           |")
+        #print("|- Opción 2 -> Información de los recursos creados           |")
+        #print("|- Opción 3 -> Información de topologías                     |")
+        print("|- Opción 4 -> Crear nuevo usuario                           |")
+        print("|- Opción 5 -> Editar usuario existente                      |")
+        print("|- Opción 7 -> Crear nuevo rol                               |")
+        print("|- Opción 9 -> Eliminar usuario existente                    |")
+        print("|- Opción 10 -> Eliminar rol existente                       |")
+        print("|- Opcion 11 -> Salir                                        |")
+        opcion = input("| Ingrese una opción: ")
+        
+        if (opcion == 2 or opcion == 3 or opcion == 6 or opcion == 8):
+            opcion = 20 #Le mapeamos una opcion incorrecta
+        
+    else:
+        print("|- Opción 1 -> Información del consumo de recursos           |")
+        print("|- Opción 6 -> Listar usuarios existentes                    |")
+        print("|- Opción 8 -> Listar roles existentes                       |")
+        print("|- Opcion 11 -> Salir                                        |")
+        opcion = input("| Ingrese una opción: ")
+
+        if (opcion == 2 or opcion == 3 or opcion == 4 or opcion == 5 or opcion == 7 or opcion == 9 or opcion == 10):
+            opcion = 20 #Le mapeamos una opcion incorrecta
+        
     print("\n")
+    
+    
     return opcion
 
 # Display info de servidores
-def menuInfoServidores():
+def menuInfoServidores(privilegios):
     print("|----------------------------------------------------------------|")
-    print("|- Opción 1 -> Información de los servidores                     |")
-    print("|- Opción 2 -> Editar el nivel máximo de sobre aprovisionamiento |")
-    print("|- Opción 3 -> Mostrar el nivel máximo de sobre aprovisionamiento|")
-    print("|- Otras opciones proximamente ...                               |")
-    print("|- Opcion 9 -> Salir                                             |")
-    opcion = input("| Ingrese una opción: ")
+    
+    if privilegios == 1:
+        print("|- Opción 1 -> Información de los servidores                     |")
+        print("|- Opción 2 -> Editar el nivel máximo de sobre aprovisionamiento |")
+        print("|- Opción 3 -> Mostrar el nivel máximo de sobre aprovisionamiento|")
+        print("|- Otras opciones proximamente ...                               |")
+        print("|- Opcion 11 -> Salir                                            |")
+        opcion = input("| Ingrese una opción: ")
+        
+    elif privilegios == 2:
+        #print("|- Opción 1 -> Información de los servidores                     |")
+        print("|- Opción 2 -> Editar el nivel máximo de sobre aprovisionamiento |")
+        #print("|- Opción 3 -> Mostrar el nivel máximo de sobre aprovisionamiento|")
+        print("|- Otras opciones proximamente ...                               |")
+        print("|- Opcion 11 -> Salir                                            |")
+        opcion = input("| Ingrese una opción: ")
+        
+        if (opcion == 1 or opcion == 3):
+            opcion = 4 #Le mapeamos una opcion incorrecta
+        
+    else:
+        print("|- Opción 1 -> Información de los servidores                     |")
+        #print("|- Opción 2 -> Editar el nivel máximo de sobre aprovisionamiento |")
+        print("|- Opción 3 -> Mostrar el nivel máximo de sobre aprovisionamiento|")
+        print("|- Otras opciones proximamente ...                               |")
+        print("|- Opcion 11 -> Salir                                            |")
+        opcion = input("| Ingrese una opción: ")
+    
+        if (opcion == 2):
+            opcion = 4 #Le mapeamos una opcion incorrecta
+    
+    
     print("\n")
     return opcion
 
 # Display info topology
-def menuInfoTopologias():
-    print("|----------------------------------------------------------------|")
-    print("|- Opción 1 -> Lista de topologías existentes                    |")
-    print("|- Opción 2 -> Lista detalle de una topología                    |")
-    print("|- Opción 3 -> Crear una nueva topología                         |")
-    print("|- Opción 4 -> Editar una topología existente                    |")
-    print("|- Opción 5 -> Visualización de una topología                    |")
-    print("|- Opción 6 -> Borrar una topología existente                    |")
-    print("|- Opcion 9 -> Salir                                             |")
-    opcion = input("| Ingrese una opción: ")
-    print("\n")
-    return opcion
+#def menuInfoTopologias():
+#    print("|----------------------------------------------------------------|")
+#    print("|- Opción 1 -> Lista de topologías existentes                    |")
+#    print("|- Opción 2 -> Lista detalle de una topología                    |")
+#    print("|- Opción 3 -> Crear una nueva topología                         |")
+#    print("|- Opción 4 -> Editar una topología existente                    |")
+#    print("|- Opción 5 -> Visualización de una topología                    |")
+#    print("|- Opción 6 -> Borrar una topología existente                    |")
+#    print("|- Opcion 11 -> Salir                                             |")
+#    opcion = input("| Ingrese una opción: ")
+#    print("\n")
+#    return opcion
 
 # Display create topology
-def menuCrearTopologia():
-    print("|---------------------------------|")
-    nombreTopologia = input("| Ingrese el nombre de su topología: ")
-    print("|---Ingrese el tipo de topología--|")
-    print("|- Opción 1 -> Lineal             |")
-    print("|- Opción 2 -> Malla              |")
-    print("|- Opción 3 -> Árbol              |")
-    print("|- Opcion 4 -> Anillo             |")
-    print("|- Opcion 5 -> Bus                |")
-    print("|---------------------------------|")
-    tipoTopologia = input("| Ingrese una opción: ")
+#def menuCrearTopologia():
+#    print("|---------------------------------|")
+#    nombreTopologia = input("| Ingrese el nombre de su topología: ")
+#    print("|---Ingrese el tipo de topología--|")
+#    print("|- Opción 1 -> Lineal             |")
+#    print("|- Opción 2 -> Malla              |")
+#    print("|- Opción 3 -> Árbol              |")
+#    print("|- Opcion 4 -> Anillo             |")
+#    print("|- Opcion 5 -> Bus                |")
+#    print("|---------------------------------|")
+#    tipoTopologia = input("| Ingrese una opción: ")
     #Validaciones
-    print("[*]Topología creada exitosamente\n")
+#    print("[*]Topología creada exitosamente\n")
     #Se crea aca la topologia y se guarda en db 
 
 # Funciones
@@ -314,16 +374,12 @@ def menu(opcion,nivel,jerarquia):
             # Mapea desde qué menú se está ingresando p.e MenuInfoServidores -> Nivel 1 / Así se permite reusar el menú
             # Mapea desde qué menú se está ingresando p.e MenuInfoTopologia -> Nivel 2 / Así se permite reusar el menú
             if(nivel == 0):
-                # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
-                if(jerarquia == 3 or jerarquia == 1):
-                    while True:
-                        opcion = menuInfoServidores()
+                while True:
+                        opcion = menuInfoServidores(jerarquia)
                         resultado = menu(opcion,1,jerarquia)
                         if not (resultado):
                             break
-                else:
-                    #Quiere decir que no tengo los privilegios para poder ingresar
-                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
+                        
             elif(nivel == 1):
                 # No es necesario validar porque la validacion se hace a nivel de menu
                 obtenerInfoServidores()
@@ -385,7 +441,7 @@ def menu(opcion,nivel,jerarquia):
         elif opcion == 4:
             if(nivel == 0):
                 # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
-                if(jerarquia == 3 or jerarquia == 1):
+                if(jerarquia == 2 or jerarquia == 1):
                     crearUsuario()
                         
                 else:
@@ -406,7 +462,7 @@ def menu(opcion,nivel,jerarquia):
         elif opcion == 5:
             if(nivel == 0):
                 # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
-                if(jerarquia == 3 or jerarquia == 1):
+                if(jerarquia == 2 or jerarquia == 1):
                     editarUsuario()
                 
                 else:
@@ -457,7 +513,7 @@ def menu(opcion,nivel,jerarquia):
         elif opcion == 7:
             if(nivel == 0):
                  # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
-                if(jerarquia == 3 or jerarquia == 1):
+                if(jerarquia == 2 or jerarquia == 1):
                     crearRol()
                         
                 else:
@@ -481,7 +537,7 @@ def menu(opcion,nivel,jerarquia):
         elif opcion == 9:
             if(nivel == 0):
                  # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
-                if(jerarquia == 3 or jerarquia == 1):
+                if(jerarquia == 2 or jerarquia == 1):
                     name = eliminarUsuario()
                     if name == username:
                         print("[*]Se cerrará su sesión. Vuelva a logearse")
@@ -497,7 +553,7 @@ def menu(opcion,nivel,jerarquia):
         elif opcion == 10:
             if(nivel == 0):
                  # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
-                if(jerarquia == 3 or jerarquia == 1):
+                if(jerarquia == 2 or jerarquia == 1):
                     eliminarRol()    
                 else:
                     #Quiere decir que no tengo los privilegios para poder ingresar
@@ -522,6 +578,9 @@ def menu(opcion,nivel,jerarquia):
 def getTokensito(Keystone):
     tokensito = Keystone.get_token()
     return tokensito
+
+def getTokensitoAdmin(keystone):
+    keystone.get_token_admin()
 
 def validarCredenciales(username,pwd):
     usuarios = credenciales.keys()
@@ -567,22 +626,23 @@ while(int(privilegios)<0):
     
     keystone = KeystoneAuth(username, password)
     tokensito = getTokensito(keystone)
-    #print("Tu tokensito es: "+str(tokensito))
     
     if tokensito == None:
         privilegios = 0
         
     else:
+        getTokensitoAdmin(keystone) #Para actualizar el token de admin para hacer las operaciones
         rol = keystone.getUserRol(username)
-        if rol == "admin":
+        if(rol == "admin"):
             privilegios = 1
-        else:
+        elif(rol == "soporte"):
             privilegios = 2
-        #privilegios = validarCredenciales(username,password)
-    
+        else:
+            privilegios = 3
+        
 if(int(privilegios)>0):
     while True:
-        opcion = menuPrincipal(username)
+        opcion = menuPrincipal(username,privilegios)
         resultado = menu(opcion,0,privilegios)
         if not (resultado):
             print("------------------------------------------------------------")
