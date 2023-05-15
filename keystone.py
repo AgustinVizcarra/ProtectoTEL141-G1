@@ -288,6 +288,7 @@ class KeystoneAuth(object):
                 if not user_data:
                     print("[*] No se especificaron propiedades para actualizar")
                 else:
+<<<<<<< HEAD
                     url = "{}/users/{}".format(self.auth_url, user_id)
                     response = requests.patch(url,
                                             headers={'Content-Type': 'application/json',
@@ -300,6 +301,12 @@ class KeystoneAuth(object):
                         #print("[*]Error al actualizar el usuario: {}".format(response.text))
                         print("[*]Respuesta JSON del servidor: {}".format(response.json()))
 
+=======
+                    print("[*]Error al actualizar el usuario: {}".format(response.text))
+            else:
+                print("[*]Usuario actualizado exitosamente")
+                
+>>>>>>> 3bd18fa326b79a822dd797b57374b6c47a9fb0c7
     #Eliminar usuario
     def delete_user(self,username):
         response=requests.get(self.auth_url+'/users?name=' + username,

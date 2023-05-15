@@ -146,15 +146,16 @@ def obtenerInfoRemoto():
     if response.status_code == 200:
         return response.json()
     else:
-        print("El servicio de monitoreo se encuentra caído")
+        print("[*]El servicio de monitoreo se encuentra caído")
         return "Error"
         
 def mostrarNivelAprovionamiento():
     global nivelMaximoAprovisionamiento
     if(nivelMaximoAprovisionamiento==0):
-        print("Aún no se ha definido el nivel de aprovionamiento en el sistema!")
+        print("[*]Aún no se ha definido el nivel de aprovionamiento en el sistema!")
     else:
-        print("El nivel de aprovisionamiento máximo en el sistema es "+str(nivelMaximoAprovisionamiento)+"% ")
+        print("[*]El nivel de aprovisionamiento máximo en el sistema es "+str(nivelMaximoAprovisionamiento)+"% ")
+    print("\n")
         
 def editarNivelAprovisionamiento():
     global nivelMaximoAprovisionamiento
@@ -163,27 +164,28 @@ def editarNivelAprovisionamiento():
             nuevoNivel = int(input("Ingrese el nivel de aprovisionamiento máximo en (%): "))
             if(nuevoNivel>0 and nuevoNivel<100):
                 nivelMaximoAprovisionamiento = nuevoNivel
-                print("Se añadio el nivel de aprovisionamiento exitosamente")
+                print("[*]Se añadio el nivel de aprovisionamiento exitosamente")
             else:
-                print("Debe ser un valor que se encuentre entre ]0;100[ (%)")
+                print("[*]Debe ser un valor que se encuentre entre ]0;100[ (%)")
         except Exception as e:
-            print("Debe ingresar un valor entero!")
+            print("[*]Debe ingresar un valor entero!")
     else:
         try:
             nivelAprovisionamiento = int(input("Edite el valor del nivel de aprovisionamiento(%): "))
             if(nivelAprovisionamiento>0 and nivelAprovisionamiento<100):
                 nivelMaximoAprovisionamiento = nivelAprovisionamiento
-                print("Se editó el nivel de aprovisionamiento exitosamente")
+                print("S[*]e editó el nivel de aprovisionamiento exitosamente")
             else:
-                print("Debe ser un valor que se encuentre entre ]0;100[ (%)")
+                print("[*]Debe ser un valor que se encuentre entre ]0;100[ (%)")
         except Exception as e:
-            print("Debe ingresar un valor entero!")
-            
+            print("[*]Debe ingresar un valor entero!")
+    print("\n")
+           
 def obtenerInfoServidores():
     #Con toda la informacion recolectada toca mostrar los resultados
     output = obtenerInfoRemoto()
     if ( output == "Error"):
-        print("Hubo error obteniendo la información del cluster")
+        print("[*]Hubo error obteniendo la información del cluster")
     else:
         workers  = output.keys()
         for worker in workers:
