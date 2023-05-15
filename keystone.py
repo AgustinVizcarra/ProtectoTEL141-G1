@@ -297,7 +297,9 @@ class KeystoneAuth(object):
                     print("[*]Usuario actualizado exitosamente")
                 else:
                     print("[*]Error al actualizar el usuario: {}".format(response.text))
-
+            else:
+                print("[*]Usuario actualizado exitosamente")
+                
     #Eliminar usuario
     def delete_user(self,username):
         response=requests.get(self.auth_url+'/users?name=' + username,
