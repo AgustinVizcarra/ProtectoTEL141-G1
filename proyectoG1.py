@@ -7,7 +7,7 @@ import requests
 """
 from getpass import getpass
 from keystone import KeystoneAuth
-import threading # Para uso futuro
+
 import requests
 
 #Posteriormente se podría leer desde un archivo
@@ -228,7 +228,6 @@ def crearRol():
         else:
             print("[*]Ingrese un nombre de rol válido")
             continue
-
 
 #Eliminar Rol
 def eliminarRol():
@@ -628,19 +627,21 @@ while(int(privilegios)<0):
     
     keystone = KeystoneAuth(username, password)
     tokensito = getTokensito(keystone)
-    
+    authOpenStack = False
     if tokensito == None:
-        privilegios = 0
-        
+        privilegios = 0 
     else:
         getTokensitoAdmin(keystone) #Para actualizar el token de admin para hacer las operaciones
         rol = keystone.getUserRol(username)
         if(rol == "admin"):
             privilegios = 1
+            authOpenStack = True
         elif(rol == "soporte"):
             privilegios = 2
+            authOpenStack = True
         else:
             privilegios = 3
+            authOpenStack = True
         
 if(int(privilegios)>0):
     while True:
