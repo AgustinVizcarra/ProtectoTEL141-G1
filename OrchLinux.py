@@ -229,6 +229,33 @@ async def delete_user(user_id: int = Path(..., description="ID del usuario a eli
         return JSONResponse(content=data, status_code=400)
     
 ###### CRUD de VM's ######
+@app.get("/listarImagenes/")
+async def listar_imagenes():
+    conn = psycopg2.connect(
+        host="10.0.0.10",
+        database="linuxorch",
+        user="ubuntu",
+        password="ubu"
+    )
+    try:
+        cur = conn.cursor()
+        cur.execute("select distinct imagen from vm where estado = 1")
+        result = cur.fetchall()
+        cur.close()
+        conn.close()
+        vms = []
+        for row in result:
+            vm = {
+                "imagen": row[0],
+            }
+            vms.append(vm)
+        data = {"mensaje": "Lista de imagenes", "vms": vms}
+        return JSONResponse(content=data, status_code=200)
+    except psycopg2.Error as e:
+        print(e)
+        data = {"mensaje": "No se pudo obtener la lista de imagenes"}
+        return JSONResponse(content=data, status_code=400)
+    
 @app.post("/addVM/")
 async def create_VM(body: dict):
     if not body:
@@ -409,6 +436,7 @@ async def delete_user(vm_id: int = Path(..., description="ID del usuario a elimi
         print(e)
         data = {"mensaje": "No se pudo eliminar la vm"}
         return JSONResponse(content=data, status_code=400)
+    
 ###### CRUD de proyectos ######
 @app.post("/addProyecto/")
 async def create_Proyecto(body: dict):
@@ -597,7 +625,7 @@ async def createTopology(body: dict):
         data = {"mensaje": "no se envió datos en el body"}
         return JSONResponse(content=data,status_code=400)
     else:
-        if 'tipo' in body and 'subnetname' in body and 'network' in body and 'gateway' in body and 'iprange' in body:
+        if 'tipo' in body and 'subnetname' in body and 'network' in body and 'gateway' in body and 'iprange' in body and 'worker' in body:
             conn = psycopg2.connect(
                 host="10.0.0.10",
                 database="linuxorch",
@@ -606,7 +634,7 @@ async def createTopology(body: dict):
             )
             try:
                 cur = conn.cursor()
-                cur.execute("INSERT INTO topologia (tipo,estado,subnetname,network,gateway,iprange) VALUES (%s, 1, %s, %s, %s, %s)",(body['tipo'],body['subnetname'],body['network'],body['gateway'],body['iprange'],))
+                cur.execute("INSERT INTO topologia (tipo,estado,subnetname,network,gateway,iprange,worker) VALUES (%s, 1, %s, %s, %s, %s)",(body['tipo'],body['subnetname'],body['network'],body['gateway'],body['iprange'],body['worker']))
                 cur.execute("SELECT currval('topologia_id_seq')")
                 result = cur.fetchone()
                 cur.close()
@@ -635,7 +663,7 @@ async def edit_user(topology_id: int = Path(..., description="ID de la topologia
         data = {"mensaje": "No se envió datos en el body"}
         return JSONResponse(content=data, status_code=400)
     else:
-        if 'tipo' in body and 'subnetname' in body and 'network' in body and 'gateway' in body and 'iprange' in body:
+        if 'tipo' in body and 'subnetname' in body and 'network' in body and 'gateway' in body and 'iprange' in body and 'worker' in body:
             conn = psycopg2.connect(
                 host="10.0.0.10",
                 database="linuxorch",
@@ -652,8 +680,8 @@ async def edit_user(topology_id: int = Path(..., description="ID de la topologia
                 return JSONResponse(content=data, status_code=404)
             else:
                 try:
-                    cur.execute("UPDATE topologia SET tipo = %s, subnetname = %s, network = %s, gateway = %s, iprange= %s WHERE id = %s",
-                                (body['tipo'],body['subnetname'],body['network'],body['gateway'],body['iprange'], topology_id,))
+                    cur.execute("UPDATE topologia SET tipo = %s, subnetname = %s, network = %s, gateway = %s, iprange= %s, worker= %s WHERE id = %s",
+                                (body['tipo'],body['subnetname'],body['network'],body['gateway'],body['iprange'],body['worker'], topology_id,))
                     conn.commit()
                     cur.execute("SELECT * FROM topologia WHERE id = %s", (topology_id,))
                     result = cur.fetchone()
@@ -666,6 +694,7 @@ async def edit_user(topology_id: int = Path(..., description="ID de la topologia
                         "network": result[4],
                         "gateway": result[5],
                         "iprange": result[6],
+                        "worker" : result[7] 
                     }
                     data = {"mensaje": "Se editó correctamente la topologia", "topology": topologia}
                     return JSONResponse(content=data, status_code=200)
@@ -701,7 +730,8 @@ async def listar_topologias():
                 "subnetname": row[3],
                 "network": row[4],
                 "gateway": row[5],
-                "iprange": row[6]
+                "iprange": row[6],
+                "worker" : row[7]
             }
             topologias.append(topologia)
         data = {"mensaje": "Lista de topologias", "topologias": topologias}
@@ -738,7 +768,8 @@ async def get_user(topology_id: int = Path(..., description="ID del usuario a bu
                 "subnetname": result[3],
                 "network": result[4],
                 "gateway": result[5],
-                "iprange": result[6]
+                "iprange": result[6],
+                "worker": result[7]
             }
             data = {"mensaje": "Se encontró a la topologia exitosamente", "topologia": topologia}
             return JSONResponse(content=data, status_code=200)
@@ -931,10 +962,10 @@ async def delete_user(topology_id: int = Path(..., description="ID de la topolog
         data = {"mensaje": "No se pudo eliminar a la Topologia"}
         return JSONResponse(content=data, status_code=400)
 
-###### Vinculo de Topologia y Proyecto ######
+###### Vinculo de Topologia y VM ######
 
 @app.post("/addVmTopology/")
-async def createLinkTopoProyecto(body: dict):
+async def createLinkTopoVM(body: dict):
     if not body:
         #Si en caso no se tiene valores dentro del body
         data = {"mensaje": "no se envió datos en el body"}
@@ -1019,7 +1050,7 @@ async def editLinkTopoVM(topology_id: int = Path(..., description="ID de la topo
             return JSONResponse(content=data,status_code=400) 
         
 @app.get("/getVmsporTopologia/{topology_id}")
-async def get_user(topology_id: int = Path(..., description="ID del usuario a buscar")):
+async def getVmxTopo(topology_id: int = Path(..., description="ID del usuario a buscar")):
     if topology_id is None:
         data = {"mensaje": "No se proporcionó el ID de la topologia"}
         return JSONResponse(content=data, status_code=404)
@@ -1055,7 +1086,7 @@ async def get_user(topology_id: int = Path(..., description="ID del usuario a bu
         return JSONResponse(content=data, status_code=400)
     
 @app.delete("/deleteLinkVmTopo/{topology_id}/{vm_id}")
-async def delete_vm(topology_id: int = Path(..., description="ID de la topologia a editar"),vm_id: int = Path(..., description="ID del proyecto a editar")):
+async def deleteVMxTopo(topology_id: int = Path(..., description="ID de la topologia a editar"),vm_id: int = Path(..., description="ID del proyecto a editar")):
     if topology_id is None and vm_id is None:
         data = {"mensaje": "No se proporcionó el ID de la topologia o de la vm"}
         return JSONResponse(content=data, status_code=404)
@@ -1089,7 +1120,7 @@ async def delete_vm(topology_id: int = Path(..., description="ID de la topologia
 ###### Vinculo entre Usuario, Rol y Proyecto ######
 
 @app.post("/addUserProjectRole/")
-async def createLinkTopoProyecto(body: dict):
+async def createLinkUserProjectRole(body: dict):
     if not body:
         #Si en caso no se tiene valores dentro del body
         data = {"mensaje": "no se envió datos en el body"}
@@ -1127,7 +1158,7 @@ async def createLinkTopoProyecto(body: dict):
             return JSONResponse(content=data,status_code=400)
         
 @app.put("/editUserProjectRole/{user_id}/{project_id}/{role_id}")
-async def editLinkTopoVM(user_id: int = Path(..., description="ID de la topologia a editar"),project_id: int = Path(..., description="ID del proyecto a editar"),role_id: int = Path(..., description="ID del proyecto a editar"),body: dict=None):
+async def editLinkTopoVMUser(user_id: int = Path(..., description="ID de la topologia a editar"),project_id: int = Path(..., description="ID del proyecto a editar"),role_id: int = Path(..., description="ID del proyecto a editar"),body: dict=None):
     if user_id is None or project_id is None or role_id is None:
         data = {"mensaje": "No se envió datos en el path"}
         return JSONResponse(content=data, status_code=400)
@@ -1248,7 +1279,7 @@ async def get_user():
         return JSONResponse(content=data, status_code=400)
 
 @app.delete("/deleteRolProjectUser/{role_id}/{project_id}/{user_id}")
-async def delete_vm(role_id: int = Path(..., description="ID de la topologia a editar"),project_id: int = Path(..., description="ID del proyecto a editar"),user_id: int = Path(..., description="ID del proyecto a editar")):
+async def delete_rol_project_user(role_id: int = Path(..., description="ID de la topologia a editar"),project_id: int = Path(..., description="ID del proyecto a editar"),user_id: int = Path(..., description="ID del proyecto a editar")):
     if role_id is None and user_id is None and project_id is None :
         data = {"mensaje": "No se proporciono los parámetros para la eliminación de manera correcta"}
         return JSONResponse(content=data, status_code=404)
