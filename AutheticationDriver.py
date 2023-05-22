@@ -10,11 +10,11 @@ class AuthenticationManager(object):
     ### Autenticacion y gestión de los usuarios ###
     
     def __init__(self):
-        self.auth_url = "http://10.20.12.39:7070/"
+        self.auth_url = "http://10.20.12.39:7070"
         
     def get_auth(self,nombre,pwd):
         if not nombre or not pwd:
-            return {"msg": "Se deben proporcionar valores válidos para nombre y contraseña"}
+            return {"msg": "Se deben proporcionar valores válidos para nombre, correo o contraseña. Si el error persiste contacte con el soport técnico"}
         endpoint = self.auth_url + "/auth/"
         body = {
             "nombre": nombre,

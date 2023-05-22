@@ -2,7 +2,7 @@ import requests
 
 class ProvisionInstancesManager:
     def __init__(self):
-        self.base_url = "http://10.20.12.39:7070/"
+        self.base_url = "http://10.20.12.39:7070"
 
     def add_vm(self, imagen, vncport):
         if not imagen or not vncport:

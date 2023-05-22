@@ -29,7 +29,7 @@ async def authentication(body: dict):
                 password="ubu"
             )
             cur = conn.cursor()
-            cur.execute("SELECT * FROM usuario where nombre = %s AND pwd = %s AND estado=1",(body['nombre'],body['pwd'],))
+            cur.execute("SELECT * FROM usuario where (nombre = %s AND pwd = %s AND estado=1) OR (correo = %s AND pwd = %s AND estado=1)",(body['nombre'],body['pwd'],body['nombre'],body['pwd'],))
             result = cur.fetchone()
             cur.close()
             conn.close()
@@ -38,7 +38,8 @@ async def authentication(body: dict):
                         "id": 0}
             else:
                 data = {"mensaje": "se encontró al usuario con las credenciales dadas",
-                        "id": result[0]}
+                        "id": result[0],
+                        "permisos": result[5]}
             return JSONResponse(content=data,status_code=200)
         else:
             data = {"mensaje": "se enviaron campos incorrectos"}
@@ -60,7 +61,8 @@ async def create(body: dict):
             )
             try:
                 cur = conn.cursor()
-                cur.execute("INSERT INTO usuario (nombre,correo,pwd,estado) VALUES (%s, %s, %s, 1)",(body['nombre'],body['correo'],body['pwd'],))
+                #Cuando se crea un usuario se crea con permisos de usuario
+                cur.execute("INSERT INTO usuario (nombre,correo,pwd,estado,permisos) VALUES (%s, %s, %s, 1, 0)",(body['nombre'],body['correo'],body['pwd'],))
                 cur.execute("SELECT currval('usuario_id_seq')")
                 result = cur.fetchone()
                 cur.close()
@@ -89,7 +91,7 @@ async def edit_user(user_id: int = Path(..., description="ID del usuario a edita
         data = {"mensaje": "No se envió datos en el body"}
         return JSONResponse(content=data, status_code=400)
     else:
-        if 'nombre' in body and 'pwd' in body and 'correo' in body:
+        if 'nombre' in body and 'pwd' in body and 'correo' in body and 'permisos' in body:
             conn = psycopg2.connect(
                 host="10.0.0.10",
                 database="linuxorch",
@@ -106,8 +108,8 @@ async def edit_user(user_id: int = Path(..., description="ID del usuario a edita
                 return JSONResponse(content=data, status_code=404)
             else:
                 try:
-                    cur.execute("UPDATE usuario SET nombre = %s, correo = %s, pwd = %s WHERE id = %s",
-                                (body['nombre'], body['correo'], body['pwd'], user_id))
+                    cur.execute("UPDATE usuario SET nombre = %s, correo = %s, pwd = %s, permisos = %s WHERE id = %s",
+                                (body['nombre'], body['correo'], body['pwd'],body['permisos'],user_id, ))
                     conn.commit()
                     cur.execute("SELECT * FROM usuario WHERE id = %s", (user_id,))
                     result = cur.fetchone()
@@ -117,7 +119,8 @@ async def edit_user(user_id: int = Path(..., description="ID del usuario a edita
                         "id":result[0],
                         "nombre": result[1],
                         "correo": result[2],
-                        "pwd": result[3]
+                        "pwd": result[3],
+                        "permisos": result[5],
                     }
                     data = {"mensaje": "Se editó correctamente al usuario", "user": usuario}
                     return JSONResponse(content=data, status_code=200)
@@ -151,7 +154,8 @@ async def listar_usuarios():
                 "id": row[0],
                 "nombre": row[1],
                 "correo": row[2],
-                "pwd": row[3]
+                "pwd": row[3],
+                "permisos": row[5]
             }
             usuarios.append(usuario)
         data = {"mensaje": "Lista de usuarios", "usuarios": usuarios}
@@ -186,7 +190,8 @@ async def get_user(user_id: int = Path(..., description="ID del usuario a buscar
                 "id": result[0],
                 "nombre": result[1],
                 "correo": result[2],
-                "pwd": result[3]
+                "pwd": result[3],
+                "permisos": result[5]
             }
             data = {"mensaje": "Se encontró al usuario exitosamente", "usuario": usuario}
             return JSONResponse(content=data, status_code=200)
