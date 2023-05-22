@@ -11,7 +11,32 @@ class KeystoneAuth(object):
         self.headers = {'Content-Type': 'application/json'}
         self.UserID = None
         self.ProjectID = None
-
+        self.RolID = None
+        
+    def getUserID(self):
+        return self.UserID
+    
+    def setUserID(self,UserID):
+        self.UserID = UserID
+            
+    def getProjectID(self):
+        return self.ProjectID
+    
+    def setProjectID(self,ProjectID):
+        self.ProjectID = ProjectID
+        
+    def getUsername(self):
+        return self.username
+    
+    def setUsername(self,username):
+        self.username = username
+        
+    def getRolID(self):
+        return self.RolID
+    
+    def setRolID(self,RolID):
+        self.RolID = RolID
+        
     #Obtener TOKEN
     def get_token(self):
         auth_data = {
@@ -43,6 +68,7 @@ class KeystoneAuth(object):
 
         if response.status_code == 201:
             self.token = response.headers['X-Subject-Token']
+            self.UserID = response.json()["token"]["user"]['id']
             print("[*]La solicitud se completó correctamente")
             print("")
             
@@ -66,7 +92,7 @@ class KeystoneAuth(object):
                     'password': {
                         'user': {
                             'name': "admin",
-                            'password': "alonso",
+                            'password': "admin",
                             'domain': {'id': 'default'}
                         }
                     }
@@ -429,65 +455,43 @@ class KeystoneAuth(object):
             print(f"Error al listar a los usuarios: {response.status_code} - {response.text}")
        
     
-    #Obtener rol de un determinado usuario
-    def getUserRol(self):
-        username = self.username
-        rolsito = ""
-        #Usuarios como json
-        response = requests.get(self.auth_url + '/users',
+    #Obtener listado de proyectos en los que se encuentra asignado el usuario
+    def getListProjects(self):
+        response = requests.get(self.auth_url + '/users/' + self.UserID + "/projects",
                                 headers={'Content-Type': 'application/json',
                                         'X-Auth-Token': self.token})
-        # Obtener lista de proyectos
-        url = '{}/projects'.format(self.auth_url)
-        headers = {
-            'Content-Type': 'application/json',
-            'X-Auth-Token': self.token
-        }
-
-        response = requests.get(url, headers=headers)
+        proyectos = []
+        if response.status_code == 200:
+            response = response.json()
+            for project in response["projects"]:
+                proyecto = []
+                proyecto.append(project["id"])
+                proyecto.append(project["name"])
+                proyectos.append(proyecto)
         
-        project_id = None
-        project_name="admin"
+        else:
+            print("[*]Error al obtener la lista de proyectos del usuario\n")
 
+        return proyectos
+    
+    #Obtener rol de un usuario en un proyecto
+    def getUserRol(self):
+        rolsito = ""
+        
+        url='{}/projects/{}/users/{}/roles'.format(self.auth_url,self.ProjectID,self.UserID)
+        headers = {
+                    'Content-Type': 'application/json',
+                    'X-Auth-Token': self.token
+                }
+        
+        response = requests.get(url, headers=headers)  
         if response.status_code == 200:
-            # Imprimir id y nombre de cada proyecto
-            projects = response.json()['projects']
-            for project in projects:
-                if project['name'] == project_name:
-                    project_id=project['id']
-                    break
+            rolsito = response.json()['roles'][0]['name']
+            self.RolID = response.json()['roles'][0]['id']
+            
+        else:
+           print("[*]Error al obtener el rol del usuario en el proyecto")
 
-        #else:
-            #print('Error al listar proyectos: {}'.format(response.text))
-
-        #obtener lista de usuarios
-        response = requests.get(self.auth_url + '/users',
-                                headers={'Content-Type': 'application/json',
-                                        'X-Auth-Token': self.token})
-        if response.status_code == 200:
-        # Imprimir id y nombre de cada usuario
-            users = response.json()['users']
-            for user in users:
-                if(user['name']  == username):
-                    url='{}/projects/{}/users/{}/roles'.format(self.auth_url,project_id,user['id'])
-                    headers = {
-                        'Content-Type': 'application/json',
-                        'X-Auth-Token': self.token
-                    }
-                    response = requests.get(url, headers=headers)
-                    
-                    if response.status_code == 200:
-                        roles = response.json()['roles']
-                        rolsito = roles[0]['name']
-                        break
-                    
-                    #else:
-                        #print("Error al obtener roles: {}".format(response.text))
-                        
-                        
-        #else:
-        #    print(f"Error al listar a los usuarios: {response.status_code} - {response.text}")
-       
         return rolsito
 
 
