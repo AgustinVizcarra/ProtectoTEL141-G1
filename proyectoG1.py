@@ -1,8 +1,9 @@
 from getpass import getpass
 from keystone import KeystoneAuth
 from AutheticationDriver import AuthenticationManager
+from menuLinux import Usuario
+from menuLinux import Administrador
 import requests
-
 ############################################    F   U   N   C   I   O   N   E   S   ############################################
 # Display principal
 def menuPrincipal(keystone,privilegios):
@@ -645,10 +646,27 @@ while(int(privilegios)<0):
                                  
     #Si tiene cuenta de Linux
     else:
-        print("4.")
-        AutenticacionLinux = AuthenticationManager()
-        print("Autenticando ...")
+        AutenticacionLinux = AuthenticationManager()    
         response = AutenticacionLinux.get_auth(username, password)
-        print("Autenticación finalizada")
-        print(response)
-        
+        permisos = response["permisos"]
+        id = response["id"]
+        if id == 0:
+            print("[*]Ha ingresado credenciales inválidas o su usuario no existe.")
+        else:
+            while True:
+                print("[*]Bienvenido al Menú Principal")
+                print("[*]Orquestador: Linux")
+                if permisos == 0:
+                    print("[*]Bienvenido usuario "+username+" !")
+                    usuario = Usuario(id=id)
+                    usuario.menuUsuario(id)
+                    print("[*]Gracias por usar nuestro sistema!\n")
+                    privilegios = 0
+                    break 
+                else:
+                    print("[*]Bienvenido administrador "+username+" !")
+                    admin = Administrador(id=id)
+                    admin.menuAdministrador(id)
+                    print("[*]Gracias por usar nuestro sistema!\n")
+                    privilegios = 0
+                    break 
