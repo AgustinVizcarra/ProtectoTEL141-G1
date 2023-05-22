@@ -179,43 +179,43 @@ def obtenerInfoServidores():
             print("---------------------------------------------")
     
 #Crear Rol
-def crearRol():
-    print("**Escriba ESC para poder salir de esta opción**")
-    while True:
-        nombreRol = input("| Ingrese el nombre del rol: ")
-        if(nombreRol != ''):
-            if(nombreRol == "ESC"):
-                print("[*]Ha salido de la opción de -Crear Rol-")
-                return
-            descripcionRol = input("| Ingrese una descripción del rol: ")
-            if(descripcionRol == "ESC"):
-                print("[*]Ha salido de la opción de -Crear Rol-")
-                return
-            keystone.crear_Rol(nombreRol, descripcionRol)
-            break
-        
-        else:
-            print("[*]Ingrese un nombre de rol válido")
-            continue
+#def crearRol():
+#    print("**Escriba ESC para poder salir de esta opción**")
+#    while True:
+#        nombreRol = input("| Ingrese el nombre del rol: ")
+#        if(nombreRol != ''):
+#            if(nombreRol == "ESC"):
+#                print("[*]Ha salido de la opción de -Crear Rol-")
+#                return
+#            descripcionRol = input("| Ingrese una descripción del rol: ")
+#            if(descripcionRol == "ESC"):
+#                print("[*]Ha salido de la opción de -Crear Rol-")
+#                return
+#            keystone.crear_Rol(nombreRol, descripcionRol)
+#            break
+#        
+#        else:
+#            print("[*]Ingrese un nombre de rol válido")
+#            continue
 
 #Eliminar Rol
-def eliminarRol():
-    print("**Escriba ESC para poder salir de esta opción**")
-    while True:
-        nombreRol = input("| Ingrese el nombre del rol a eliminar: ")
-        if(nombreRol != ''):
-            if(nombreRol == "ESC"):
-                print("[*]Ha salido de la opción de -Eliminar Rol-")
-                return
-            keystone.delete_rol(nombreRol)
-            break
-        
-        else:
-            print("[*]Ingrese un nombre de rol válido")
-            continue
+#def eliminarRol():
+#    print("**Escriba ESC para poder salir de esta opción**")
+#    while True:
+#        nombreRol = input("| Ingrese el nombre del rol a eliminar: ")
+#        if(nombreRol != ''):
+#            if(nombreRol == "ESC"):
+#                print("[*]Ha salido de la opción de -Eliminar Rol-")
+#                return
+#            keystone.delete_rol(nombreRol)
+#            break
+#        
+#        else:
+#            print("[*]Ingrese un nombre de rol válido")
+#            continue
         
 #Eliminar Usuario
-def eliminarUsuario():
+def eliminarUsuario(keystone):
     print("**Escriba ESC para poder salir de esta opción**")
     while True:
         nombreUsuario = input("| Ingrese el nombre de usuario a eliminar: ")
@@ -223,15 +223,16 @@ def eliminarUsuario():
             if(nombreUsuario == "ESC"):
                 print("[*]Ha salido de la opción de -Eliminar Usuario-")
                 return
+            #Eliminamos al usuario
             keystone.delete_user(nombreUsuario)   
-            return nombreUsuario
+            break
         
         else:
             print("[*]Ingrese un nombre de usuario válido")
             continue
 
 #Crear Usuario
-def crearUsuario():
+def crearUsuario(keystone):
     print("**Escriba ESC para poder salir de esta opción**")
     while True:
         username = input("| Ingrese un nombre de usuario: ")
@@ -249,17 +250,11 @@ def crearUsuario():
                     if(email == "ESC"):
                         print("[*]Ha salido de la opción de -Crear Usuario-")
                         return
-                    while True:
-                        rol_name = input("| Ingrese un rol al usuario: ")
-                        if(rol_name != ''):
-                            if(rol_name == "ESC"):
-                                print("[*]Ha salido de la opción de -Crear Usuario-")
-                                return
-                            keystone.crear_usuario(username, password, email, rol_name)
-                            return
-                        else:
-                            print("[*]Ingrese un rol válido")
-                        continue
+                    
+                    # Creamos el usuario pero todavia no lo asignamos al proyecto
+                    keystone.crear_usuario(username, password, email, rol_name)
+                    return
+                    
                 else:
                     print("[*]Ingrese una contraseña válida")
                     continue
@@ -268,7 +263,7 @@ def crearUsuario():
             continue
 
 #Editar Usuario
-def editarUsuario():
+def editarUsuario(keystone):
     print("**Escriba ESC para poder salir de esta opción**")
     while True:
         username = input("| Ingrese un nombre de usuario: ")
@@ -306,35 +301,160 @@ def editarUsuario():
                 print("[*]Ha salido de la opción de -Editar Usuario-")
                 return
             
-            verificarRol = input("| ¿Desea cambiar su rol?[Y/N]: ")
-            rol = None
-            if verificarRol == "Y" or verificarRol == "y":
-                while True:
-                    rol = input("| Ingrese el nuevo rol: ")
-                    if (rol == ''):
-                        print("[*]Ingrese un rol válido")
-                        continue
-                    else:
-                        if(rol == "ESC"):
-                            print("[*]Ha salido de la opción de -Editar Usuario-")
-                            return
-                        break
-            elif(verificarRol == "ESC"):
-                print("[*]Ha salido de la opción de -Editar Usuario-")
-                return 
-                    
-            if (verificarPass == "N") and (verificarEmail=="N") and (verificarRol=="N"):
+            if (verificarPass == "N") and (verificarEmail=="N"):
                 print("[*]Ha decidido no realizar ningún cambio al usuario")
                 break 
-                
-            keystone.editar_usuario(username,rol,password,email)
             
+            #Editamos los campos del usuario
+            keystone.editar_usuario(username,password,email)
             break
             
         else:
             print("[*]Ingrese un nombre de usuario válido")
             continue
 
+#Asignar usuario a un proyecto
+def asignarRolUsuarioAProyecto(keystone):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        username = input("| Ingrese un nombre de usuario: ")
+        if(username != ''):
+            if(username == "ESC"):
+                print("[*]Ha salido de la opción de -Añadir usuario a un proyecto-")
+                return
+            
+            while True:
+                proyecto = input("| Ingrese el nombre de un proyecto: ")
+                if(proyecto != ''):
+                    if(proyecto == "ESC"):
+                        print("[*]Ha salido de la opción de -Añadir usuario a un proyecto-")
+                        return
+                    # Asignamos el usuario a un proyecto
+                    keystone.asignarUsuarioProyecto(username, proyecto)
+                    return
+                    
+                else:
+                    print("[*]Ingrese un nombre de proyecto válido")
+                    continue
+        else:
+            print("[*]Ingrese un nombre de usuario válido")
+            continue
+    
+#Eliminar usuario de un proyecto
+def eliminarRolUsuarioDeProyecto(keystone):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        username = input("| Ingrese un nombre de usuario: ")
+        if(username != ''):
+            if(username == "ESC"):
+                print("[*]Ha salido de la opción de -Eliminar usuario de un proyecto-")
+                return
+            
+            while True:
+                proyecto = input("| Ingrese el nombre de un proyecto: ")
+                if(proyecto != ''):
+                    if(proyecto == "ESC"):
+                        print("[*]Ha salido de la opción de -Eliminar usuario de un proyecto-")
+                        return
+                    # Eliminamos el usuario del proyecto
+                    keystone.eliminarUsuarioProyecto(username, proyecto)
+                    return
+                    
+                else:
+                    print("[*]Ingrese un nombre de proyecto válido")
+                    continue
+        else:
+            print("[*]Ingrese un nombre de usuario válido")
+            continue
+
+#Listar usuarios por proyecto
+def listarUsuariosPorProyecto(keystone):
+    listado = keystone.listarUsuariosPorProyecto()
+    print("\n")
+    print("|-----------------------------------------------------|")
+    i = 1
+    for proyecto in listado:
+        print("|"+str(i)+". Proyecto '"+ str(proyecto[0][1]) + "'  |")
+        
+        if len(proyecto[1] != 0):    
+            j = 1
+            for usuarios in proyecto[1]:
+                print("|    -Usuario "+str(j)+" : " + str(usuarios))
+                j = j + 1
+        else:
+            print("Este proyecto no tiene usuarios asignados.")
+        print("|-----------------------------------------------------|")
+        i = i + 1
+ 
+#-----------------------------------------------------------------------------------------------------------------------------------
+def menuInfoUsuarios():
+    opciones = ["Crear usuario (General)","Editar usuario (General)","Listar usuarios por proyecto",
+                     "Añadir usuario a un proyecto","Eliminar usuario de un proyecto"]
+    while True:
+            print("\n")
+            print("|-----------------------------------------------------|")
+            i = 0
+            for opt in opciones:
+                print("|- Opción "+str(opt+1)+" -> "+opt[i]+"           |")
+                i = i + 1
+                
+            print("|- Opción "+str(i+1)+" -> Salir                             |")
+            print("|-----------------------------------------------------|")
+            opcion = input("| Ingrese una opción: ")
+
+            if int(opcion) == (len(opciones)+1):
+                opcion = "Salir"
+                break
+            else:
+                if int(opcion) <= len(opciones):
+                    opcion = opciones[int(opcion)-1]
+                    break
+                else:
+                    print("[*]Ingrese una opción válida.")
+    
+    print("")    
+    return opcion
+
+
+def menu2(opcion,nivel,jerarquia,keystone):
+    if opcion == "Información de usuarios":
+        if(nivel == "Menú"):
+            while True:
+                seleccion = menuInfoUsuarios()
+                resultado = menu2(opcion,seleccion, jerarquia, keystone)  
+                if not (resultado):
+                    break
+                
+        elif(nivel == "Crear usuario (General)"):
+            crearUsuario(keystone)
+            
+        elif(nivel == "Editar usuario (General)"):
+            editarUsuario(keystone)
+            
+        elif(nivel == "Eliminar usuario (General)"):
+            eliminarUsuario(keystone)
+            
+        elif(nivel == "Listar usuarios por proyecto"):
+            listarUsuariosPorProyecto(keystone)
+            
+        elif(nivel == "Añadir usuario a un proyecto"):
+            asignarRolUsuarioAProyecto(keystone)
+            
+        elif(nivel == "Eliminar usuario de un proyecto"):
+            eliminarRolUsuarioDeProyecto(keystone)
+            
+        elif(nivel == "Salir"):        
+            return False
+        
+        return True
+        
+    elif opcion == "Información de slices":
+        return True
+    
+    elif opcion == "Salir":
+        return False
+#-----------------------------------------------------------------------------------------------------------------------------------  
+    
 # Menú logico
 def menu(opcion,nivel,jerarquia,keystone):
     try:
@@ -600,7 +720,10 @@ def MenuListaProyectos(keystone):
             else:
                 idProyecto = listaProyectos[int(opcionProyecto)-1][0]
                 keystone.setProjectID(idProyecto)
-                return True,2     
+                break
+
+        keystone.setRolID()
+        return True,2     
      
       
 ############################################    M   A   I   N   ############################################      
@@ -640,9 +763,15 @@ while(int(privilegios)<0):
             else:        
                 while True:
                     opcion = menuPrincipal(keystone,privilegios)
-                    resultado = menu(opcion,0,privilegios,keystone)
+                    resultado = menu2(opcion,"Menú",privilegios,keystone)
                     if not (resultado):
                         break
+                
+                #Se cierra sesión en caso de ser admin y si le da a Salir
+                if resultado == False and privilegios == 1:
+                    print("[*]Gracias por usar nuestro sistema!\n")
+                    privilegios = 0
+                    break
                                  
     #Si tiene cuenta de Linux
     else:
