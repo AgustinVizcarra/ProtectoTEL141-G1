@@ -1,74 +1,43 @@
-"""""
-from schemas import *
-from fastapi import FastAPI
-from fastapi_utils.tasks import repeat_every
-import requests
-#Para uso futuro
-"""
 from getpass import getpass
 from keystone import KeystoneAuth
-
+from AutheticationDriver import AuthenticationManager
 import requests
-
-#Posteriormente se podría leer desde un archivo
-credenciales = {'admin':'admin'}
-jerarquias = {'admin':3}
-nivelMaximoAprovisionamiento = 0
-#Posteriormente se podrá leer desde una base de datos
-#Se trabajará con un esquema de programacion modular
 
 ############################################    F   U   N   C   I   O   N   E   S   ############################################
 # Display principal
-def menuPrincipal(username,privilegios):
-    print("\n")
-    print("   |---------Bienvenido "+username+" al menú principal----------|")
+def menuPrincipal(keystone,privilegios):
+    opcionesAdmin = ["Información de usuarios","Información de slices"]
+    opcionesUsuario = []
     
+    #Para Admin
     if (privilegios == 1):
-        print("|- Opción 1 -> Información del consumo de recursos           |")
-        #print("|- Opción 2 -> Información de los recursos creados           |")
-        #print("|- Opción 3 -> Información de topologías                     |")
-        print("|- Opción 4 -> Crear nuevo usuario                           |")
-        print("|- Opción 5 -> Editar usuario existente                      |") 
-        print("|- Opción 6 -> Listar usuarios existentes                    |") 
-        print("|- Opción 7 -> Crear nuevo rol                               |") 
-        print("|- Opción 8 -> Listar roles existentes                       |") 
-        print("|- Opción 9 -> Eliminar usuario existente                    |") 
-        print("|- Opción 10 -> Eliminar rol existente                       |") 
-        print("|- Opcion 11 -> Salir                                        |") 
-        opcion = input("| Ingrese una opción: ")
-            
-        if (opcion == 2 or opcion == 3):
-            opcion = 20 #Le mapeamos una opcion incorrecta
-            
-            
-    elif (privilegios == 2):
-        print("|- Opción 1 -> Información del consumo de recursos           |")
-        #print("|- Opción 2 -> Información de los recursos creados           |")
-        #print("|- Opción 3 -> Información de topologías                     |")
-        print("|- Opción 4 -> Crear nuevo usuario                           |")
-        print("|- Opción 5 -> Editar usuario existente                      |")
-        print("|- Opción 7 -> Crear nuevo rol                               |")
-        print("|- Opción 9 -> Eliminar usuario existente                    |")
-        print("|- Opción 10 -> Eliminar rol existente                       |")
-        print("|- Opcion 11 -> Salir                                        |")
-        opcion = input("| Ingrese una opción: ")
-        
-        if (opcion == 2 or opcion == 3 or opcion == 6 or opcion == 8):
-            opcion = 20 #Le mapeamos una opcion incorrecta
-        
-    else:
-        print("|- Opción 1 -> Información del consumo de recursos           |")
-        print("|- Opción 6 -> Listar usuarios existentes                    |")
-        print("|- Opción 8 -> Listar roles existentes                       |")
-        print("|- Opcion 11 -> Salir                                        |")
-        opcion = input("| Ingrese una opción: ")
+        while True:
+            print("\n")
+            print("   |---------Bienvenido "+str(keystone.getUsername())+" al menú principal----------|")
+            i = 0
+            for opt in opcionesAdmin:
+                print("|- Opción "+str(opt+1)+" -> "+opt[i]+"           |")
+                i = i + 1
+                
+            print("|- Opción "+str(i+1)+" -> Salir                             |")
+            print("|------------------------------------------------|")
+            opcion = input("| Ingrese una opción: ")
 
-        if (opcion == 2 or opcion == 3 or opcion == 4 or opcion == 5 or opcion == 7 or opcion == 9 or opcion == 10):
-            opcion = 20 #Le mapeamos una opcion incorrecta
-        
-    print("\n")
+            if int(opcion) == (len(opcionesAdmin)+1):
+                opcion = "Salir"
+                break
+            else:
+                if int(opcion) <= len(opcionesAdmin):
+                    opcion = opcionesAdmin[int(opcion)-1]
+                    break
+                else:
+                    print("[*]Ingrese una opción válida.")
+               
+    #Para usuario     
+    else:
+        opcion = "Información de slices"
     
-    
+    print("")    
     return opcion
 
 # Display info de servidores
@@ -139,7 +108,6 @@ def menuInfoServidores(privilegios):
 #    print("[*]Topología creada exitosamente\n")
     #Se crea aca la topologia y se guarda en db 
 
-# Funciones
 def obtenerInfoRemoto():
     monitoringAPI = "http://10.20.12.39:9090/recursos"
     response = requests.get(monitoringAPI,headers={'Content-Type': 'application/json'})
@@ -367,7 +335,7 @@ def editarUsuario():
             continue
 
 # Menú logico
-def menu(opcion,nivel,jerarquia):
+def menu(opcion,nivel,jerarquia,keystone):
     try:
         opcion = int(opcion)
         if opcion == 1:
@@ -377,7 +345,7 @@ def menu(opcion,nivel,jerarquia):
             if(nivel == 0):
                 while True:
                         opcion = menuInfoServidores(jerarquia)
-                        resultado = menu(opcion,1,jerarquia)
+                        resultado = menu(opcion,1,jerarquia,keystone)
                         if not (resultado):
                             break
                         
@@ -414,7 +382,7 @@ def menu(opcion,nivel,jerarquia):
                 if(jerarquia == 3 or jerarquia == 1):
                     while True:
                         opcion = menuInfoTopologias()
-                        resultado = menu(opcion,2,jerarquia)
+                        resultado = menu(opcion,2,jerarquia,keystone)
                         if not (resultado):
                             break
                 else:
@@ -428,7 +396,7 @@ def menu(opcion,nivel,jerarquia):
             if(nivel == 2):
                 if(jerarquia == 3 or jerarquia == 1):
                     menuCrearTopologia()
-                    resultado = menu(3,0,jerarquia)
+                    resultado = menu(3,0,jerarquia,keystone)
  
                 else:
                     #Quiere decir que no tengo los privilegios para poder ingresar
@@ -478,7 +446,7 @@ def menu(opcion,nivel,jerarquia):
                 nombreTopologia = input("| Ingrese el nombre de su topología: ")
                 #validaciones
                 print("[*]Topología lista para ser visualizada\n")
-                resultado = menu(3,0,jerarquia)
+                resultado = menu(3,0,jerarquia,keystone)
             
             if(nivel == 3):
                 pass #ELIMINAR
@@ -507,7 +475,7 @@ def menu(opcion,nivel,jerarquia):
                     #se borra la topologia
                     print("[*]Topología borrada exitosamente\n")
                 
-                resultado = menu(3,0,jerarquia) 
+                resultado = menu(3,0,jerarquia,keystone) 
             
             return True
         
@@ -602,7 +570,36 @@ def validarCredenciales(username,pwd):
                 print("[*]Excedió el número de intentos para el proceso de logueo\n")
                 return 0
     
-     
+def MenuListaProyectos(keystone):
+    listaProyectos = keystone.getListProjects()
+    #Consideramos que un admin tiene que estar asignado a un unico proyecto llamado admin
+    if ((len(listaProyectos) == 1) and (listaProyectos[0][1] == "admin")):
+        keystone.setProjectID(listaProyectos[0][0])
+        return True,1 
+    
+    if len(listaProyectos) == 0:   
+        print("|--------------------Lista de Proyectos------------------------|")
+        print("|Actualmente, usted no se encuentra asignado a ningún proyecto.|")
+        print("|Porfavor, póngase en contacto con algún administrador.        |")
+        print("|--------------------------------------------------------------|")
+        return False,2
+    
+    else:
+        while True:
+            print("|--------------------Lista de Proyectos------------------------|")
+            i = 0
+            for proyecto in listaProyectos:
+                print("|- Proyecto "+str(i+1)+" -> "+str(proyecto[1])+"|")
+                i = i + 1
+            print("|--------------------------------------------------------------|")
+            opcionProyecto = input("| Ingrese el # del proyecto al que desea ingresar: ")
+            
+            if opcionProyecto > len(listaProyectos):
+                 print("[*]Ingrese el # de un proyecto válido\n")
+            else:
+                idProyecto = listaProyectos[int(opcionProyecto)-1][0]
+                keystone.setProjectID(idProyecto)
+                return True,2     
      
       
 ############################################    M   A   I   N   ############################################      
@@ -627,27 +624,29 @@ while(int(privilegios)<0):
     
     keystone = KeystoneAuth(username, password)
     tokensito = getTokensito(keystone)
-    authOpenStack = False
-    if tokensito == None:
-        privilegios = 0 
-    else:
-        getTokensitoAdmin(keystone) #Para actualizar el token de admin para hacer las operaciones
-        rol = keystone.getUserRol(username)
-        if(rol == "admin"):
-            privilegios = 1
-            authOpenStack = True
-        elif(rol == "soporte"):
-            privilegios = 2
-            authOpenStack = True
-        else:
-            privilegios = 3
-            authOpenStack = True
+     
+    #Si tiene cuenta de Openstack 
+    if tokensito != None:
+        getTokensitoAdmin(keystone) #Para actualizar el token de admin para hacer las consultas
         
-if(int(privilegios)>0):
-    while True:
-        opcion = menuPrincipal(username,privilegios)
-        resultado = menu(opcion,0,privilegios)
-        if not (resultado):
-            print("------------------------------------------------------------")
-            print("[*]Gracias por usar nuestro sistema!")
-            break
+        while True:
+            #Menu Lista de todos los proyectos
+            result,privilegios = MenuListaProyectos(keystone)
+                    
+            if not(result): #No esta asignado a ningun proyecto
+                print("[*]Gracias por usar nuestro sistema!\n")
+                privilegios = 0
+                break
+ 
+            else:        
+                while True:
+                    opcion = menuPrincipal(keystone,privilegios)
+                    resultado = menu(opcion,0,privilegios,keystone)
+                    if not (resultado):
+                        break
+                                 
+    #Si tiene cuenta de Linux
+    else:
+        AutenticacionLinux = AuthenticationManager()
+        response = AutenticacionLinux.get_auth(username, password)
+        
