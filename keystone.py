@@ -490,10 +490,42 @@ class KeystoneAuth(object):
             print("[*]No se encontró el usuario y/o el proyecto")
 
     #Listar usuarios por proyecto
-    def listarUsuariosPorProyecto(self):
-        pass
-        #Formato del response -> [ [ [id_proyecto, nombre_proyecto] ,nombre_usuario] ,  ,    ]
-
-
+    def listarProyectosUsuarios(self):
+        #obtener lista de usuarios
+        response = requests.get(self.auth_url + '/users',
+                                headers={'Content-Type': 'application/json',
+                                        'X-Auth-Token': self.token})
+        
+        proyectos_usuario = []
+        
+        if response.status_code == 200:
+            users = response.json()['users']
+            for user in users:
+                user_id = user['id']
+                user_name = user['name']
+                
+                #Consultamos los proyectos que tiene ese usuario
+                response = requests.get(self.auth_url + '/users/' + user_id+ "/projects",
+                                headers={'Content-Type': 'application/json',
+                                        'X-Auth-Token': self.token})
+                proyectos = []
+                if response.status_code == 200:
+                    response = response.json()
+                    for project in response["projects"]:
+                        proyecto = []
+                        proyecto.append(project["id"])
+                        proyecto.append(project["name"])
+                        proyectos.append(proyecto)
+                else:
+                    proyectos.append("|     [*]Ha ocurrido un problema al listar los proyectos del usuario |")
+                
+                proyectos_usuario.append([user_name,proyectos])            
+                       
+            print("[*]Se han listado todos los proyectos de los usuarios")
+        
+        else:
+            print("[*]Ha ocurrido un problema al listar los usuarios")
+        
+        return proyectos_usuario
 
         

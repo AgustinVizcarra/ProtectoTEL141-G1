@@ -366,28 +366,28 @@ def eliminarRolUsuarioDeProyecto(keystone):
             print("[*]Ingrese un nombre de usuario válido")
             continue
 
-#Listar usuarios por proyecto
-def listarUsuariosPorProyecto(keystone):
-    listado = keystone.listarUsuariosPorProyecto()
+#Listar proyectos por usuario
+def listarProyectosPorUsuario(keystone):
+    listado = keystone.listarProyectosUsuarios()
     print("\n")
     print("|-----------------------------------------------------|")
     i = 1
-    for proyecto in listado:
-        print("|"+str(i)+". Proyecto '"+ str(proyecto[0][1]) + "'  |")
-        
-        if len(proyecto[1] != 0):    
-            j = 1
-            for usuarios in proyecto[1]:
-                print("|    -Usuario "+str(j)+" : " + str(usuarios))
-                j = j + 1
-        else:
-            print("Este proyecto no tiene usuarios asignados.")
+    for user in listado:
+        print("|"+str(i)+". Usuario '"+ str(user[0]) + "'  |")
+        #[ [username, [   [id, proyecto] , [id, proyecto]   ] ] ,   ]
+        j = 1
+        for proyectos in user[1]:
+            if len(proyectos) == 1:
+                print(proyectos[0])
+            else:
+                print("|        -Proyecto "+str(j)+" : " + str(proyectos[1]))
+            j = j + 1
         print("|-----------------------------------------------------|")
         i = i + 1
  
 #-----------------------------------------------------------------------------------------------------------------------------------
 def menuInfoUsuarios():
-    opciones = ["Crear usuario (General)","Editar usuario (General)","Listar usuarios por proyecto",
+    opciones = ["Crear usuario (General)","Editar usuario (General)","Listar proyectos por usuario",
                      "Añadir usuario a un proyecto","Eliminar usuario de un proyecto"]
     while True:
             print("\n")
@@ -433,8 +433,8 @@ def menu2(opcion,nivel,jerarquia,keystone):
         elif(nivel == "Eliminar usuario (General)"):
             eliminarUsuario(keystone)
             
-        elif(nivel == "Listar usuarios por proyecto"):
-            listarUsuariosPorProyecto(keystone)
+        elif(nivel == "Listar proyectos por usuario"):
+            listarProyectosPorUsuario(keystone)
             
         elif(nivel == "Añadir usuario a un proyecto"):
             asignarRolUsuarioAProyecto(keystone)
