@@ -29,7 +29,7 @@ async def authentication(body: dict):
                 password="ubu"
             )
             cur = conn.cursor()
-            cur.execute("SELECT * FROM usuario where nombre = %s AND pwd = %s AND estado=1",(body['nombre'],body['pwd'],))
+            cur.execute("SELECT * FROM usuario where (nombre = %s AND pwd = %s AND estado=1) OR (correo = %s AND pwd = %s AND estado=1)",(body['nombre'],body['pwd'],body['nombre'],body['pwd'],))
             result = cur.fetchone()
             cur.close()
             conn.close()

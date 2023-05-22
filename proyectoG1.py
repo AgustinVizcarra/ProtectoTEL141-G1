@@ -621,14 +621,12 @@ privilegios = -1
 while(int(privilegios)<0):
     username = input("| Ingrese su nombre de usuario: ")
     password = getpass("| Ingrese su contraseña: ")
-    
-    keystone = KeystoneAuth(username, password)
-    tokensito = getTokensito(keystone)
-     
+    tokensito = None
+    # keystone = KeystoneAuth(username, password)
+    # tokensito = getTokensito(keystone)
     #Si tiene cuenta de Openstack 
     if tokensito != None:
         getTokensitoAdmin(keystone) #Para actualizar el token de admin para hacer las consultas
-        
         while True:
             #Menu Lista de todos los proyectos
             result,privilegios = MenuListaProyectos(keystone)
@@ -647,6 +645,10 @@ while(int(privilegios)<0):
                                  
     #Si tiene cuenta de Linux
     else:
+        print("4.")
         AutenticacionLinux = AuthenticationManager()
+        print("Autenticando ...")
         response = AutenticacionLinux.get_auth(username, password)
+        print("Autenticación finalizada")
+        print(response)
         
