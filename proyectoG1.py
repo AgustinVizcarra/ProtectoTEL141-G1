@@ -1,21 +1,6 @@
-"""""
-from schemas import *
-from fastapi import FastAPI
-from fastapi_utils.tasks import repeat_every
-import requests
-#Para uso futuro
-"""
 from getpass import getpass
 from keystone import KeystoneAuth
-
 import requests
-
-#Posteriormente se podría leer desde un archivo
-credenciales = {'admin':'admin'}
-jerarquias = {'admin':3}
-nivelMaximoAprovisionamiento = 0
-#Posteriormente se podrá leer desde una base de datos
-#Se trabajará con un esquema de programacion modular
 
 ############################################    F   U   N   C   I   O   N   E   S   ############################################
 # Display principal
@@ -366,6 +351,39 @@ def editarUsuario():
             print("[*]Ingrese un nombre de usuario válido")
             continue
 
+
+# Menú Inicial
+def menuInicial():
+    opcion = 0
+    while(True):
+        print("|---------Elija uno de los proveedores Cloud---------|")
+        print("|- Opción 1 -> OpenStack                             |")
+        print("|- Opción 2 -> Cluster de Servidores Linux           |")
+        print("|- Opción 3 -> Cerrar Sesión                         |")
+        print("|----------------------------------------------------|")
+        seleccionProveedor = input("| Ingrese una opción: ")
+
+        if seleccionProveedor == 1:
+            opcion = 1
+            print("")
+            return opcion
+            
+        elif seleccionProveedor == 2:
+            opcion = 2
+            print("")
+            return opcion
+                
+        elif seleccionProveedor == 3:
+            print("")
+            return opcion
+        
+        else:
+            print("[*] Seleccione una opción correcta")
+            print("")
+        
+
+
+
 # Menú logico
 def menu(opcion,nivel,jerarquia):
     try:
@@ -602,7 +620,8 @@ def validarCredenciales(username,pwd):
                 print("[*]Excedió el número de intentos para el proceso de logueo\n")
                 return 0
     
-     
+def MenuListaProyectos(keystone):
+    return True     
      
       
 ############################################    M   A   I   N   ############################################      
@@ -627,27 +646,43 @@ while(int(privilegios)<0):
     
     keystone = KeystoneAuth(username, password)
     tokensito = getTokensito(keystone)
-    authOpenStack = False
-    if tokensito == None:
-        privilegios = 0 
-    else:
+     
+    if tokensito != None:
         getTokensitoAdmin(keystone) #Para actualizar el token de admin para hacer las operaciones
-        rol = keystone.getUserRol(username)
-        if(rol == "admin"):
-            privilegios = 1
-            authOpenStack = True
-        elif(rol == "soporte"):
-            privilegios = 2
-            authOpenStack = True
-        else:
-            privilegios = 3
-            authOpenStack = True
         
-if(int(privilegios)>0):
-    while True:
-        opcion = menuPrincipal(username,privilegios)
-        resultado = menu(opcion,0,privilegios)
-        if not (resultado):
-            print("------------------------------------------------------------")
-            print("[*]Gracias por usar nuestro sistema!")
-            break
+        while True:
+            opcionProveedor = menuInicial()
+            
+            #Openstack
+            if opcionProveedor == 1:
+                while True:
+                    #Menu Lista de todos los proyectos
+                    result = MenuListaProyectos(keystone) # que me devuelva un true o false
+                    
+                    if not(result): #No esta asignado a ningun proyecto
+                        break
+                    
+                    else:
+                        rol = keystone.getUserRol()
+                        if(rol == "admin"):
+                            privilegios = 1 #Admin
+                        else:
+                            privilegios = 2 #Usuario
+                        
+                        while True:
+                            opcion = menuPrincipal(username,privilegios)
+                            resultado = menu(opcion,0,privilegios)
+                            if not (resultado):
+                                break
+                    
+            #Linux    
+            elif opcionProveedor == 2:
+                Menulinux()
+                    
+            #Cerrar Sesión
+            else:
+                print("------------------------------------------------------------")
+                print("[*]Gracias por usar nuestro sistema!\n")
+                privilegios = 0
+                break
+         

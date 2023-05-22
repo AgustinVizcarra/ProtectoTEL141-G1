@@ -1,26 +1,16 @@
 import requests
 import time
 import json
-import hashlib
 
 class KeystoneAuth(object):
     def __init__(self,username, password):
-        
-        #Obtener el hash 256 de la cadena
-        #hash_object=hashlib.sha256(username.encode())
-        #hash_ex_username=hash_object.hexdigest()
-
-        #hash_object1=hashlib.sha256(password.encode())
-        #hash_ex_password=hash_object1.hexdigest()
-        
         self.auth_url = "http://10.20.12.39:5000/v3"
         self.username = username
         self.password = password
         self.token = None
         self.headers = {'Content-Type': 'application/json'}
-
-        #print(self.username)
-        #print(self.password)
+        self.UserID = None
+        self.ProjectID = None
 
     #Obtener TOKEN
     def get_token(self):
@@ -46,6 +36,7 @@ class KeystoneAuth(object):
                 }
             }
         }
+        
         response = requests.post(self.auth_url+"/auth/tokens",
                                  json=auth_data,
                                  headers=self.headers)
@@ -53,12 +44,16 @@ class KeystoneAuth(object):
         if response.status_code == 201:
             self.token = response.headers['X-Subject-Token']
             print("[*]La solicitud se completó correctamente")
+            print("")
             
         elif response.status_code == 401:
             print("[*]Error de autorización, verifique credenciales")
+            print("")
             
         else:
-            print("[*]Se produjo un error. Codigo de estado;", response.status_code)
+            print(response)
+            print("[*]Se produjo un error. Codigo de estado: ", response.status_code)
+            print("")
 
         return self.token
     
@@ -288,25 +283,10 @@ class KeystoneAuth(object):
                 if not user_data:
                     print("[*] No se especificaron propiedades para actualizar")
                 else:
-<<<<<<< HEAD
-                    url = "{}/users/{}".format(self.auth_url, user_id)
-                    response = requests.patch(url,
-                                            headers={'Content-Type': 'application/json',
-                                                    'X-Auth-Token': self.token},
-                                            json=user_data)
-                    if response.status_code == 200:
-                        print("[*]Usuario actualizado exitosamente")
-                    else:
-                        #print("No se logró")
-                        #print("[*]Error al actualizar el usuario: {}".format(response.text))
-                        print("[*]Respuesta JSON del servidor: {}".format(response.json()))
-
-=======
                     print("[*]Error al actualizar el usuario: {}".format(response.text))
             else:
                 print("[*]Usuario actualizado exitosamente")
                 
->>>>>>> 3bd18fa326b79a822dd797b57374b6c47a9fb0c7
     #Eliminar usuario
     def delete_user(self,username):
         response=requests.get(self.auth_url+'/users?name=' + username,
@@ -450,7 +430,8 @@ class KeystoneAuth(object):
        
     
     #Obtener rol de un determinado usuario
-    def getUserRol(self,username):
+    def getUserRol(self):
+        username = self.username
         rolsito = ""
         #Usuarios como json
         response = requests.get(self.auth_url + '/users',
