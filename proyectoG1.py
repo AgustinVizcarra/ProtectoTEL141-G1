@@ -36,7 +36,7 @@ def menuPrincipal(keystone,privilegios):
                
     #Para usuario     
     else:
-        opcion = "Información de slices"
+        opcion = "Información de proyecto"
     
     print("")    
     return opcion
@@ -367,28 +367,107 @@ def eliminarRolUsuarioDeProyecto(keystone):
             print("[*]Ingrese un nombre de usuario válido")
             continue
 
-#Listar usuarios por proyecto
-def listarUsuariosPorProyecto(keystone):
-    listado = keystone.listarUsuariosPorProyecto()
+#Listar proyectos por usuario
+def listarProyectosPorUsuario(keystone):
+    listado = keystone.listarProyectosUsuarios()
     print("\n")
     print("|-----------------------------------------------------|")
     i = 1
-    for proyecto in listado:
-        print("|"+str(i)+". Proyecto '"+ str(proyecto[0][1]) + "'  |")
-        
-        if len(proyecto[1] != 0):    
-            j = 1
-            for usuarios in proyecto[1]:
-                print("|    -Usuario "+str(j)+" : " + str(usuarios))
-                j = j + 1
-        else:
-            print("Este proyecto no tiene usuarios asignados.")
+    for user in listado:
+        print("|"+str(i)+". Usuario '"+ str(user[0]) + "'  |")
+        #[ [username, [   [id, proyecto] , [id, proyecto]   ] ] ,   ]
+        j = 1
+        for proyectos in user[1]:
+            if len(proyectos) == 1:
+                print(proyectos[0])
+            else:
+                print("|        -Proyecto "+str(j)+" : " + str(proyectos[1]))
+            j = j + 1
         print("|-----------------------------------------------------|")
         i = i + 1
  
+#Crear un proyecto
+def crearProyecto(keystone):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        name = input("| Ingrese el nombre del proyecto: ")
+        if(name != ''):
+            if(name == "ESC"):
+                print("[*]Ha salido de la opción de -Crear Proyecto-")
+                return
+            
+            descripcion = input("| Ingrese una descripción para el proyecto: ")
+            if(descripcion == "ESC"):
+                print("[*]Ha salido de la opción de -Crear Proyecto-")
+                return
+                    
+            # Creamos el proyecto
+            keystone.crearProyecto(name, descripcion)
+            return
+        else:
+            print("[*]Ingrese un nombre de proyecto válido")
+            continue
+            
+#Listar los proyectos existentes
+def listarProyectos(keystone):
+    listadoDeProyectos = keystone.listarProyectos()
+    print("|----------------------------------------------------------------------------------------|")
+    if len(listadoDeProyectos) == 0:
+        print("[*] No hay proyectos disponibles en este momento.")
+    else:
+        for proyecto in listadoDeProyectos:
+            print("|    "+str(proyecto[0])+"   |    "+str(proyecto[1])+"    |   "+str(proyecto[2])+"    |")
+    print("|----------------------------------------------------------------------------------------|\n")
+    
+
+#Entrar a un proyecto
+def entrarProyecto(keystone,jerarquia):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        nombreProyecto = input("| Ingrese el nombre del proyecto: ")
+        if(nombreProyecto != ''):
+            if(nombreProyecto == "ESC"):
+                print("[*]Ha salido de la opción de -Entrar a un Proyecto-")
+                return
+                
+            #Entramos a un proyecto
+            idProyecto = keystone.eliminarProyecto(nombreProyecto)
+            if idProyecto is None:
+                print("[*]Ha ocurrido un error al ingresar al Proyecto.Intentelo mas tarde")
+            else:
+                keystone.setProjectID(idProyecto)
+                
+                while True:
+                    seleccion = menu2("Información de proyecto","Menú", jerarquia, keystone)
+                    if not (seleccion):
+                        return
+                    
+        else:
+            print("[*]Ingrese un nombre de proyecto válido")
+            continue  
+        
+
+
+#Eliminar un proyecto   -> Aca verificar si es que primero se borrar a los usuarios del proyecto y luego al proyecto o asi nomas
+def eliminarProyecto(keystone):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        nombreProyecto = input("| Ingrese el nombre del proyecto: ")
+        if(nombreProyecto != ''):
+            if(nombreProyecto == "ESC"):
+                print("[*]Ha salido de la opción de -Eliminar Proyecto-")
+                return
+            #Eliminamos al usuario
+            keystone.eliminarProyecto(nombreProyecto)
+            break
+        
+        else:
+            print("[*]Ingrese un nombre de proyecto válido")
+            continue
+   
 #-----------------------------------------------------------------------------------------------------------------------------------
 def menuInfoUsuarios():
-    opciones = ["Crear usuario (General)","Editar usuario (General)","Listar usuarios por proyecto",
+    opciones = ["Crear usuario (General)","Editar usuario (General)","Listar proyectos por usuario",
                      "Añadir usuario a un proyecto","Eliminar usuario de un proyecto"]
     while True:
             print("\n")
@@ -415,6 +494,62 @@ def menuInfoUsuarios():
     print("")    
     return opcion
 
+def menuInfoSlices():
+    opciones = ["Crear proyecto","Listar proyectos existentes","Ingresar a un proyecto",
+                     "Eliminar un proyecto"]
+    while True:
+        print("\n")
+        print("|-----------------------------------------------------|")
+        i = 0
+        for opt in opciones:
+            print("|- Opción "+str(opt+1)+" -> "+opt[i]+"           |")
+            i = i + 1
+                    
+        print("|- Opción "+str(i+1)+" -> Salir                             |")
+        print("|-----------------------------------------------------|")
+        opcion = input("| Ingrese una opción: ")
+
+        if int(opcion) == (len(opciones)+1):
+            opcion = "Salir"
+            break
+        else:
+            if int(opcion) <= len(opciones):
+                opcion = opciones[int(opcion)-1]
+                break
+            else:
+                print("[*]Ingrese una opción válida.")
+    
+    print("")    
+    return opcion
+
+def MenuInfoProyecto():
+    opciones = ["Consumo de Recursos","Añadir Máquina Virtual"]
+    while True:
+        print("\n")
+        print("|-----------------------------------------------------|")
+        i = 0
+        for opt in opciones:
+            print("|- Opción "+str(opt+1)+" -> "+opt[i]+"           |")
+            i = i + 1
+                    
+        print("|- Opción "+str(i+1)+" -> Salir                             |")
+        print("|-----------------------------------------------------|")
+        opcion = input("| Ingrese una opción: ")
+
+        if int(opcion) == (len(opciones)+1):
+            opcion = "Salir"
+            break
+        else:
+            if int(opcion) <= len(opciones):
+                opcion = opciones[int(opcion)-1]
+                break
+            else:
+                print("[*]Ingrese una opción válida.")
+    
+    print("")    
+    return opcion
+
+
 
 def menu2(opcion,nivel,jerarquia,keystone):
     if opcion == "Información de usuarios":
@@ -434,8 +569,8 @@ def menu2(opcion,nivel,jerarquia,keystone):
         elif(nivel == "Eliminar usuario (General)"):
             eliminarUsuario(keystone)
             
-        elif(nivel == "Listar usuarios por proyecto"):
-            listarUsuariosPorProyecto(keystone)
+        elif(nivel == "Listar proyectos por usuario"):
+            listarProyectosPorUsuario(keystone)
             
         elif(nivel == "Añadir usuario a un proyecto"):
             asignarRolUsuarioAProyecto(keystone)
@@ -449,6 +584,41 @@ def menu2(opcion,nivel,jerarquia,keystone):
         return True
         
     elif opcion == "Información de slices":
+        if(nivel == "Menú"):
+            while True:
+                seleccion = menuInfoSlices()
+                resultado = menu2(opcion,seleccion, jerarquia, keystone)  
+                if not (resultado):
+                    break
+                
+        elif(nivel == "Crear proyecto"):
+            crearProyecto(keystone)
+            
+        elif(nivel == "Listar proyectos existentes"):
+            listarProyectos(keystone)
+            
+        elif(nivel == "Ingresar a un proyecto"):
+            entrarProyecto(keystone,jerarquia)
+            
+        elif(nivel == "Eliminar un proyecto"):
+            eliminarProyecto(keystone)
+            
+        elif(nivel == "Salir"):        
+            return False
+        
+        return True
+    
+    elif opcion == "Información de proyecto":
+        if(nivel == "Menú"):
+           while True:
+                seleccion = MenuInfoProyecto()
+                resultado = menu2(opcion,seleccion, jerarquia, keystone)  
+                if not (resultado):
+                    break
+                    
+        elif(nivel == "Salir"):
+            return False
+
         return True
     
     elif opcion == "Salir":

@@ -490,10 +490,114 @@ class KeystoneAuth(object):
             print("[*]No se encontró el usuario y/o el proyecto")
 
     #Listar usuarios por proyecto
-    def listarUsuariosPorProyecto(self):
-        pass
-        #Formato del response -> [ [ [id_proyecto, nombre_proyecto] ,nombre_usuario] ,  ,    ]
-
-
-
+    def listarProyectosUsuarios(self):
+        #obtener lista de usuarios
+        response = requests.get(self.auth_url + '/users',
+                                headers={'Content-Type': 'application/json',
+                                        'X-Auth-Token': self.token})
         
+        proyectos_usuario = []
+        
+        if response.status_code == 200:
+            users = response.json()['users']
+            for user in users:
+                user_id = user['id']
+                user_name = user['name']
+                
+                #Consultamos los proyectos que tiene ese usuario
+                response = requests.get(self.auth_url + '/users/' + user_id+ "/projects",
+                                headers={'Content-Type': 'application/json',
+                                        'X-Auth-Token': self.token})
+                proyectos = []
+                if response.status_code == 200:
+                    response = response.json()
+                    for project in response["projects"]:
+                        proyecto = []
+                        proyecto.append(project["id"])
+                        proyecto.append(project["name"])
+                        proyectos.append(proyecto)
+                else:
+                    proyectos.append("|     [*]Ha ocurrido un problema al listar los proyectos del usuario |")
+                
+                proyectos_usuario.append([user_name,proyectos])            
+                       
+            print("[*]Se han listado todos los proyectos de los usuarios")
+        
+        else:
+            print("[*]Ha ocurrido un problema al listar los usuarios")
+        
+        return proyectos_usuario
+    
+    #Crear Proyecto
+    def crearProyecto(self,name,description):
+        project = {
+                'project': {
+                    'name': name,
+                    'description': description
+                }
+            }
+        
+        response = requests.post(self.auth_url + '/projects',
+                                    json=project,
+                                    headers={'Content-Type': 'application/json',
+                                            'X-Auth-Token': self.token})
+            
+        if response.status_code == 201:
+            print("[*]Proyecto creado exitosamente")
+        else:
+            print("[*]Ha ocurrido un error al crear el proyecto")
+
+    #Listar los proyectos existentes
+    def listarProyectos(self):
+        response = requests.get(self.auth_url + '/projects',
+                                headers={'Content-Type': 'application/json',
+                                        'X-Auth-Token': self.token})
+        proyectos = []
+        if response.status_code == 200:
+            response = response.json()
+            for project in response["projects"]:
+                proyecto = []
+                proyecto.append(project["id"])
+                proyecto.append(project["name"])
+                proyecto.append(project["description"])
+                proyectos.append(proyecto)
+        else:
+            print("[*]Error al obtener la lista de proyectos\n")
+        
+        return proyectos
+    
+    #Eliminar un proyecto
+    def eliminarProyecto(self,name):
+        #Obtenemos el ID del proyecto
+        response = requests.get(self.auth_url + '/projects?name=' + name,
+                                headers={'Content-Type': 'application/json',
+                                        'X-Auth-Token': self.token})
+        project_id = None
+        if response.status_code == 200:
+            projects = response.json()['projects']
+            if len(projects)!=0:
+                user_id = projects[0]['id']
+        
+        if project_id is not None:
+            response = requests.delete(self.auth_url + '/projects/' + project_id,
+                                    headers={'Content-Type': 'application/json',
+                                                'X-Auth-Token': self.token})
+            if response.status_code == 204:
+                print("[*]Proyecto eliminado exitosamente")
+            else:
+                print("[*]Ha ocurrido un problema al eliminar el proyecto")
+        else:
+            print("[*]Ha ocurrido un problema al eliminar el proyecto")
+            
+    #Obtener ID Proyecto
+    def getIDProyecto(self,name):
+        response = requests.get(self.auth_url + '/projects?name=' + name,
+                                headers={'Content-Type': 'application/json',
+                                        'X-Auth-Token': self.token})
+        project_id = None
+        if response.status_code == 200:
+            projects = response.json()['projects']
+            if len(projects)!=0:
+                user_id = projects[0]['id']
+                
+        return project_id
