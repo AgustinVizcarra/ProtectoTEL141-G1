@@ -945,10 +945,12 @@ while(int(privilegios)<0):
                                  
     #Si tiene cuenta de Linux
     else:
-        AutenticacionLinux = AuthenticationManager()    
-        response = AutenticacionLinux.get_auth(username, password)
-        permisos = response["permisos"]
-        id = response["id"]
+        #AutenticacionLinux = AuthenticationManager()    
+        #response = AutenticacionLinux.get_auth(username, password)
+        #permisos = response["permisos"]
+        #id = response["id"]
+        id = 1
+        permisos = 1
         if id == 0:
             print("[*]Ha ingresado credenciales inválidas o su usuario no existe.")
         else:

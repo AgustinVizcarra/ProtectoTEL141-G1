@@ -59,7 +59,7 @@ class Administrador:
                                             print("[*] Ingresando al menú de proyectos")
                                             while True:
                                                 print("|----------------Menú de Proyectos------------------|")
-                                                opcionesProyectos = ["Listar proyectos","Listar proyectos por usuario","Crear un proyecto","Editar un proyecto","Eliminar un proyecto","Salir"]
+                                                opcionesProyectos = ["Listar proyectos","Listar proyectos por usuario","Salir"]
                                                 i = 0
                                                 for opt in opcionesProyectos:
                                                     longitud_print = 50
@@ -74,20 +74,11 @@ class Administrador:
                                                     match int(opcion):
                                                         case 1:
                                                             print("[*] Listando proyectos")
-                                                            listarProyectos()
+                                                            
                                                         case 2:
                                                             print("[*] Ingresando al formulario de proyecto por usuario")
                                                             proyectoXUsuario()
                                                         case 3:
-                                                            print("[*] Ingresando al formulario de creación de proyecto")
-                                                            creandoProyecto()
-                                                        case 4:
-                                                            print("[*] Ingresando al formulario de edición de proyecto")
-                                                            editandoProyecto()
-                                                        case 5:
-                                                            print("[*] Ingresando al formulario de eliminación de proyecto")
-                                                            eliminandoProyecto()
-                                                        case 6:
                                                             print("[*] Regresando al menú principal")
                                                             break                    
                                                         case _:
@@ -103,7 +94,92 @@ class Administrador:
                                     print("[*] Ingrese una opción valida")
                         case 2:
                             #Información de Slices
-                            pass
+                            opcionesSlices = ["Listar proyectos","Crear un proyecto","Editar un proyecto","Eliminar un proyecto","Información del Proyecto","Salir"]
+                            while True:
+                                i = 0
+                                print("|----------------Menú de slices------------------|")
+                                for opt in opcionesSlices:
+                                    longitud_print = 50
+                                    chain = "|- Opción "+str(i+1)+" -> "+opt
+                                    falta = longitud_print - len(chain) - 1
+                                    chain = chain + (falta* " ")+ "|"
+                                    print(chain)
+                                    i += 1
+                                print("|------------------------------------------------|")
+                                opcion = input("| Ingrese una opción: ")
+                                if opcion.isdigit():
+                                    match int(opcion):
+                                        case 1:
+                                            print("[*] Listando proyecto ")
+                                            listarProyectos()
+                                        case 2:
+                                            print("[*] Ingresando al formulario de creación de proyectos ")
+                                            creandoProyecto()
+                                        case 3:
+                                            print("[*] Ingresando al menú de edición de proyectos ")
+                                            while True:
+                                                print("|----------------Menú de edición de proyecto------------------|")
+                                                opcionesEdicionProyectos = ["Editar usuarios","Editar topología","Salir"]
+                                                i = 0
+                                                for opt in opcionesEdicionProyectos:
+                                                    longitud_print = 50
+                                                    chain = "|- Opción "+str(i+1)+" -> "+opt
+                                                    falta = longitud_print - len(chain) - 1
+                                                    chain = chain + (falta* " ")+ "|"
+                                                    print(chain)
+                                                    i += 1
+                                                print("|------------------------------------------------|")
+                                                opcion = input("| Ingrese una opción: ")
+                                                if opcion.isdigit():
+                                                    match int(opcion):
+                                                        case 1:
+                                                            print("[*] Ingresando al menú de edición de usuarios x proyecto")
+                                                        case 2:
+                                                            print("[*] Ingresando al menú de edición de topología x proyecto")
+                                                        case 3:
+                                                            print("[*] Regresando al menú de slices")
+                                                            break                    
+                                                        case _:
+                                                            print("[*] Ingrese una opción valida")
+                                                else:
+                                                    print("[*] Ingrese una opción valida")       
+                                        case 4:
+                                            print("[*] Ingresando al menú de eliminación de usuarios ")
+                                            while True:
+                                                print("|----------------Menú de eliminación de proyecto------------------|")
+                                                opcionesEdicionProyectos = ["Eliminar usuarios","Eliminar topología","Salir"]
+                                                i = 0
+                                                for opt in opcionesEdicionProyectos:
+                                                    longitud_print = 50
+                                                    chain = "|- Opción "+str(i+1)+" -> "+opt
+                                                    falta = longitud_print - len(chain) - 1
+                                                    chain = chain + (falta* " ")+ "|"
+                                                    print(chain)
+                                                    i += 1
+                                                print("|------------------------------------------------|")
+                                                opcion = input("| Ingrese una opción: ")
+                                                if opcion.isdigit():
+                                                    match int(opcion):
+                                                        case 1:
+                                                            print("[*] Ingresando al menú de eliminación de usuarios x proyecto")
+                                                        case 2:
+                                                            print("[*] Ingresando al menú de eliminación de topología x proyecto")
+                                                        case 3:
+                                                            print("[*] Regresando al menú de slices")
+                                                            break                    
+                                                        case _:
+                                                            print("[*] Ingrese una opción valida")
+                                                else:
+                                                    print("[*] Ingrese una opción valida")       
+                                        case 5:
+                                            print("[*] Ingresando al formulario de visualización del proyecto")
+                                        case 6:
+                                            print("[*] Regresando al menú principal")
+                                            break
+                                        case _:
+                                            print("[*] Ingrese una opción valida")
+                                else:
+                                    print("[*] Ingrese una opción valida")
                 else:
                     print("[*] Ingrese una opción válida.")
 #### Funciones de Usuario y Proyecto#####
