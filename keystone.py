@@ -92,7 +92,7 @@ class KeystoneAuth(object):
                     'password': {
                         'user': {
                             'name': "admin",
-                            'password': "admin",
+                            'password': "ADMIN_PASS",
                             'domain': {'id': 'default'}
                         }
                     }
