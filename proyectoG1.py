@@ -916,8 +916,8 @@ while(int(privilegios)<0):
     username = input("| Ingrese su nombre de usuario: ")
     password = getpass("| Ingrese su contraseña: ")
     tokensito = None
-    keystone = KeystoneAuth(username, password)
-    tokensito = getTokensito(keystone)
+    #keystone = KeystoneAuth(username, password)
+    #tokensito = getTokensito(keystone)
     #Si tiene cuenta de Openstack 
     if tokensito != None:
         getTokensitoAdmin(keystone) #Para actualizar el token de admin para hacer las consultas
@@ -945,10 +945,12 @@ while(int(privilegios)<0):
                                  
     #Si tiene cuenta de Linux
     else:
-        AutenticacionLinux = AuthenticationManager()    
-        response = AutenticacionLinux.get_auth(username, password)
-        permisos = response["permisos"]
-        id = response["id"]
+        #AutenticacionLinux = AuthenticationManager()    
+        #response = AutenticacionLinux.get_auth(username, password)
+        #permisos = response["permisos"]
+        #id = response["id"]
+        id = 1
+        permisos = 1
         if id == 0:
             print("[*]Ha ingresado credenciales inválidas o su usuario no existe.")
         else:
@@ -956,16 +958,16 @@ while(int(privilegios)<0):
                 print("[*]Bienvenido al Menú Principal")
                 print("[*]Orquestador: Linux")
                 if permisos == 0:
-                    print("[*]Bienvenido usuario "+username+" !")
+                    print("[*] Bienvenido usuario "+username+" !")
                     usuario = Usuario(id=id)
                     usuario.menuUsuario(id)
-                    print("[*]Gracias por usar nuestro sistema!\n")
+                    print("[*] Gracias por usar nuestro sistema!\n")
                     privilegios = 0
                     break 
                 else:
-                    print("[*]Bienvenido administrador "+username+" !")
+                    print("[*] Bienvenido administrador "+username+" !")
                     admin = Administrador(id=id)
                     admin.menuAdministrador(id)
-                    print("[*]Gracias por usar nuestro sistema!\n")
+                    print("[*] Gracias por usar nuestro sistema!\n")
                     privilegios = 0
                     break 

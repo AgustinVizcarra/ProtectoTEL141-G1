@@ -134,8 +134,6 @@ class KeystoneAuth(object):
         return response.json()
 
 
-
-
     #Crear Usuario
     def crear_usuario(self, username, password, email, rol_name):
             user_data = {
@@ -601,3 +599,9 @@ class KeystoneAuth(object):
                 user_id = projects[0]['id']
                 
         return project_id
+
+
+
+
+
+
