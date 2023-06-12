@@ -76,8 +76,8 @@ class KeystoneAuth(object):
                     'methods': ['password'],
                     'password': {
                         'user': {
-                            'name': "admin", 
-                            'password': "admin", 
+                            'name': self.username, 
+                            'password': self.password, 
                             'domain': {'name': 'Default'}
                         }
                     }
@@ -88,8 +88,14 @@ class KeystoneAuth(object):
         response = requests.post(self.auth_url+"/auth/tokens",
                                 json=auth_data,
                                 headers=self.headers) 
-
-        self.token = response.headers['X-Subject-Token']
+        print(response.status_code)
+    
+        if response.status_code == 201:
+            self.token = response.headers['X-Subject-Token']
+            self.UserID = response.json()["token"]["user"]['id']
+            print("[*]El token se actualizó correctamente\n")
+        else:
+            print("[*]Error al actualizar el token, verifique las credenciales\n")
     
     #Obtener listado de proyectos en los que se encuentra asignado el usuario con su rol
     def getListProjects(self):
@@ -115,6 +121,7 @@ class KeystoneAuth(object):
                 }
         
                 response = requests.get(url, headers=headers)
+                print(response.json())
                 rolName = response.json()['roles'][0]['name']
                 roles.append(rolName)
 

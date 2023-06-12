@@ -1,24 +1,27 @@
 ########################################## NOVA ##################################################
+import requests
 ##########FLAVOR###########
 class NovaClient(object):
     def __init__(self, auth_token):
         self.auth_token = auth_token
-        self.nova_url = "http://10.20.12.39:8774/"
+        self.nova_url = "http://10.20.12.48:8774/v2.1"
         self.headers = {
             'Content-Type': 'application/json',
             'X-Auth-Token': self.auth_token
         }
        
-        
 
     def list_flavors(self):
         response = requests.get(self.nova_url + '/flavors', headers=self.headers)
 
         if response.status_code == 200:
-            flavors = response.json()['flavors']
-            return flavors
+            flavors = response.json().get('flavors', [])
+            flavor_info = []
+            for flavor in flavors:
+                flavor_info.append([flavor['id'], flavor['name'], flavor['ram'], flavor['disk'], flavor['vcpus']])
+            return flavor_info
         else:
-            raise Exception('Failed to list flavors. Status code: {}'.format(response.status_code))
+            raise Exception('Error al listar los flavors. Código de estado: {}'.format(response.status_code))
 
     def create_flavor(self, name, ram, vcpus, disk):
         flavor_data = {
@@ -74,51 +77,240 @@ class NovaClient(object):
 ##########KEYPAIR###########
 #Crear Keypair
     def crearKeyPair(self,name,ubicacion,user):
-        pass
+        url = f"{self.nova_url}/os-keypairs"
+        data = {
+            'keypair': {
+                'name': name,
+                'location': ubicacion,
+                'user': user
+            }
+        }
+        response = requests.post(url, json=data, headers=self.headers)
+
+        if response.status_code == 200:
+            keypair = response.json().get('keypair', {})
+            print("Keypair creado exitosamente:", keypair['name'])
+        else:
+            print("Error al crear el Keypair:", response.status_code)
     
 #Listar keypairs
     def listarKeyPair(self,user):
-        pass
+        url = f"{self.nova_url}/os-keypairs"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            keypairs = response.json().get('keypairs', [])
+            keypair_names=[]
+            for keypair in keypairs:
+                if keypair['user'] == user:
+                    print("Nombre del Keypair:", keypair['name'])
+                    keypair_names.append(keypair['name'])
+                    return keypair_names
+        else:
+            print("Error al listar los Keypairs:", response.status_code)
 
 #Info keypair
     def infoKeyPair(self,keypair,user):
-        pass
+        url = f"{self.nova_url}/os-keypairs"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            keypairs = response.json().get('keypairs', [])
+            for kp in keypairs:
+                if kp['user'] == user and kp['name'] == keypair:
+                    print("Información del Keypair:")
+                    print("Nombre:", kp['name'])
+                    print("Ubicación:", kp['location'])
+                    print("Usuario:", kp['user'])
+                    info={
+                        'nombre': kp['name'],
+                        'tipo': kp['type'],
+                        'fingerprint': kp['fingerprint'],
+                        'fechacreacion': kp['created_at'],
+                        'publickey': kp['public_key']
+                    }
+                    return info
+            print("No se encontró el Keypair especificado")
+        else:
+            print("Error al obtener la información del Keypair:", response.status_code)
     
 #Borrar keypair
     def borrarKeyPair(self,keypair,user):
-        pass
+        url = f"{self.nova_url}/os-keypairs"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            keypairs = response.json().get('keypairs', [])
+            for kp in keypairs:
+                if kp['user'] == user and kp['name'] == keypair:
+                    url_keypair = f"{url}/{kp['id']}"
+                    response_borrar = requests.delete(url_keypair, headers=self.headers)
+                    if response_borrar.status_code == 204:
+                        print("Keypair eliminado exitosamente")
+                    else:
+                        print("Error al eliminar el Keypair:", response_borrar.status_code)
+                    return
+            print("No se encontró el Keypair especificado")
+        else:
+            print("Error al eliminar el Keypair:", response.status_code)
 
 #Obtener ID de keypair
     def obtenerIDKeyPair(self,keypair):
-        pass
+        url = f"{self.nova_url}/os-keypairs"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            keypairs = response.json().get('keypairs', [])
+            for kp in keypairs:
+                if kp['name'] == keypair:
+                    print("ID del Keypair:", kp['id'])
+                    return kp['id']
+            print("No se encontró el Keypair especificado")
+        else:
+            print("Error al obtener el ID del Keypair:", response.status_code)
+
 ##########SECURITY GROUP###########
 #Crear securitygroup
     def crearSecurityGroup(self,name,descripcion):
-        pass
+        url = f"{self.nova_url}/os-security-groups"
+        data = {
+            'security_group': {
+                'name': name,
+                'description': descripcion
+            }
+        }
+        response = requests.post(url, json=data, headers=self.headers)
+
+        if response.status_code == 200:
+            security_group = response.json().get('security_group', {})
+            print("Grupo de seguridad creado exitosamente:", security_group['name'])
+        else:
+            print("Error al crear el Grupo de seguridad:", response.status_code)
     
 #Listar securitygroup
     def listarSecurityGroup(self):
-        pass
+        url = f"{self.nova_url}/os-security-groups"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            security_groups = response.json().get('security_groups', [])
+            print("Lista de Grupos de Seguridad:")
+            lista_sg = []
+            for sg in security_groups:
+                print("Nombre:", sg['name'])
+                print("Descripción:", sg['description'])
+                #print("ID:", sg['id'])
+                print("----------")
+                lista_sg.append([sg['name'], sg['description']])
+            return lista_sg
+        else:
+            print("Error al listar los Grupos de Seguridad:", response.status_code)
 
 #Editar securitygroup
     def editarSecurityGroup(self,name,nuevoname,descripcion):
-        pass
+        url = f"{self.nova_url}/os-security-groups"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            security_groups = response.json().get('security_groups', [])
+            for sg in security_groups:
+                if sg['name'] == name:
+                    url_editar = f"{url}/{sg['id']}"
+                    data = {
+                        'security_group': {
+                            'name': nuevoname,
+                            'description': descripcion
+                        }
+                    }
+                    response_editar = requests.put(url_editar, json=data, headers=self.headers)
+                    if response_editar.status_code == 200:
+                        print("Grupo de seguridad editado exitosamente")
+                    else:
+                        print("Error al editar el Grupo de seguridad:", response_editar.status_code)
+                    return
+            print("No se encontró el Grupo de seguridad especificado")
+        else:
+            print("Error al obtener los Grupos de seguridad:", response.status_code)
     
 #Eliminar securitygroup
     def eliminarSecurityGroup(self,name):
-        pass
+        url = f"{self.nova_url}/os-security-groups"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            security_groups = response.json().get('security_groups', [])
+            for sg in security_groups:
+                if sg['name'] == name:
+                    url_eliminar = f"{url}/{sg['id']}"
+                    response_eliminar = requests.delete(url_eliminar, headers=self.headers)
+                    if response_eliminar.status_code == 204:
+                        print("Grupo de seguridad eliminado exitosamente")
+                    else:
+                        print("Error al eliminar el Grupo de seguridad:", response_eliminar.status_code)
+                    return
+            print("No se encontró el Grupo de seguridad especificado")
+        else:
+            print("Error al obtener los Grupos de seguridad:", response.status_code)
 
 #Obtener ID de securitygroup
     def obtenerIDSecurityGroup(self,securitygroup):
-        pass
+        url = f"{self.nova_url}/os-security-groups"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            security_groups = response.json().get('security_groups', [])
+            for sg in security_groups:
+                if sg['name'] == securitygroup:
+                    print("ID del Grupo de seguridad:", sg['id'])
+                    return sg['id']
+            print("No se encontró el Grupo de seguridad especificado")
+        else:
+            print("Error al obtener el ID del Grupo de seguridad:", response.status_code)
     
 #Agregar regla
     def agregarRegla(self,nombre,protocol_ip,from_port,dest_port,cidr):
-        pass
+        url = f"{self.nova_url}/os-security-group-rules"
+        data = {
+            'security_group_rule': {
+                'security_group_name': nombre,
+                'protocol': protocol_ip,
+                'from_port': from_port,
+                'to_port': dest_port,
+                'cidr': cidr
+            }
+        }
+        response = requests.post(url, json=data, headers=self.headers)
+
+        if response.status_code == 200:
+            security_group_rule = response.json().get('security_group_rule', {})
+            print("Regla de seguridad agregada exitosamente:")
+            print("Nombre del grupo de seguridad:", security_group_rule['security_group_name'])
+            print("Protocolo:", security_group_rule['protocol'])
+            print("Puerto origen:", security_group_rule['from_port'])
+            print("Puerto destino:", security_group_rule['to_port'])
+            print("CIDR:", security_group_rule['cidr'])
+        else:
+            print("Error al agregar la regla de seguridad:", response.status_code)
 
 #Eliminar regla
     def eliminarRegla(self,ID):
-        pass
+        url = f"{self.nova_url}/os-security-group-rules"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            security_group_rules = response.json().get('security_group_rules', [])
+            for rule in security_group_rules:
+                if rule['id'] == ID:
+                    url_eliminar = f"{url}/{ID}"
+                    response_eliminar = requests.delete(url_eliminar, headers=self.headers)
+                    if response_eliminar.status_code == 204:
+                        print("Regla de seguridad eliminada exitosamente")
+                    else:
+                        print("Error al eliminar la regla de seguridad:", response_eliminar.status_code)
+                    return
+            print("No se encontró la regla de seguridad especificada")
+        else:
+            print("Error al obtener las reglas de seguridad:", response.status_code)
 
 #################MAQUINA VM (opciones)#######################
 # Listar las instancias de VM
@@ -126,8 +318,11 @@ class NovaClient(object):
         response = requests.get(self.nova_url + '/servers', headers=self.headers)
 
         if response.status_code == 200:
-            instances = response.json()['servers']
-            return instances
+            vm_names=[]
+            instances = response.json().get('servers',[])
+            for instance in instances:
+                vm_names.append(instance['name'])
+            return vm_names
         else:
             raise Exception('Failed to list instances. Status code: {}'.format(response.status_code))
 
@@ -165,7 +360,7 @@ class NovaClient(object):
     def update_instance(self, name, newname, descripcion):
         instance_data = {
             'server': {
-                'name': new_name
+                'name': newname
             }
         }
         response = requests.put(self.nova_url + '/servers/{}'.format(instance_id), json=instance_data, headers=self.headers)
