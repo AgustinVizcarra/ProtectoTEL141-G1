@@ -10,7 +10,14 @@ class NeutronClient(object):
             'Content-Type': 'application/json',
             'X-Auth-Token': self.auth_token
         }
-
+        self.NetworkID = None
+        
+    def getNetworkID(self):
+        return self.NetworkID
+    
+    def setNetworkID(self,NetworkID):
+        self.NetworkID = NetworkID
+        
     def list_networks(self):
         response = requests.get(self.neutron_url + 'networks', headers=self.headers)
 
@@ -20,19 +27,37 @@ class NeutronClient(object):
         else:
             raise Exception('Failed to list networks. Status code: {}'.format(response.status_code))
 
-    def create_network(self, name):
+    #Funcion que permite crear la redprovider
+    def create_network(self, red,subred,cidr,gateway,project):
         network_data = {
             'network': {
-                'name': name
+                'name': red,
+                'project_id ': project
             }
         }
         response = requests.post(self.neutron_url + 'networks', json=network_data, headers=self.headers)
 
         if response.status_code == 201:
-            network = response.json()['network']
-            return network
+            network_id = response.json()['network']['id']
+            
+            subnet_data = {
+                'subnet': {
+                    'name': subred,
+                    'network_id': network_id,
+                    'cidr': cidr,
+                    'gateway_ip': gateway
+                }
+            }
+            
+            response = requests.post(self.neutron_url + 'subnets', json=subnet_data, headers=self.headers)
+            if response.status_code == 201:
+                self.NetworkID = network_id
+                print("[*] Red Provider creada exitosamente\n")
+            else:
+                print("[*] Ha ocurrido un error al crear la redProvider\n")
         else:
-            raise Exception('Failed to create network. Status code: {}'.format(response.status_code))
+            print("[*] Ha ocurrido un error al crear la redProvider\n")
+
 
     def get_network(self, network_id):
         response = requests.get(self.neutron_url + 'networks/{}'.format(network_id), headers=self.headers)
@@ -65,6 +90,22 @@ class NeutronClient(object):
         else:
             raise Exception('Failed to delete network. Status code: {}'.format(response.status_code))
 
+    #Funcion para saber si ya existe una redprovider
+    def existe_network(self,project_id):
+        response = requests.get(self.neutron_url + 'networks?project_id='+project_id, headers=self.headers)
+        if response.status_code == 200:
+            networks = response.json()['networks']
+            if len(networks) != 0:
+                network_id = networks[0]['id']
+                self.NetworkID =  network_id
+                return True
+        return False
+        
+        
+    #Funcion que devuelve la info de una red y su subred
+    def infoRedProvider(self):
+        pass    
+        
 ###################SUBRED################## 
 
     def list_subnets(self):

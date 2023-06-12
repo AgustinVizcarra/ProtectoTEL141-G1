@@ -1,5 +1,4 @@
 ########################################## NOVA ##################################################
-
 ##########FLAVOR###########
 class NovaClient(object):
     def __init__(self, auth_token):
@@ -9,6 +8,8 @@ class NovaClient(object):
             'Content-Type': 'application/json',
             'X-Auth-Token': self.auth_token
         }
+       
+        
 
     def list_flavors(self):
         response = requests.get(self.nova_url + '/flavors', headers=self.headers)
@@ -70,9 +71,58 @@ class NovaClient(object):
         else:
             raise Exception('Failed to delete flavor. Status code: {}'.format(response.status_code))
 
+##########KEYPAIR###########
+#Crear Keypair
+    def crearKeyPair(self,name,ubicacion,user):
+        pass
+    
+#Listar keypairs
+    def listarKeyPair(self,user):
+        pass
+
+#Info keypair
+    def infoKeyPair(self,keypair,user):
+        pass
+    
+#Borrar keypair
+    def borrarKeyPair(self,keypair,user):
+        pass
+
+#Obtener ID de keypair
+    def obtenerIDKeyPair(self,keypair):
+        pass
+##########SECURITY GROUP###########
+#Crear securitygroup
+    def crearSecurityGroup(self,name,descripcion):
+        pass
+    
+#Listar securitygroup
+    def listarSecurityGroup(self):
+        pass
+
+#Editar securitygroup
+    def editarSecurityGroup(self,name,nuevoname,descripcion):
+        pass
+    
+#Eliminar securitygroup
+    def eliminarSecurityGroup(self,name):
+        pass
+
+#Obtener ID de securitygroup
+    def obtenerIDSecurityGroup(self,securitygroup):
+        pass
+    
+#Agregar regla
+    def agregarRegla(self,nombre,protocol_ip,from_port,dest_port,cidr):
+        pass
+
+#Eliminar regla
+    def eliminarRegla(self,ID):
+        pass
+
 #################MAQUINA VM (opciones)#######################
 # Listar las instancias de VM
-    def list_instances(self):
+    def list_instances(self,project_id):
         response = requests.get(self.nova_url + '/servers', headers=self.headers)
 
         if response.status_code == 200:
@@ -82,7 +132,7 @@ class NovaClient(object):
             raise Exception('Failed to list instances. Status code: {}'.format(response.status_code))
 
     # Crear una instancia de VM
-    def create_instance(self, name, flavor_id, image_id, network_id):
+    def create_instance(self, name, flavor_id, image_id, network_id,keypairID,securitygroupID):
         instance_data = {
             'server': {
                 'name': name,
@@ -112,7 +162,7 @@ class NovaClient(object):
             raise Exception('Failed to get instance. Status code: {}'.format(response.status_code))
 
     # Actualizar una instancia de VM
-    def update_instance(self, instance_id, new_name):
+    def update_instance(self, name, newname, descripcion):
         instance_data = {
             'server': {
                 'name': new_name
