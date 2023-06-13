@@ -67,10 +67,10 @@ class KeystoneAuth(object):
         if response.status_code == 201:
             self.token = response.headers['X-Subject-Token']
             self.UserID = response.json()["token"]["user"]['id']
-            print("[*]La solicitud se completó correctamente\n")
+            print("[*] La solicitud se completó correctamente\n")
             
         else:
-            print("[*]Error de autorización, verifique credenciales\n")
+            print("[*] Error de autorización, verifique credenciales\n")
         
         return self.token
     
@@ -87,6 +87,11 @@ class KeystoneAuth(object):
                             'domain': {'name': 'Default'}
                         }
                     }
+                },
+                "scope": {
+                    "system":{
+                        "all": True
+                    }
                 }
             }
         }
@@ -98,11 +103,12 @@ class KeystoneAuth(object):
         if response.status_code == 201:
             self.token = response.headers['X-Subject-Token']
             self.UserID = response.json()["token"]["user"]['id']
-
-            print("[*]El token se actualizó correctamente\n")
+            print("[*] El token se actualizó correctamente\n")
         else:
-            print("[*]Error al actualizar el token, verifique las credenciales\n")
-    
+            print("[*] Error al actualizar el token, verifique las credenciales\n")
+
+        return self.token
+        
     #Obtener listado de proyectos en los que se encuentra asignado el usuario con su rol
     def getListProjects(self):
         response = requests.get(self.auth_url + '/users/' + self.UserID + "/projects",

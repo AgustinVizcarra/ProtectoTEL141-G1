@@ -19,13 +19,18 @@ def MenuListaProyectos(keystone):
         return False,keystone
     else:
         while True:
-            print("|--------------------Lista de Proyectos------------------------|")
+            print("\n|--------------------Lista de Proyectos------------------------|")
             i = 0
             for proyecto in listaProyectos:
-                print("|- Proyecto "+str(i+1)+" -> "+str(proyecto[1])+"| Rol: "+ str(listaRoles[i])+ "   |")
+                print("|- Proyecto "+str(i+1)+" -> "+str(proyecto[1])+"     |   Rol: "+ str(listaRoles[i]))
                 i = i + 1
             print("|--------------------------------------------------------------|")
+            print("                **Escriba ESC para poder salir**               ")
+            print("|--------------------------------------------------------------|")
             opcionProyecto = input("| Ingrese el # del proyecto al que desea ingresar: ")
+            if str(opcionProyecto) == "ESC":
+                return False,keystone
+            
             if int(opcionProyecto) > len(listaProyectos):
                  print("[*] Ingrese el # de un proyecto válido\n")
             else:
@@ -47,9 +52,9 @@ def menuPrincipal(keystone):
             print("\n|--------------------Menú Principal------------------------|")
             i = 0
             for opt in opciones:
-                print("|- Opción "+str(i+1)+" -> "+str(opt)+"           |")
+                print("|- Opción "+str(i+1)+" -> "+str(opt))
                 i = i + 1
-            print("|- Opción "+str(i)+" -> Salir                             |")
+            print("|- Opción "+str(i+1)+" -> Salir                             ")
             print("|------------------------------------------------------------|")
             opcion = input("| Ingrese una opción: ")
             if int(opcion) == (len(opciones)+1):
@@ -60,7 +65,7 @@ def menuPrincipal(keystone):
                     opcion = opciones[int(opcion)-1]
                     break
                 else:
-                    print("[*] Ingrese una opción válida.")
+                    print("[*] Ingrese una opción válida.\n")
     return opcion
 
 #Funcion que muestra el Menú Usuarios
@@ -72,9 +77,9 @@ def menuUsuarios():
             print("\n|-----------------------------------------------------|")
             i = 0
             for opt in opciones:
-                print("|- Opción "+str(i+1)+" -> "+str(opt)+"           |")
+                print("|- Opción "+str(i+1)+" -> "+str(opt))
                 i = i + 1   
-            print("|- Opción "+str(i)+" -> Salir                             |")
+            print("|- Opción "+str(i+1)+" -> Salir")
             print("|-----------------------------------------------------|")
             opcion = input("| Ingrese una opción: ")
             if int(opcion) == (len(opciones)+1):
@@ -94,7 +99,7 @@ def listarUsuariosProyecto(keystone):
     print("\n|-----------------------------------------------------|")
     i = 1
     for user in listado:
-        print("| Usuario "+str(i)+": "+str(user)+ "  |")
+        print("| Usuario "+str(i)+": "+str(user))
         i = i + 1
     print("|-----------------------------------------------------|")
     
@@ -212,9 +217,9 @@ def menuRedes(keystone):
             print("\n|-----------------------------------------------------|")
             i = 0
             for opt in opciones:
-                print("|- Opción "+str(i+1)+" -> "+str(opt)+"           |")
+                print("|- Opción "+str(i+1)+" -> "+str(opt))
                 i = i + 1   
-            print("|- Opción "+str(i)+" -> Salir                             |")
+            print("|- Opción "+str(i+1)+" -> Salir")
             print("|-----------------------------------------------------|")
             opcion = input("| Ingrese una opción: ")
             if int(opcion) == (len(opciones)+1):
@@ -293,9 +298,9 @@ def menuKeyPair():
             print("\n|-----------------------------------------------------|")
             i = 0
             for opt in opciones:
-                print("|- Opción "+str(i+1)+" -> "+str(opt)+"           |")
+                print("|- Opción "+str(i+1)+" -> "+str(opt))
                 i = i + 1   
-            print("|- Opción "+str(i)+" -> Salir                             |")
+            print("|- Opción "+str(i+1)+" -> Salir")
             print("|-----------------------------------------------------|")
             opcion = input("| Ingrese una opción: ")
             if int(opcion) == (len(opciones)+1):
@@ -339,12 +344,13 @@ def listarKeypair(keystone,nova):
     print("\n|-----------------------------------------------------|")
     i = 1
     for key in listado:
-        print("| KeyPair "+str(i)+": "+str(key)+ "  |")
+        print("| KeyPair "+str(i)+": "+str(key))
         i = i + 1
     print("|-----------------------------------------------------|")
 
 #Funcion para ver info de la keypair
 def infoKeypair(keystone,nova):
+    print("**Escriba ESC para poder salir de esta opción**")
     while True:
         nombre = input("| Ingrese el nombre de la KeyPair: ")
         if(nombre != ''):
@@ -366,6 +372,7 @@ def infoKeypair(keystone,nova):
 
 #Funcion para borrar la keypair
 def borrarKeypair(keystone,nova):
+    print("**Escriba ESC para poder salir de esta opción**")
     while True:
         nombre = input("| Ingrese el nombre de la KeyPair: ")
         if(nombre != ''):
@@ -385,9 +392,9 @@ def menuSecurityGroup():
             print("\n|-----------------------------------------------------|")
             i = 0
             for opt in opciones:
-                print("|- Opción "+str(i+1)+" -> "+str(opt)+"           |")
+                print("|- Opción "+str(i+1)+" -> "+str(opt))
                 i = i + 1   
-            print("|- Opción "+str(i)+" -> Salir                             |")
+            print("|- Opción "+str(i+1)+" -> Salir")
             print("|-----------------------------------------------------|")
             opcion = input("| Ingrese una opción: ")
             if int(opcion) == (len(opciones)+1):
@@ -431,7 +438,7 @@ def listarSecurityGroup(nova):
     listado = nova.listarSecurityGroup()
     print("\n|-----------------------------------------------------|")
     for SG in listado:
-        print("| SecurityGroup "+str(SG[0])+" |  Descripcion : "+str(str(SG[1]))+ "  |")
+        print("| SecurityGroup "+str(SG[0])+" |  Descripcion : "+str(str(SG[1])))
     print("|-----------------------------------------------------|")
 
 #Funcion que permite editar un security group
@@ -495,13 +502,14 @@ def borrarSecurityGroup(nova):
 #Funcion que permite configurar un SecurityGroup
 def configurarSecurityGroup(nova):
     while True:
-        print("|------------------------------------|")
+        print("\n|------------------------------------|")
         print("|1. Añadir Regla                     |")
-        print("|2. Elimnar Regla                    |")
+        print("|2. Eliminar Regla                    |")
         print("|3. Salir                            |")
         print("|------------------------------------|")
         opcion = input("| Ingrese una opción: ")
         if int(opcion) == 1:
+            print("**Escriba ESC para poder salir de esta opción**")
             while True:
                 nombre = input("| Ingrese un nombre de securitygroup: ")
                 if(nombre != ''):
@@ -551,6 +559,7 @@ def configurarSecurityGroup(nova):
                     print("[*] Ingrese un nombre de securitygroup válido\n")
                     continue
         elif int(opcion) == 2:
+            print("**Escriba ESC para poder salir de esta opción**")
             while True:
                 id = input("| Ingrese el ID de la regla: ")
                 if(id != ''):
@@ -574,9 +583,9 @@ def menuVirtualMachine():
             print("\n|-----------------------------------------------------|")
             i = 0
             for opt in opciones:
-                print("|- Opción "+str(i+1)+" -> "+str(opt)+"           |")
+                print("|- Opción "+str(i+1)+" -> "+str(opt))
                 i = i + 1   
-            print("|- Opción "+str(i)+" -> Salir                             |")
+            print("|- Opción "+str(i+1)+" -> Salir")
             print("|-----------------------------------------------------|")
             opcion = input("| Ingrese una opción: ")
             if int(opcion) == (len(opciones)+1):
@@ -667,6 +676,7 @@ def editarVirtualMachine(nova):
         
 #Funcion que permite eliminar una VM
 def borrarVirtualMachine(nova):
+    print("**Escriba ESC para poder salir de esta opción**")
     while True:
         nombre = input("| Ingrese el nombre de una VirtualMachine: ")
         if(nombre != ''):
@@ -749,6 +759,53 @@ def getSecurityGroupID(nova):
             break
     return nova.obtenerIDSecurityGroup(securitygroup)
     
+    
+#Funcion que muestra el Menú Flavors
+def menuFlavors():    
+    opciones = ["Crear Flavor","Listar Flavors","Editar Flavor","Eliminar Flavor"]
+    while True:
+            print("\n|-----------------------------------------------------|")
+            i = 0
+            for opt in opciones:
+                print("|- Opción "+str(i+1)+" -> "+str(opt))
+                i = i + 1   
+            print("|- Opción "+str(i+1)+" -> Salir")
+            print("|-----------------------------------------------------|")
+            opcion = input("| Ingrese una opción: ")
+            if int(opcion) == (len(opciones)+1):
+                opcion = "Salir"
+                break
+            else:
+                if int(opcion) <= len(opciones):
+                    opcion = opciones[int(opcion)-1]
+                    break
+                else:
+                    print("[*] Ingrese una opción válida.")
+    return opcion
+
+#Funcion que muestra el Menú Imagenes
+def menuImages():    
+    opciones = ["Crear Image","Listar Images","Editar Image","Eliminar Image"]
+    while True:
+            print("\n|-----------------------------------------------------|")
+            i = 0
+            for opt in opciones:
+                print("|- Opción "+str(i+1)+" -> "+str(opt))
+                i = i + 1   
+            print("|- Opción "+str(i+1)+" -> Salir")
+            print("|-----------------------------------------------------|")
+            opcion = input("| Ingrese una opción: ")
+            if int(opcion) == (len(opciones)+1):
+                opcion = "Salir"
+                break
+            else:
+                if int(opcion) <= len(opciones):
+                    opcion = opciones[int(opcion)-1]
+                    break
+                else:
+                    print("[*] Ingrese una opción válida.")
+    return opcion
+
 #Funcion SubMenú
 def menu2(opcion,nivel,keystone,nova,glance,neutron):
     if opcion == "Usuario":
@@ -895,13 +952,12 @@ while(int(privilegios)<0):
     password = getpass("| Ingrese su contraseña: ")
     keystone = KeystoneAuth(username, password)
     tokensito = keystone.get_token()
-    #tokensito=None
     #Si tiene cuenta de Openstack 
     if tokensito != None:
-        keystone.updateToken()
-        nova = NovaClient(keystone.get_token())
-        glance = GlanceClient(keystone.get_token())
-        neutron = NeutronClient(keystone.get_token())
+        tokensito = keystone.updateToken()
+        nova = NovaClient(tokensito)
+        glance = GlanceClient(tokensito)
+        neutron = NeutronClient(tokensito)
         while True:
             result,keystone = MenuListaProyectos(keystone)
             if not (result): #No esta asignado a ningun proyecto
