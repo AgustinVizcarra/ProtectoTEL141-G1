@@ -1,11 +1,12 @@
 ###########################################NEUTRON###############################################
+import requests
 ###############RED################## 
 
 class NeutronClient(object):
 
     def __init__(self, auth_token):
         self.auth_token = auth_token
-        self.neutron_url = "http://10.20.12.39:9696/v2.0/"
+        self.neutron_url = "http://10.20.12.48:9696/v2.0/"
         self.headers = {
             'Content-Type': 'application/json',
             'X-Auth-Token': self.auth_token
@@ -104,7 +105,21 @@ class NeutronClient(object):
         
     #Funcion que devuelve la info de una red y su subred
     def infoRedProvider(self):
-        pass    
+        url = f"{self.nova_url}/os-networks"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            networks = response.json().get('networks', [])
+            for network in networks:
+                print("Información de la red y subred:")
+                print("ID de la red:", network['id'])
+                print("Nombre de la red:", network['label'])
+                print("ID de la subred:", network['cidr'])
+                print("Proveedor de la red:", network['provider'])
+                return
+            print("No se encontró información de la red y subred")
+        else:
+            print("Error al obtener la información de la red y subred:", response.status_code)    
         
 ###################SUBRED################## 
 
@@ -164,64 +179,5 @@ class NeutronClient(object):
             return True
         else:
             raise Exception('Failed to delete subnet. Status code: {}'.format(response.status_code))
-
-##############GRUPO DE SEGURIDAD##################
-    def list_security_groups(self):
-        response = requests.get(self.neutron_url + 'security-groups', headers=self.headers)
-
-        if response.status_code == 200:
-            security_groups = response.json()['security_groups']
-            return security_groups
-        else:
-            raise Exception('Failed to list security groups. Status code: {}'.format(response.status_code))
-
-    def create_security_group(self, name, description):
-        security_group_data = {
-            'security_group': {
-                'name': name,
-                'description': description
-            }
-        }
-        response = requests.post(self.neutron_url + 'security-groups', json=security_group_data, headers=self.headers)
-
-        if response.status_code == 201:
-            security_group = response.json()['security_group']
-            return security_group
-        else:
-            raise Exception('Failed to create security group. Status code: {}'.format(response.status_code))
-
-    def get_security_group(self, security_group_id):
-        response = requests.get(self.neutron_url + 'security-groups/{}'.format(security_group_id), headers=self.headers)
-
-        if response.status_code == 200:
-            security_group = response.json()['security_group']
-            return security_group
-        else:
-            raise Exception('Failed to get security group. Status code: {}'.format(response.status_code))
-
-    def update_security_group(self, security_group_id, new_name, new_description):
-        security_group_data = {
-            'security_group': {
-                'name': new_name,
-                'description': new_description
-            }
-        }
-        response = requests.put(self.neutron_url + 'security-groups/{}'.format(security_group_id),
-                                json=security_group_data, headers=self.headers)
-
-        if response.status_code == 200:
-            security_group = response.json()['security_group']
-            return security_group
-        else:
-            raise Exception('Failed to update security group. Status code: {}'.format(response.status_code))
-
-    def delete_security_group(self, security_group_id):
-        response = requests.delete(self.neutron_url + 'security-groups/{}'.format(security_group_id), headers=self.headers)
-
-        if response.status_code == 204:
-            return True
-        else:
-            raise Exception('Failed to delete security group. Status code: {}'.format(response.status_code))
-
 
 ###################PUERTOS - TEMA A TRATAR ###################################

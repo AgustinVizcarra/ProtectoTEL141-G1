@@ -6,7 +6,7 @@ import json
 class GlanceClient(object):
     def __init__(self,auth_token):
         self.auth_token = auth_token
-        self.glance_url = "http://10.20.12.39:9292/v2"
+        self.glance_url = "http://10.20.12.48:9292/v2"
         self.headers = { 'Content-Type': 'application/json','X-Auth-Token': self.auth_token }
     
     def listar_imagenes(self):
@@ -16,7 +16,10 @@ class GlanceClient(object):
 
         if response.status_code == 200:
             imagenes = response.json().get('images', [])
-            return imagenes
+            image_info=[]
+            for image in imagenes:
+                image_info.append([image['id'],image['name']])
+            return image_info
         else:
             print("Error al listar las imágenes:", response.status_code)
             return []
