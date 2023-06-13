@@ -50,9 +50,15 @@ class KeystoneAuth(object):
                             'domain': {'name': 'Default'}
                         }
                     }
+                },
+                "scope": {
+                    "system":{
+                        "all": True
+                    }
                 }
             }
         }
+        
         
         response = requests.post(self.auth_url+"/auth/tokens",
                                  json=auth_data,
@@ -76,13 +82,8 @@ class KeystoneAuth(object):
                     'methods': ['password'],
                     'password': {
                         'user': {
-<<<<<<< HEAD
                             'name': "admin", 
                             'password': "ronny", 
-=======
-                            'name': self.username, 
-                            'password': self.password, 
->>>>>>> 4154c7cca72582ef4380f1010983d13bd5acf77a
                             'domain': {'name': 'Default'}
                         }
                     }
@@ -93,11 +94,11 @@ class KeystoneAuth(object):
         response = requests.post(self.auth_url+"/auth/tokens",
                                 json=auth_data,
                                 headers=self.headers) 
-        print(response.status_code)
     
         if response.status_code == 201:
             self.token = response.headers['X-Subject-Token']
             self.UserID = response.json()["token"]["user"]['id']
+
             print("[*]El token se actualizó correctamente\n")
         else:
             print("[*]Error al actualizar el token, verifique las credenciales\n")
@@ -117,7 +118,6 @@ class KeystoneAuth(object):
                 proyecto.append(project["name"])
                 proyectos.append(proyecto)
             
-            
             for proyectito in proyectos:
                 url='{}/projects/{}/users/{}/roles'.format(self.auth_url,proyectito[0],self.UserID)
                 headers = {
@@ -126,15 +126,8 @@ class KeystoneAuth(object):
                 }
         
                 response = requests.get(url, headers=headers)
-<<<<<<< HEAD
-                print(response.status_code)
-                rolName = response.json()['roles']['name']
-=======
-                print(response.json())
                 rolName = response.json()['roles'][0]['name']
->>>>>>> 4154c7cca72582ef4380f1010983d13bd5acf77a
                 roles.append(rolName)
-
         else:
             print("[*] Error al obtener la lista de proyectos del usuario\n")
 

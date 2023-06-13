@@ -26,7 +26,7 @@ def MenuListaProyectos(keystone):
                 i = i + 1
             print("|--------------------------------------------------------------|")
             opcionProyecto = input("| Ingrese el # del proyecto al que desea ingresar: ")
-            if opcionProyecto > len(listaProyectos):
+            if int(opcionProyecto) > len(listaProyectos):
                  print("[*] Ingrese el # de un proyecto válido\n")
             else:
                 idProyecto = listaProyectos[int(opcionProyecto)-1][0]
@@ -893,9 +893,9 @@ privilegios = -1
 while(int(privilegios)<0):
     username = input("| Ingrese su nombre de usuario: ")
     password = getpass("| Ingrese su contraseña: ")
-    #keystone = KeystoneAuth(username, password)
-    #tokensito = keystone.get_token()
-    tokensito=None
+    keystone = KeystoneAuth(username, password)
+    tokensito = keystone.get_token()
+    #tokensito=None
     #Si tiene cuenta de Openstack 
     if tokensito != None:
         keystone.updateToken()
