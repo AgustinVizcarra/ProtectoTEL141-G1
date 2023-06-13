@@ -944,3 +944,4 @@ while(int(privilegios)<0):
                     print("[*] Gracias por usar nuestro sistema!\n")
                     privilegios = 0
                     break 
+#LAALALALALALALAL
