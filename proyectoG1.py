@@ -283,6 +283,7 @@ def crearRed(keystone,neutron):
 #Funcion que permite mostrar la info de la RedProvider
 def infoRed(neutron):
     informacion = neutron.infoRedProvider()
+    print(informacion)
     print("\n|-----------------------------------------------------|")
     print("|Nombre RedProvider: "+ str(informacion[0]))
     print("|Descripcion: "+ str(informacion[1]))
@@ -324,16 +325,17 @@ def crearKeyPair(keystone,nova):
                 print("[*] Ha salido de la opción de -Crear KeyPair-\n")
                 return
             while True:
-                ubicacion = input("| Ingrese la ubicación de la KeyPair: ")
-                if(ubicacion != ''):
-                    if(ubicacion == "ESC"):
-                        print("[*] Ha salido de la opción de -Crear KeyPair- \n")
-                        return
-                    nova.crearKeyPair(nombre, ubicacion, keystone.getUserID())
+                #ubicacion = input("| Ingrese la ubicación de la KeyPair: ")
+                #if(ubicacion != ''):
+                    #if(ubicacion == "ESC"):
+                        #print("[*] Ha salido de la opción de -Crear KeyPair- \n")
+                        #return
+                    print(nombre)
+                    nova.crearKeyPair(nombre)
                     return
-                else:
-                    print("[*] Ingrese una dirección válida\n")
-                    continue
+                #else:
+                    #print("[*] Ingrese una dirección válida\n")
+                    #continue
         else:
             print("[*] Ingrese un nombre de keypair válido\n")
             continue
@@ -410,7 +412,7 @@ def menuSecurityGroup():
 
 
 #Funcion que permite crear la security group
-def crearSecurityGroup(nova):
+def crearSecurityGroup(nova,IdProject):
     print("**Escriba ESC para poder salir de esta opción**")
     while True:
         nombre = input("| Ingrese un nombre de securitygroup: ")
@@ -424,7 +426,8 @@ def crearSecurityGroup(nova):
                     if(descripcion == "ESC"):
                         print("[*] Ha salido de la opción de -Crear SecurityGroup- \n")
                         return
-                    nova.crearSecurityGroup(nombre, descripcion)
+
+                    nova.crearSecurityGroup(nombre, descripcion,IdProject)
                     return
                 else:
                     print("[*] Ingrese una descripción válida\n")
@@ -434,15 +437,15 @@ def crearSecurityGroup(nova):
             continue
 
 #Funcion que permite listar los security group
-def listarSecurityGroup(nova):
-    listado = nova.listarSecurityGroup()
+def listarSecurityGroup(nova,IdProject):
+    listado = nova.listarSecurityGroup(IdProject)
     print("\n|-----------------------------------------------------|")
     for SG in listado:
         print("| SecurityGroup "+str(SG[0])+" |  Descripcion : "+str(str(SG[1])))
     print("|-----------------------------------------------------|")
 
 #Funcion que permite editar un security group
-def editarSecurityGroup(nova):
+def editarSecurityGroup(nova,IdProject):
     print("**Escriba ESC para poder salir de esta opción**")
     while True:
         name = input("| Ingrese un nombre de SecurityGroup: ")
@@ -479,14 +482,14 @@ def editarSecurityGroup(nova):
             if (verificarNombre == "N") and (verificarDescripcion=="N"):
                 print("[*] Ha decidido no realizar ningún cambio al SecurityGroup\n")
                 break 
-            nova.editarSecurityGroup(name,nuevoNombre,descripcion)
+            nova.editarSecurityGroup(name,nuevoNombre,descripcion,IdProject)
             break
         else:
             print("[*] Ingrese un nombre de SecurityGroup válido\n")
             continue
 
 #Funcion que permite eliminar un SecurityGroup
-def borrarSecurityGroup(nova):
+def borrarSecurityGroup(nova,IdProject):
     print("**Escriba ESC para poder salir de esta opción**")
     while True:
         nombre = input("| Ingrese un nombre de securitygroup: ")
@@ -494,13 +497,13 @@ def borrarSecurityGroup(nova):
             if(nombre == "ESC"):
                 print("[*] Ha salido de la opción de -Crear SecurityGroup-\n")
                 return
-            nova.eliminarSecurityGroup(nombre)
+            nova.eliminarSecurityGroup(nombre,IdProject)
         else:
             print("[*] Ingrese un nombre de securitygroup válido\n")
             continue
 
 #Funcion que permite configurar un SecurityGroup
-def configurarSecurityGroup(nova):
+def configurarSecurityGroup(nova,IdProject):
     while True:
         print("\n|------------------------------------|")
         print("|1. Añadir Regla                     |")
@@ -544,7 +547,7 @@ def configurarSecurityGroup(nova):
                                             elif(verificar == "ESC"):
                                                 print("[*] Ha salido de la opción de -Añadir Regla-\n")
                                                 return
-                                            nova.agregarRegla(nombre,protocol_ip,from_port,dest_port,cidr)
+                                            nova.agregarRegla(nombre,protocol_ip,from_port,dest_port,cidr,IdProject)
                                             return
                                         else:
                                             print("[*] Ingrese un puerto válido\n")
@@ -871,15 +874,15 @@ def menu2(opcion,nivel,keystone,nova,glance,neutron):
                 if not (resultado):
                     break
         elif(nivel == "Crear SecurityGroup"):
-            crearSecurityGroup(nova)
+            crearSecurityGroup(nova,keystone.getProjectID())
         elif(nivel == "Listar SecurityGroup"):
-            listarSecurityGroup(nova)
+            listarSecurityGroup(nova,keystone.getProjectID())
         elif(nivel == "Editar SecurityGroup"):
-            editarSecurityGroup(nova)
+            editarSecurityGroup(nova,keystone.getProjectID())
         elif(nivel == "Eliminar SecurityGroup"):
-            borrarSecurityGroup(nova)
+            borrarSecurityGroup(nova,keystone.getProjectID())
         elif(nivel == "Configurar SecurityGroup"):
-            configurarSecurityGroup(nova)
+            configurarSecurityGroup(nova,keystone.getProjectID())
         elif(nivel == "Salir"):
             return False
         return True
@@ -955,7 +958,7 @@ while(int(privilegios)<0):
     #Si tiene cuenta de Openstack 
     if tokensito != None:
         tokensito = keystone.updateToken()
-        nova = NovaClient(tokensito)
+        nova = NovaClient(tokensito,username,password)
         glance = GlanceClient(tokensito)
         neutron = NeutronClient(tokensito)
         while True:

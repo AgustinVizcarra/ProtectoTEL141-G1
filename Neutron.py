@@ -105,21 +105,40 @@ class NeutronClient(object):
         
     #Funcion que devuelve la info de una red y su subred
     def infoRedProvider(self):
-        url = f"{self.nova_url}/os-networks"
+        url = f"{self.neutron_url}/networks"
         response = requests.get(url, headers=self.headers)
-
         if response.status_code == 200:
             networks = response.json().get('networks', [])
-            for network in networks:
-                print("Información de la red y subred:")
-                print("ID de la red:", network['id'])
-                print("Nombre de la red:", network['label'])
-                print("ID de la subred:", network['cidr'])
-                print("Proveedor de la red:", network['provider'])
-                return
-            print("No se encontró información de la red y subred")
+            if networks:
+                network = networks[0]  # Obtener solo la primera red para este ejemplo
+                subnet_id = network.get('subnets', [''])[0]
+                
+                # Obtener información de la subred
+                subnet_url = f"{self.neutron_url}/subnets/{subnet_id}"
+                subnet_response = requests.get(subnet_url, headers=self.headers)
+                if subnet_response.status_code == 200:
+                    información=[]
+                    subnet = subnet_response.json().get('subnet', {})
+                    subnet_info = {
+                        'id': subnet.get('id', ''),
+                        'name': subnet.get('name', ''),
+                        'cidr': subnet.get('cidr', ''),
+                        'gateway_ip': subnet.get('gateway_ip', '')
+                    }
+                    # Imprimir la información de la red y subred
+                    información.append(network['name'])
+                    información.append(network['description'])
+                    información.append(network['created_at'])
+                    información.append(subnet_info['cidr'])
+                    información.append(subnet_info['gateway_ip'])
+                    return información
+                else:
+                    print("Error al obtener la información de la subred:", subnet_response.status_code)
+            else:
+                print("No se encontró información de la red y subred")
         else:
-            print("Error al obtener la información de la red y subred:", response.status_code)    
+            print("Error al obtener la información de la red y subred:", response.status_code)
+    
         
 ###################SUBRED################## 
 

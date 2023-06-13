@@ -37,7 +37,7 @@ class KeystoneAuth(object):
     def setRolName(self,RolName):
         self.RolName = RolName
         
-    #Obtener TOKEN
+    #Obtener TOKEN Global
     def get_token(self):
         auth_data = {
             'auth': {
@@ -108,6 +108,8 @@ class KeystoneAuth(object):
             print("[*] Error al actualizar el token, verifique las credenciales\n")
 
         return self.token
+    
+   
         
     #Obtener listado de proyectos en los que se encuentra asignado el usuario con su rol
     def getListProjects(self):
