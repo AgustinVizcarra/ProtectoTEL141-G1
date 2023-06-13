@@ -77,7 +77,7 @@ class KeystoneAuth(object):
                     'password': {
                         'user': {
                             'name': "admin", 
-                            'password': "admin", 
+                            'password': "ronny", 
                             'domain': {'name': 'Default'}
                         }
                     }
@@ -115,7 +115,8 @@ class KeystoneAuth(object):
                 }
         
                 response = requests.get(url, headers=headers)
-                rolName = response.json()['roles'][0]['name']
+                print(response.status_code)
+                rolName = response.json()['roles']['name']
                 roles.append(rolName)
 
         else:
