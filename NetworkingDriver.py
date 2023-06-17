@@ -3,7 +3,7 @@ import requests
 class NetworkingManager: 
     
     def __init__(self):
-        self.base_url = "http://10.20.12.140:7070"
+        self.base_url = "http://10.20.12.48:7070"
         
     ## Gestion de Proyectos (Slices) ##
     

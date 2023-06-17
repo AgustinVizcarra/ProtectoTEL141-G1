@@ -51,8 +51,44 @@ class Usuario:
                                         case _:
                                             print("[*] Ingrese una opción valida")
                                 else:
-                                    print("[*] Ingresando al formulario de creación de usuarios")
-
+                                    print("[*] Se ingresaron un ID de proyecto o una opcion inválida")
+                        case 2:
+                            opcionesVMs = ["Listar Imagenes","Agregar una imagen","Eliminar una imagen","Listar flavors","Agregar un flavor","Editar un Flavor","Eliminar un flavor","Salir"]
+                            while True:
+                                 print("|----------------Menú VM's------------------|")
+                                 for opt in opcionesVMs:
+                                        longitud_print = 50
+                                        chain = "|- Opción "+str(i+1)+" -> "+opt
+                                        falta = longitud_print - len(chain) - 1
+                                        chain = chain + (falta* " ")+ "|"
+                                        print(chain)
+                                        i += 1
+                                 print("|------------------------------------------------|")
+                                 proyecto = input("| Ingrese el ID del proyecto: ")
+                                 opcion = input("| Ingrese una opción: ")
+                                 if opcion.isdigit() and proyecto.isdigit():
+                                     match int(opcion):
+                                         case 1:
+                                             listarImagenesXVMXTopologiaXUsuario(id,proyecto)
+                                         case 2:
+                                             agregarImagenXTopologiaXProyecto(id,proyecto)
+                                         case 3:
+                                             eliminarImagenXTopologiaXProyecto(id,proyecto)
+                                         case 4:
+                                             listarImagenesXVMXTopologiaXUsuario(id,proyecto)
+                                         case 5:
+                                             agregarFlavorXTopologiaXProyecto(id,proyecto)
+                                         case 6:
+                                             editarFlavorXTopologiaXProyecto(id,proyecto)
+                                         case 7:
+                                             eliminarFlavorXTopologiaXProyecto(id,proyecto)
+                                         case 8:
+                                             print("[*] Regresando al menú principal")
+                                             break
+                                         case _:
+                                             print("[*] Ingrese una opción valida")
+                                 else:
+                                     print("[*] Se ingresaron un ID de proyecto o una opcion inválida")
 class Administrador:
     def __init__(self,id):
         self.id = id
@@ -260,14 +296,28 @@ def eliminandoProyecto():
     ##Defina Aquí la lógica para la eliminación del proyecto
 #################################### 
 def listarProyectosxUsuario(id):
-    print("[*] Listando proyectos del usuario con id"+id)
+    print("[*] Listando proyestos")
     ##Defina Aquí la lógica para el listado del proyecto
 def listarTopologiasXProyecto(id):
-    print("[*] Listando las topologias en el proyecto con id"+id)
+    print("[*] Listando la topología en el proyecto")
     ##Defina Aquí la lógica
 def modificarTopologiaXUsuario(id):
-    print("[*] Ingresando al menú de modificación de topologia con proyect id"+id)
+    print("[*] Ingresando al menú de modificación de topologia")
     ##Defina Aquí la lógica
-def listarUsuarioXTopologiaXProyecto(id):
-    print("[*] Ingresando al menú de listado de usuarios por topologia con proyect id"+id)
+def listarUsuarioXTopologiaXProyecto(id,proyecto):
+    print("[*] Ingresando al menú de listado de usuarios por topologia")
     ##Defina Aquí la lógica
+def listarImagenesXVMXTopologiaXUsuario(id,proyecto):
+    print("[*] Listando imagenes de la topologia")
+def agregarImagenXTopologiaXProyecto(id,proyecto):
+    print("[*] Ingresando al menú para añadir imagen")
+def eliminarImagenXTopologiaXProyecto(id,proyecto):
+    print("[*] Ingresando al menú para eliminar imagen")
+def listarFlavorsXTopologiaXProyecto(id,proyecto):
+    print("[*] Listando flavors de la topologia")
+def agregarFlavorXTopologiaXProyecto(id,proyecto):
+    print("[*] Ingresando al menú para añadir un flavor")
+def editarFlavorXTopologiaXProyecto(id,proyecto):
+    print("[*] Ingresando al menú para editar un flavor")
+def eliminarFlavorXTopologiaXProyecto(id,proyecto):
+    print("[*] Ingresando al menú para eliminar un flavor")

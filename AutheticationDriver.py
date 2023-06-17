@@ -10,7 +10,7 @@ class AuthenticationManager(object):
     ### Autenticacion y gestión de los usuarios ###
     
     def __init__(self):
-        self.auth_url = "http://10.20.12.140:7070"
+        self.auth_url = "http://10.20.12.48:7070"
         
     def get_auth(self,nombre,pwd):
         if not nombre or not pwd:
