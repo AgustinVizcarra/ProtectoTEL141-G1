@@ -1,486 +1,62 @@
 from getpass import getpass
 from keystone import KeystoneAuth
+from Nova import NovaClient
+from Glance import GlanceClient
+from Neutron import NeutronClient
 from AutheticationDriver import AuthenticationManager
 from menuLinux import Usuario
 from menuLinux import Administrador
 import requests
 ############################################    F   U   N   C   I   O   N   E   S   ############################################
-# Display principal
-def menuPrincipal(keystone,privilegios):
-    opcionesAdmin = ["Información de usuarios","Información de slices"]
-    opcionesUsuario = []
-    
-    #Para Admin
-    if (privilegios == 1):
+#Funcion que muestra el menu de la lista de Proyectos
+def MenuListaProyectos(keystone):
+    listaProyectos, listaRoles = keystone.getListProjects()
+    if len(listaProyectos) == 0:   
+        print("|--------------------Lista de Proyectos------------------------|")
+        print("|Actualmente, usted no se encuentra asignado a ningún proyecto.|")
+        print("|Porfavor, póngase en contacto con su PhD. Santivañez.         |")
+        print("|--------------------------------------------------------------|")
+        return False,keystone
+    else:
         while True:
-            print("\n")
-            print("   |---------Bienvenido "+str(keystone.getUsername())+" al menú principal----------|")
+            print("\n|--------------------Lista de Proyectos------------------------|")
             i = 0
-            for opt in opcionesAdmin:
-                print("|- Opción "+str(opt+1)+" -> "+opt[i]+"           |")
+            for proyecto in listaProyectos:
+                print("|- Proyecto "+str(i+1)+" -> "+str(proyecto[1])+"     |   Rol: "+ str(listaRoles[i]))
                 i = i + 1
-                
-            print("|- Opción "+str(i+1)+" -> Salir                             |")
-            print("|------------------------------------------------|")
-            opcion = input("| Ingrese una opción: ")
-
-            if int(opcion) == (len(opcionesAdmin)+1):
-                opcion = "Salir"
-                break
+            print("|--------------------------------------------------------------|")
+            print("                **Escriba ESC para poder salir**               ")
+            print("|--------------------------------------------------------------|")
+            opcionProyecto = input("| Ingrese el # del proyecto al que desea ingresar: ")
+            if str(opcionProyecto) == "ESC":
+                return False,keystone
+            
+            if int(opcionProyecto) > len(listaProyectos):
+                 print("[*] Ingrese el # de un proyecto válido\n")
             else:
-                if int(opcion) <= len(opcionesAdmin):
-                    opcion = opcionesAdmin[int(opcion)-1]
-                    break
-                else:
-                    print("[*]Ingrese una opción válida.")
-               
-    #Para usuario     
-    else:
-        opcion = "Información de proyecto"
-    
-    print("")    
-    return opcion
-
-# Display info de servidores
-def menuInfoServidores(privilegios):
-    print("|----------------------------------------------------------------|")
-    
-    if privilegios == 1:
-        print("|- Opción 1 -> Información de los servidores                     |")
-        print("|- Opción 2 -> Editar el nivel máximo de sobre aprovisionamiento |")
-        print("|- Opción 3 -> Mostrar el nivel máximo de sobre aprovisionamiento|")
-        print("|- Otras opciones proximamente ...                               |")
-        print("|- Opcion 11 -> Salir                                            |")
-        opcion = input("| Ingrese una opción: ")
-        
-    elif privilegios == 2:
-        #print("|- Opción 1 -> Información de los servidores                     |")
-        print("|- Opción 2 -> Editar el nivel máximo de sobre aprovisionamiento |")
-        #print("|- Opción 3 -> Mostrar el nivel máximo de sobre aprovisionamiento|")
-        print("|- Otras opciones proximamente ...                               |")
-        print("|- Opcion 11 -> Salir                                            |")
-        opcion = input("| Ingrese una opción: ")
-        
-        if (opcion == 1 or opcion == 3):
-            opcion = 4 #Le mapeamos una opcion incorrecta
-        
-    else:
-        print("|- Opción 1 -> Información de los servidores                     |")
-        #print("|- Opción 2 -> Editar el nivel máximo de sobre aprovisionamiento |")
-        print("|- Opción 3 -> Mostrar el nivel máximo de sobre aprovisionamiento|")
-        print("|- Otras opciones proximamente ...                               |")
-        print("|- Opcion 11 -> Salir                                            |")
-        opcion = input("| Ingrese una opción: ")
-    
-        if (opcion == 2):
-            opcion = 4 #Le mapeamos una opcion incorrecta
-    
-    
-    print("\n")
-    return opcion
-
-# Display info topology
-#def menuInfoTopologias():
-#    print("|----------------------------------------------------------------|")
-#    print("|- Opción 1 -> Lista de topologías existentes                    |")
-#    print("|- Opción 2 -> Lista detalle de una topología                    |")
-#    print("|- Opción 3 -> Crear una nueva topología                         |")
-#    print("|- Opción 4 -> Editar una topología existente                    |")
-#    print("|- Opción 5 -> Visualización de una topología                    |")
-#    print("|- Opción 6 -> Borrar una topología existente                    |")
-#    print("|- Opcion 11 -> Salir                                             |")
-#    opcion = input("| Ingrese una opción: ")
-#    print("\n")
-#    return opcion
-
-# Display create topology
-#def menuCrearTopologia():
-#    print("|---------------------------------|")
-#    nombreTopologia = input("| Ingrese el nombre de su topología: ")
-#    print("|---Ingrese el tipo de topología--|")
-#    print("|- Opción 1 -> Lineal             |")
-#    print("|- Opción 2 -> Malla              |")
-#    print("|- Opción 3 -> Árbol              |")
-#    print("|- Opcion 4 -> Anillo             |")
-#    print("|- Opcion 5 -> Bus                |")
-#    print("|---------------------------------|")
-#    tipoTopologia = input("| Ingrese una opción: ")
-    #Validaciones
-#    print("[*]Topología creada exitosamente\n")
-    #Se crea aca la topologia y se guarda en db 
-
-def obtenerInfoRemoto():
-    monitoringAPI = "http://10.20.12.39:9090/recursos"
-    response = requests.get(monitoringAPI,headers={'Content-Type': 'application/json'})
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print("[*]El servicio de monitoreo se encuentra caído")
-        return "Error"
-        
-def mostrarNivelAprovionamiento():
-    global nivelMaximoAprovisionamiento
-    if(nivelMaximoAprovisionamiento==0):
-        print("[*]Aún no se ha definido el nivel de aprovionamiento en el sistema!")
-    else:
-        print("[*]El nivel de aprovisionamiento máximo en el sistema es "+str(nivelMaximoAprovisionamiento)+"% ")
-    print("\n")
-        
-def editarNivelAprovisionamiento():
-    global nivelMaximoAprovisionamiento
-    if(nivelMaximoAprovisionamiento==0):
-        try:
-            nuevoNivel = int(input("Ingrese el nivel de aprovisionamiento máximo en (%): "))
-            if(nuevoNivel>0 and nuevoNivel<100):
-                nivelMaximoAprovisionamiento = nuevoNivel
-                print("[*]Se añadio el nivel de aprovisionamiento exitosamente")
-            else:
-                print("[*]Debe ser un valor que se encuentre entre ]0;100[ (%)")
-        except Exception as e:
-            print("[*]Debe ingresar un valor entero!")
-    else:
-        try:
-            nivelAprovisionamiento = int(input("Edite el valor del nivel de aprovisionamiento(%): "))
-            if(nivelAprovisionamiento>0 and nivelAprovisionamiento<100):
-                nivelMaximoAprovisionamiento = nivelAprovisionamiento
-                print("S[*]e editó el nivel de aprovisionamiento exitosamente")
-            else:
-                print("[*]Debe ser un valor que se encuentre entre ]0;100[ (%)")
-        except Exception as e:
-            print("[*]Debe ingresar un valor entero!")
-    print("\n")
-           
-def obtenerInfoServidores():
-    #Con toda la informacion recolectada toca mostrar los resultados
-    output = obtenerInfoRemoto()
-    if ( output == "Error"):
-        print("[*]Hubo error obteniendo la información del cluster")
-    else:
-        workers  = output.keys()
-        for worker in workers:
-            infoWorker = output[worker]
-            print("------------------"+worker+"--------------------")
-            print("|-Informacion del CPU: ")
-            print("|-Core0 : "+infoWorker["Core0(%)"]+"%")
-            print("|-Core1 : "+infoWorker["Core1(%)"]+"%")       
-            print("|-Informacion de la RAM: ")
-            print("| Memoria usada: "+infoWorker["MemoriaUsada"])
-            print("| Memoria disponible: "+infoWorker["MemoriaDisponible"])
-            print("| Memoria total: "+infoWorker["MemoriaTotal"])
-            print("|-Informacion del almacenamiento: ")
-            print("| Almacenamiento usado: "+infoWorker["AlmacenamientoUsado"])
-            print("| Almacenamiento usado(%): "+infoWorker["AlmacenamientoUsado(%)"])
-            print("| Almacenamiento total:"+ infoWorker["AlmacenamientoTotal"])
-            print("|-Informacion de red: ")
-            print("| Interfaz ens3 (RX): "+str(infoWorker["ens3(RX)bps"])+"bps")
-            print("| Interfaz ens3 (TX): "+str(infoWorker["ens3(TX)bps"])+"bps")
-            print("| Interfaz ens4 (RX): "+str(infoWorker["ens4(RX)bps"])+"bps")
-            print("| Interfaz ens4 (TX): "+str(infoWorker["ens4(TX)bps"])+"bps")
-            print("---------------------------------------------")
-    
-#Crear Rol
-#def crearRol():
-#    print("**Escriba ESC para poder salir de esta opción**")
-#    while True:
-#        nombreRol = input("| Ingrese el nombre del rol: ")
-#        if(nombreRol != ''):
-#            if(nombreRol == "ESC"):
-#                print("[*]Ha salido de la opción de -Crear Rol-")
-#                return
-#            descripcionRol = input("| Ingrese una descripción del rol: ")
-#            if(descripcionRol == "ESC"):
-#                print("[*]Ha salido de la opción de -Crear Rol-")
-#                return
-#            keystone.crear_Rol(nombreRol, descripcionRol)
-#            break
-#        
-#        else:
-#            print("[*]Ingrese un nombre de rol válido")
-#            continue
-
-#Eliminar Rol
-#def eliminarRol():
-#    print("**Escriba ESC para poder salir de esta opción**")
-#    while True:
-#        nombreRol = input("| Ingrese el nombre del rol a eliminar: ")
-#        if(nombreRol != ''):
-#            if(nombreRol == "ESC"):
-#                print("[*]Ha salido de la opción de -Eliminar Rol-")
-#                return
-#            keystone.delete_rol(nombreRol)
-#            break
-#        
-#        else:
-#            print("[*]Ingrese un nombre de rol válido")
-#            continue
-        
-#Eliminar Usuario
-def eliminarUsuario(keystone):
-    print("**Escriba ESC para poder salir de esta opción**")
-    while True:
-        nombreUsuario = input("| Ingrese el nombre de usuario a eliminar: ")
-        if(nombreUsuario != ''):
-            if(nombreUsuario == "ESC"):
-                print("[*]Ha salido de la opción de -Eliminar Usuario-")
-                return
-            #Eliminamos al usuario
-            keystone.delete_user(nombreUsuario)   
-            break
-        
-        else:
-            print("[*]Ingrese un nombre de usuario válido")
-            continue
-
-#Crear Usuario
-def crearUsuario(keystone):
-    print("**Escriba ESC para poder salir de esta opción**")
-    while True:
-        username = input("| Ingrese un nombre de usuario: ")
-        if(username != ''):
-            if(username == "ESC"):
-                print("[*]Ha salido de la opción de -Crear Usuario-")
-                return
-            while True:
-                password = getpass("| Ingrese su contraseña: ")
-                if(password != ''):
-                    if(password == "ESC"):
-                        print("[*]Ha salido de la opción de -Crear Usuario-")
-                        return
-                    email = input("| Ingrese una dirección de correo: ")
-                    if(email == "ESC"):
-                        print("[*]Ha salido de la opción de -Crear Usuario-")
-                        return
-                    
-                    # Creamos el usuario pero todavia no lo asignamos al proyecto
-                    keystone.crear_usuario(username, password, email, rol_name)
-                    return
-                    
-                else:
-                    print("[*]Ingrese una contraseña válida")
-                    continue
-        else:
-            print("[*]Ingrese un nombre de usuario válido")
-            continue
-
-#Editar Usuario
-def editarUsuario(keystone):
-    print("**Escriba ESC para poder salir de esta opción**")
-    while True:
-        username = input("| Ingrese un nombre de usuario: ")
-        if(username != ''):
-            if(username == "ESC"):
-                print("[*]Ha salido de la opción de -Editar Usuario-")
-                return
-            
-            verificarPass = input("| ¿Desea cambiar su contraseña?[Y/N]: ")
-            password = None
-            if verificarPass == "Y" or verificarPass == "y":
-                while True:
-                    password = getpass("| Ingrese la nueva contraseña: ")
-                    if(password == ''):
-                        print("[*]Ingrese una contraseña válida")
-                        continue
-                    else:
-                        if(password == "ESC"):
-                            print("[*]Ha salido de la opción de -Editar Usuario-")
-                            return
-                        break
-            elif(verificarPass == "ESC"):
-                print("[*]Ha salido de la opción de -Editar Usuario-")
-                return     
-                    
-            verificarEmail = input("| ¿Desea cambiar su email?[Y/N]: ")
-            email = None
-            if verificarEmail == "Y" or verificarEmail == "y":
-                email = input("| Ingrese la nueva dirección de correo: ")
-                if(email == "ESC"):
-                    print("[*]Ha salido de la opción de -Editar Usuario-")
-                    return 
-                
-            elif(verificarEmail == "ESC"):
-                print("[*]Ha salido de la opción de -Editar Usuario-")
-                return
-            
-            if (verificarPass == "N") and (verificarEmail=="N"):
-                print("[*]Ha decidido no realizar ningún cambio al usuario")
-                break 
-            
-            #Editamos los campos del usuario
-            keystone.editar_usuario(username,password,email)
-            break
-            
-        else:
-            print("[*]Ingrese un nombre de usuario válido")
-            continue
-
-#Asignar usuario a un proyecto
-def asignarRolUsuarioAProyecto(keystone):
-    print("**Escriba ESC para poder salir de esta opción**")
-    while True:
-        username = input("| Ingrese un nombre de usuario: ")
-        if(username != ''):
-            if(username == "ESC"):
-                print("[*]Ha salido de la opción de -Añadir usuario a un proyecto-")
-                return
-            
-            while True:
-                proyecto = input("| Ingrese el nombre de un proyecto: ")
-                if(proyecto != ''):
-                    if(proyecto == "ESC"):
-                        print("[*]Ha salido de la opción de -Añadir usuario a un proyecto-")
-                        return
-                    # Asignamos el usuario a un proyecto
-                    keystone.asignarUsuarioProyecto(username, proyecto)
-                    return
-                    
-                else:
-                    print("[*]Ingrese un nombre de proyecto válido")
-                    continue
-        else:
-            print("[*]Ingrese un nombre de usuario válido")
-            continue
-    
-#Eliminar usuario de un proyecto
-def eliminarRolUsuarioDeProyecto(keystone):
-    print("**Escriba ESC para poder salir de esta opción**")
-    while True:
-        username = input("| Ingrese un nombre de usuario: ")
-        if(username != ''):
-            if(username == "ESC"):
-                print("[*]Ha salido de la opción de -Eliminar usuario de un proyecto-")
-                return
-            
-            while True:
-                proyecto = input("| Ingrese el nombre de un proyecto: ")
-                if(proyecto != ''):
-                    if(proyecto == "ESC"):
-                        print("[*]Ha salido de la opción de -Eliminar usuario de un proyecto-")
-                        return
-                    # Eliminamos el usuario del proyecto
-                    keystone.eliminarUsuarioProyecto(username, proyecto)
-                    return
-                    
-                else:
-                    print("[*]Ingrese un nombre de proyecto válido")
-                    continue
-        else:
-            print("[*]Ingrese un nombre de usuario válido")
-            continue
-
-#Listar proyectos por usuario
-def listarProyectosPorUsuario(keystone):
-    listado = keystone.listarProyectosUsuarios()
-    print("\n")
-    print("|-----------------------------------------------------|")
-    i = 1
-    for user in listado:
-        print("|"+str(i)+". Usuario '"+ str(user[0]) + "'  |")
-        #[ [username, [   [id, proyecto] , [id, proyecto]   ] ] ,   ]
-        j = 1
-        for proyectos in user[1]:
-            if len(proyectos) == 1:
-                print(proyectos[0])
-            else:
-                print("|        -Proyecto "+str(j)+" : " + str(proyectos[1]))
-            j = j + 1
-        print("|-----------------------------------------------------|")
-        i = i + 1
- 
-#Crear un proyecto
-def crearProyecto(keystone):
-    print("**Escriba ESC para poder salir de esta opción**")
-    while True:
-        name = input("| Ingrese el nombre del proyecto: ")
-        if(name != ''):
-            if(name == "ESC"):
-                print("[*]Ha salido de la opción de -Crear Proyecto-")
-                return
-            
-            descripcion = input("| Ingrese una descripción para el proyecto: ")
-            if(descripcion == "ESC"):
-                print("[*]Ha salido de la opción de -Crear Proyecto-")
-                return
-                    
-            # Creamos el proyecto
-            keystone.crearProyecto(name, descripcion)
-            return
-        else:
-            print("[*]Ingrese un nombre de proyecto válido")
-            continue
-            
-#Listar los proyectos existentes
-def listarProyectos(keystone):
-    listadoDeProyectos = keystone.listarProyectos()
-    print("|----------------------------------------------------------------------------------------|")
-    if len(listadoDeProyectos) == 0:
-        print("[*] No hay proyectos disponibles en este momento.")
-    else:
-        for proyecto in listadoDeProyectos:
-            print("|    "+str(proyecto[0])+"   |    "+str(proyecto[1])+"    |   "+str(proyecto[2])+"    |")
-    print("|----------------------------------------------------------------------------------------|\n")
-    
-
-#Entrar a un proyecto
-def entrarProyecto(keystone,jerarquia):
-    print("**Escriba ESC para poder salir de esta opción**")
-    while True:
-        nombreProyecto = input("| Ingrese el nombre del proyecto: ")
-        if(nombreProyecto != ''):
-            if(nombreProyecto == "ESC"):
-                print("[*]Ha salido de la opción de -Entrar a un Proyecto-")
-                return
-                
-            #Entramos a un proyecto
-            idProyecto = keystone.eliminarProyecto(nombreProyecto)
-            if idProyecto is None:
-                print("[*]Ha ocurrido un error al ingresar al Proyecto.Intentelo mas tarde")
-            else:
+                idProyecto = listaProyectos[int(opcionProyecto)-1][0]
                 keystone.setProjectID(idProyecto)
-                
-                while True:
-                    seleccion = menu2("Información de proyecto","Menú", jerarquia, keystone)
-                    if not (seleccion):
-                        return
-                    
-        else:
-            print("[*]Ingrese un nombre de proyecto válido")
-            continue  
-        
-
-
-#Eliminar un proyecto   -> Aca verificar si es que primero se borrar a los usuarios del proyecto y luego al proyecto o asi nomas
-def eliminarProyecto(keystone):
-    print("**Escriba ESC para poder salir de esta opción**")
-    while True:
-        nombreProyecto = input("| Ingrese el nombre del proyecto: ")
-        if(nombreProyecto != ''):
-            if(nombreProyecto == "ESC"):
-                print("[*]Ha salido de la opción de -Eliminar Proyecto-")
-                return
-            #Eliminamos al usuario
-            keystone.eliminarProyecto(nombreProyecto)
-            break
-        
-        else:
-            print("[*]Ingrese un nombre de proyecto válido")
-            continue
+                keystone.setRolName(listaRoles[int(opcionProyecto)-1])
+                break
+        return True,keystone
    
-#-----------------------------------------------------------------------------------------------------------------------------------
-def menuInfoUsuarios():
-    opciones = ["Crear usuario (General)","Editar usuario (General)","Listar proyectos por usuario",
-                     "Añadir usuario a un proyecto","Eliminar usuario de un proyecto"]
+#Funcion que muestra el Menú Principal        
+def menuPrincipal(keystone):
+    opcionesAdmin = ["Usuario","RedProvider","KeyPair","SecurityGroup","VirtualMachine","Flavors","Images"]
+    opcionesUsuario = ["RedProvider","KeyPair","SecurityGroup","VirtualMachine"]
+    if keystone.getRolName() == "admin":
+        opciones = opcionesAdmin
+    else:
+        opciones = opcionesUsuario
     while True:
-            print("\n")
-            print("|-----------------------------------------------------|")
+            print("\n|--------------------Menú Principal------------------------|")
             i = 0
             for opt in opciones:
-                print("|- Opción "+str(opt+1)+" -> "+opt[i]+"           |")
+                print("|- Opción "+str(i+1)+" -> "+str(opt))
                 i = i + 1
-                
-            print("|- Opción "+str(i+1)+" -> Salir                             |")
-            print("|-----------------------------------------------------|")
+            print("|- Opción "+str(i+1)+" -> Salir                             ")
+            print("|------------------------------------------------------------|")
             opcion = input("| Ingrese una opción: ")
-
             if int(opcion) == (len(opciones)+1):
                 opcion = "Salir"
                 break
@@ -489,413 +65,876 @@ def menuInfoUsuarios():
                     opcion = opciones[int(opcion)-1]
                     break
                 else:
-                    print("[*]Ingrese una opción válida.")
-    
-    print("")    
+                    print("[*] Ingrese una opción válida.\n")
     return opcion
 
-def menuInfoSlices():
-    opciones = ["Crear proyecto","Listar proyectos existentes","Ingresar a un proyecto",
-                     "Eliminar un proyecto"]
+#Funcion que muestra el Menú Usuarios
+def menuUsuarios():
+    #opciones = ["Listar usuarios","Crear usuario","Añadir usuario","Editar usuario",
+    #                 "Eliminar usuario"]
+    opciones = ["Listar usuarios","Eliminar usuario"]
     while True:
-        print("\n")
-        print("|-----------------------------------------------------|")
-        i = 0
-        for opt in opciones:
-            print("|- Opción "+str(opt+1)+" -> "+opt[i]+"           |")
-            i = i + 1
-                    
-        print("|- Opción "+str(i+1)+" -> Salir                             |")
-        print("|-----------------------------------------------------|")
-        opcion = input("| Ingrese una opción: ")
-
-        if int(opcion) == (len(opciones)+1):
-            opcion = "Salir"
-            break
-        else:
-            if int(opcion) <= len(opciones):
-                opcion = opciones[int(opcion)-1]
+            print("\n|-----------------------------------------------------|")
+            i = 0
+            for opt in opciones:
+                print("|- Opción "+str(i+1)+" -> "+str(opt))
+                i = i + 1   
+            print("|- Opción "+str(i+1)+" -> Salir")
+            print("|-----------------------------------------------------|")
+            opcion = input("| Ingrese una opción: ")
+            if int(opcion) == (len(opciones)+1):
+                opcion = "Salir"
                 break
             else:
-                print("[*]Ingrese una opción válida.")
-    
-    print("")    
+                if int(opcion) <= len(opciones):
+                    opcion = opciones[int(opcion)-1]
+                    break
+                else:
+                    print("[*] Ingrese una opción válida.")
     return opcion
 
-def MenuInfoProyecto():
-    opciones = ["Consumo de Recursos","Añadir Máquina Virtual"]
+#Funcion para listar proyectos por usuario
+def listarUsuariosProyecto(keystone):
+    listado = keystone.listarProyectosUsuarios()
+    print("\n|-----------------------------------------------------|")
+    i = 1
+    for user in listado:
+        print("| Usuario "+str(i)+": "+str(user))
+        i = i + 1
+    print("|-----------------------------------------------------|")
+    
+#Funcion para Crear Usuario
+def crearUsuario(keystone):
+    print("**Escriba ESC para poder salir de esta opción**")
     while True:
-        print("\n")
-        print("|-----------------------------------------------------|")
-        i = 0
-        for opt in opciones:
-            print("|- Opción "+str(opt+1)+" -> "+opt[i]+"           |")
-            i = i + 1
-                    
-        print("|- Opción "+str(i+1)+" -> Salir                             |")
-        print("|-----------------------------------------------------|")
-        opcion = input("| Ingrese una opción: ")
+        username = input("| Ingrese un nombre de usuario: ")
+        if(username != ''):
+            if(username == "ESC"):
+                print("[*] Ha salido de la opción de -Crear Usuario-\n")
+                return
+            while True:
+                password = getpass("| Ingrese su contraseña: ")
+                if(password != ''):
+                    if(password == "ESC"):
+                        print("[*] Ha salido de la opción de -Crear Usuario- \n")
+                        return
+                    email = input("| Ingrese una dirección de correo: ")
+                    if(email == "ESC"):
+                        print("[*] Ha salido de la opción de -Crear Usuario-\n")
+                        return
+                    keystone.crear_usuario(username, password, email)
+                    return
+                else:
+                    print("[*] Ingrese una contraseña válida\n")
+                    continue
+        else:
+            print("[*] Ingrese un nombre de usuario válido\n")
+            continue
 
-        if int(opcion) == (len(opciones)+1):
-            opcion = "Salir"
+#Funcion para asignar usuario a un proyecto
+def asignarRolUsuarioAProyecto(keystone):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        username = input("| Ingrese un nombre de usuario: ")
+        if(username != ''):
+            if(username == "ESC"):
+                print("[*] Ha salido de la opción de -Añadir usuario-\n")
+                return
+            keystone.asignarUsuarioProyecto(username)
+            return
+        else:
+            print("[*] Ingrese un nombre de usuario válido\n")
+            continue
+  
+#Funcion para editar usuario
+def editarUsuario(keystone):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        username = input("| Ingrese un nombre de usuario: ")
+        if(username != ''):
+            if(username == "ESC"):
+                print("[*] Ha salido de la opción de -Editar Usuario-\n")
+                return
+            verificarPass = input("| ¿Desea cambiar su contraseña?[Y/N]: ")
+            password = None
+            if verificarPass == "Y" or verificarPass == "y":
+                while True:
+                    password = getpass("| Ingrese la nueva contraseña: ")
+                    if(password == ''):
+                        print("[*] Ingrese una contraseña válida\n")
+                        continue
+                    else:
+                        if(password == "ESC"):
+                            print("[*] Ha salido de la opción de -Editar Usuario-\n")
+                            return
+                        break
+            elif(verificarPass == "ESC"):
+                print("[*] Ha salido de la opción de -Editar Usuario-\n")
+                return           
+            verificarEmail = input("| ¿Desea cambiar su email?[Y/N]: ")
+            email = None
+            if verificarEmail == "Y" or verificarEmail == "y":
+                email = input("| Ingrese la nueva dirección de correo: ")
+                if(email == "ESC"):
+                    print("[*] Ha salido de la opción de -Editar Usuario-\n")
+                    return    
+            elif(verificarEmail == "ESC"):
+                print("[*] Ha salido de la opción de -Editar Usuario-\n")
+                return
+            if (verificarPass == "N") and (verificarEmail=="N"):
+                print("[*] Ha decidido no realizar ningún cambio al usuario\n")
+                break 
+            keystone.editar_usuario(username,password,email)
             break
         else:
-            if int(opcion) <= len(opciones):
-                opcion = opciones[int(opcion)-1]
+            print("[*] Ingrese un nombre de usuario válido\n")
+            continue
+        
+#Eliminar usuario de un proyecto
+def eliminarRolUsuarioDeProyecto(keystone):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        username = input("| Ingrese un nombre de usuario: ")
+        if(username != ''):
+            if(username == "ESC"):
+                print("[*] Ha salido de la opción de -Eliminar usuario-\n")
+                return
+            keystone.eliminarUsuarioProyecto(username)
+            return
+        else:
+            print("[*] Ingrese un nombre de usuario válido\n")
+            continue
+
+#Funcion que muestra el Menú redesprovider
+def menuRedes(keystone):
+    opcionesAdmin = ["Crear red","Info red"]
+    opcionesUsuario = ["Info red"]
+    if keystone.getRolName() == "admin":
+        opciones = opcionesAdmin
+    else:
+        opciones = opcionesUsuario
+    while True:
+            print("\n|-----------------------------------------------------|")
+            i = 0
+            for opt in opciones:
+                print("|- Opción "+str(i+1)+" -> "+str(opt))
+                i = i + 1   
+            print("|- Opción "+str(i+1)+" -> Salir")
+            print("|-----------------------------------------------------|")
+            opcion = input("| Ingrese una opción: ")
+            if int(opcion) == (len(opciones)+1):
+                opcion = "Salir"
                 break
             else:
-                print("[*]Ingrese una opción válida.")
+                if int(opcion) <= len(opciones):
+                    opcion = opciones[int(opcion)-1]
+                    break
+                else:
+                    print("[*] Ingrese una opción válida.")
+    return opcion
+
+#Funcion que permite crear RedProvider
+def crearRed(keystone,neutron):
+    existe = neutron.existe_network(keystone.getProjectID())
+    if existe == True:
+        print("[*] Ya existe una RedProvider creada.\n")
+        return
     
-    print("")    
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        red = input("| Ingrese un nombre de red: ")
+        if(red != ''):
+            if(red == "ESC"):
+                print("[*] Ha salido de la opción de -Crear RedProvider-\n")
+                return
+            while True:
+                subred = input("| Ingrese un nombre de subred: ")
+                if(subred != ''):
+                    if(subred == "ESC"):
+                        print("[*] Ha salido de la opción de -Crear RedProvider- \n")
+                        return
+                    while True:
+                        cidr = input("| Ingrese un CIDR: ")
+                        if(cidr != ''):
+                            if(cidr == "ESC"):
+                                print("[*] Ha salido de la opción de -Crear RedProvider- \n")
+                                return
+                            while True:
+                                gatewayIP = input("| Ingrese una IP del gateway: ")
+                                if(gatewayIP != ''):
+                                    if(gatewayIP == "ESC"):
+                                        print("[*] Ha salido de la opción de -Crear RedProvider- \n")
+                                        return
+                                    neutron.create_network(red,subred,cidr,gatewayIP,keystone.getProjectID())
+                                    return
+                                else:
+                                    print("[*] Ingrese una IP válido\n")
+                                    continue
+                        else:
+                            print("[*] Ingrese un CIDR válido\n")
+                            continue
+                else:
+                    print("[*] Ingrese un nombre de subred válido\n")
+                    continue
+        else:
+            print("[*] Ingrese un nombre de red válido\n")
+            continue
+
+#Funcion que permite mostrar la info de la RedProvider
+def infoRed(neutron):
+    informacion = neutron.infoRedProvider()
+    print(informacion)
+    print("\n|-----------------------------------------------------|")
+    print("|Nombre RedProvider: "+ str(informacion[0]))
+    print("|Descripcion: "+ str(informacion[1]))
+    print("|Fecha Creación: "+ str(informacion[2]))
+    print("|CIDR: "+ str(informacion[3]))
+    print("|Gateway IP: "+ str(informacion[4]))
+    print("|-----------------------------------------------------|")
+    
+#Funcion que muestra el Menú keypair
+def menuKeyPair():
+    opciones = ["Crear keypair","Listar keypair","Info keypair","Eliminar keypair"]
+    while True:
+            print("\n|-----------------------------------------------------|")
+            i = 0
+            for opt in opciones:
+                print("|- Opción "+str(i+1)+" -> "+str(opt))
+                i = i + 1   
+            print("|- Opción "+str(i+1)+" -> Salir")
+            print("|-----------------------------------------------------|")
+            opcion = input("| Ingrese una opción: ")
+            if int(opcion) == (len(opciones)+1):
+                opcion = "Salir"
+                break
+            else:
+                if int(opcion) <= len(opciones):
+                    opcion = opciones[int(opcion)-1]
+                    break
+                else:
+                    print("[*] Ingrese una opción válida.")
+    return opcion
+
+#Funcion que permite crear la keypair
+def crearKeyPair(keystone,nova):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        nombre = input("| Ingrese un nombre de keypair: ")
+        if(nombre != ''):
+            if(nombre == "ESC"):
+                print("[*] Ha salido de la opción de -Crear KeyPair-\n")
+                return
+            while True:
+                #ubicacion = input("| Ingrese la ubicación de la KeyPair: ")
+                #if(ubicacion != ''):
+                    #if(ubicacion == "ESC"):
+                        #print("[*] Ha salido de la opción de -Crear KeyPair- \n")
+                        #return
+                    print(nombre)
+                    nova.crearKeyPair(nombre)
+                    return
+                #else:
+                    #print("[*] Ingrese una dirección válida\n")
+                    #continue
+        else:
+            print("[*] Ingrese un nombre de keypair válido\n")
+            continue
+
+#Funcion para listar las keypair
+def listarKeypair(keystone,nova):
+    listado = nova.listarKeyPair(keystone.getUserID())
+    print("\n|-----------------------------------------------------|")
+    i = 1
+    for key in listado:
+        print("| KeyPair "+str(i)+": "+str(key))
+        i = i + 1
+    print("|-----------------------------------------------------|")
+
+#Funcion para ver info de la keypair
+def infoKeypair(keystone,nova):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        nombre = input("| Ingrese el nombre de la KeyPair: ")
+        if(nombre != ''):
+            if(nombre == "ESC"):
+                print("[*] Ha salido de la opción de -Ver Info KeyPair- \n")
+                return
+            break
+        else:
+            print("[*] Ingrese un nombre válido\n")
+            continue
+    informacionsita = nova.infoKeyPair(nombre, keystone.getUserID())
+    print("\n|-----------------------------------------------------|")
+    print("|Nombre KeyPair: "+ str(informacionsita[0]))
+    print("|Tipo: "+ str(informacionsita[1]))
+    print("|FingerPrint: "+ str(informacionsita[2]))
+    print("|Fecha Creación: "+ str(informacionsita[3]))
+    print("|Public Key: "+ str(informacionsita[4]))
+    print("|-----------------------------------------------------|")
+
+#Funcion para borrar la keypair
+def borrarKeypair(keystone,nova):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        nombre = input("| Ingrese el nombre de la KeyPair: ")
+        if(nombre != ''):
+            if(nombre == "ESC"):
+                print("[*] Ha salido de la opción de -Borrar KeyPair- \n")
+                return
+            nova.borrarKeyPair(nombre, keystone.getUserID())
+            break
+        else:
+            print("[*] Ingrese un nombre válido\n")
+            continue
+
+#Funcion que muestra el Menú SecurityGroup
+def menuSecurityGroup():
+    opciones = ["Crear SecurityGroup","Listar SecurityGroup","Editar SecurityGroup","Configurar SecurityGroup","Eliminar SecurityGroup"]
+    while True:
+            print("\n|-----------------------------------------------------|")
+            i = 0
+            for opt in opciones:
+                print("|- Opción "+str(i+1)+" -> "+str(opt))
+                i = i + 1   
+            print("|- Opción "+str(i+1)+" -> Salir")
+            print("|-----------------------------------------------------|")
+            opcion = input("| Ingrese una opción: ")
+            if int(opcion) == (len(opciones)+1):
+                opcion = "Salir"
+                break
+            else:
+                if int(opcion) <= len(opciones):
+                    opcion = opciones[int(opcion)-1]
+                    break
+                else:
+                    print("[*] Ingrese una opción válida.")
     return opcion
 
 
+#Funcion que permite crear la security group
+def crearSecurityGroup(nova,IdProject):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        nombre = input("| Ingrese un nombre de securitygroup: ")
+        if(nombre != ''):
+            if(nombre == "ESC"):
+                print("[*] Ha salido de la opción de -Crear SecurityGroup-\n")
+                return
+            while True:
+                descripcion = input("| Ingrese una descripcion del securitygroup: ")
+                if(descripcion != ''):
+                    if(descripcion == "ESC"):
+                        print("[*] Ha salido de la opción de -Crear SecurityGroup- \n")
+                        return
 
-def menu2(opcion,nivel,jerarquia,keystone):
-    if opcion == "Información de usuarios":
+                    nova.crearSecurityGroup(nombre, descripcion,IdProject)
+                    return
+                else:
+                    print("[*] Ingrese una descripción válida\n")
+                    continue
+        else:
+            print("[*] Ingrese un nombre de securitygroup válido\n")
+            continue
+
+#Funcion que permite listar los security group
+def listarSecurityGroup(nova,IdProject):
+    listado = nova.listarSecurityGroup(IdProject)
+    print("\n|-----------------------------------------------------|")
+    for SG in listado:
+        print("| SecurityGroup "+str(SG[0])+" |  Descripcion : "+str(str(SG[1])))
+    print("|-----------------------------------------------------|")
+
+#Funcion que permite editar un security group
+def editarSecurityGroup(nova,IdProject):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        name = input("| Ingrese un nombre de SecurityGroup: ")
+        if(name != ''):
+            if(name == "ESC"):
+                print("[*] Ha salido de la opción de -Editar SecurityGroup-\n")
+                return
+            verificarNombre = input("| ¿Desea cambiar el nombre?[Y/N]: ")
+            nuevoNombre = None
+            if verificarNombre == "Y" or verificarNombre == "y":
+                while True:
+                    nuevoNombre = input("| Ingrese un nuevo nombre de SecurityGroup: ")
+                    if(nuevoNombre == ''):
+                        print("[*] Ingrese un nombre válido\n")
+                        continue
+                    else:
+                        if(nuevoNombre == "ESC"):
+                            print("[*] Ha salido de la opción de -Editar SecurityGroup-\n")
+                            return
+                        break
+            elif(verificarNombre == "ESC"):
+                print("[*] Ha salido de la opción de -Editar SecurityGroup-\n")
+                return    
+            verificarDescripcion = input("| ¿Desea cambiar la descripcion?[Y/N]: ")
+            descripcion = None
+            if verificarDescripcion == "Y" or verificarDescripcion == "y":
+                descripcion = input("| Ingrese una nueva descripcion: ")
+                if(descripcion == "ESC"):
+                    print("[*] Ha salido de la opción de -Editar SecurityGroup-\n")
+                    return    
+            elif(verificarDescripcion == "ESC"):
+                print("[*] Ha salido de la opción de -Editar SecurityGroup-\n")
+                return
+            if (verificarNombre == "N") and (verificarDescripcion=="N"):
+                print("[*] Ha decidido no realizar ningún cambio al SecurityGroup\n")
+                break 
+            nova.editarSecurityGroup(name,nuevoNombre,descripcion,IdProject)
+            break
+        else:
+            print("[*] Ingrese un nombre de SecurityGroup válido\n")
+            continue
+
+#Funcion que permite eliminar un SecurityGroup
+def borrarSecurityGroup(nova,IdProject):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        nombre = input("| Ingrese un nombre de securitygroup: ")
+        if(nombre != ''):
+            if(nombre == "ESC"):
+                print("[*] Ha salido de la opción de -Crear SecurityGroup-\n")
+                return
+            nova.eliminarSecurityGroup(nombre,IdProject)
+        else:
+            print("[*] Ingrese un nombre de securitygroup válido\n")
+            continue
+
+#Funcion que permite configurar un SecurityGroup
+def configurarSecurityGroup(nova,IdProject):
+    while True:
+        print("\n|------------------------------------|")
+        print("|1. Añadir Regla                     |")
+        print("|2. Eliminar Regla                    |")
+        print("|3. Salir                            |")
+        print("|------------------------------------|")
+        opcion = input("| Ingrese una opción: ")
+        if int(opcion) == 1:
+            print("**Escriba ESC para poder salir de esta opción**")
+            while True:
+                nombre = input("| Ingrese un nombre de securitygroup: ")
+                if(nombre != ''):
+                    if(nombre == "ESC"):
+                        print("[*] Ha salido de la opción de -Añadir Regla-\n")
+                        return
+                    while True:
+                        protocol_ip = input("| Ingrese el protocolo IP: ")
+                        if(protocol_ip != ''):
+                            if(protocol_ip == "ESC"):
+                                print("[*] Ha salido de la opción de -Añadir Regla-\n")
+                                return
+                            while True:
+                                from_port = input("| Ingrese el from port: ")
+                                if(from_port != ''):
+                                    if(from_port == "ESC"):
+                                        print("[*] Ha salido de la opción de -Añadir Regla-\n")
+                                        return
+                                    while True:
+                                        dest_port = input("| Ingrese el dest port: ")
+                                        if(dest_port != ''):
+                                            if(dest_port == "ESC"):
+                                                print("[*] Ha salido de la opción de -Añadir Regla-\n")
+                                                return 
+                                            verificar = input("| ¿Desea agregar un CIDR?[Y/N]: ")
+                                            cidr = None
+                                            if verificar == "Y" or verificar == "y":
+                                                cidr = input("| Ingrese un CIDR: ")
+                                                if(cidr == "ESC"):
+                                                    print("[*] Ha salido de la opción de -Añadir Regla-\n")
+                                                    return        
+                                            elif(verificar == "ESC"):
+                                                print("[*] Ha salido de la opción de -Añadir Regla-\n")
+                                                return
+                                            nova.agregarRegla(nombre,protocol_ip,from_port,dest_port,cidr,IdProject)
+                                            return
+                                        else:
+                                            print("[*] Ingrese un puerto válido\n")
+                                            continue
+                                else:
+                                    print("[*] Ingrese un puerto válido\n")
+                                    continue
+                        else:
+                            print("[*] Ingrese un protocolo IP válido\n")
+                            continue
+                else:
+                    print("[*] Ingrese un nombre de securitygroup válido\n")
+                    continue
+        elif int(opcion) == 2:
+            print("**Escriba ESC para poder salir de esta opción**")
+            while True:
+                id = input("| Ingrese el ID de la regla: ")
+                if(id != ''):
+                    if(id == "ESC"):
+                        print("[*] Ha salido de la opción de -Eliminar Regla-\n")
+                        return
+                    nova.eliminarRegla(id)
+                    break
+                else:
+                    print("[*] Ingrese un ID válido\n")
+                    continue
+        elif int(opcion) == 3:
+            break
+        else:
+            print("[*] Ingrese una opción correcta\n")
+
+#Funcion que muestra el Menú VirtualMachine
+def menuVirtualMachine():
+    opciones = ["Crear VirtualMachine","Listar VirtualMachine","Editar VirtualMachine","Eliminar VirtualMachine"]
+    while True:
+            print("\n|-----------------------------------------------------|")
+            i = 0
+            for opt in opciones:
+                print("|- Opción "+str(i+1)+" -> "+str(opt))
+                i = i + 1   
+            print("|- Opción "+str(i+1)+" -> Salir")
+            print("|-----------------------------------------------------|")
+            opcion = input("| Ingrese una opción: ")
+            if int(opcion) == (len(opciones)+1):
+                opcion = "Salir"
+                break
+            else:
+                if int(opcion) <= len(opciones):
+                    opcion = opciones[int(opcion)-1]
+                    break
+                else:
+                    print("[*] Ingrese una opción válida.")
+    return opcion
+
+#Funcion que permite crear una VirtualMachine
+def crearVirtualMachine(nova,neutron,glance,keystone):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        nombre = input("| Ingrese un nombre para la VirtualMachine: ")
+        if(nombre != ''):
+            if(nombre == "ESC"):
+                print("[*] Ha salido de la opción de -Crear VirtualMachine-\n")
+                return
+            flavorID = getFlavorsID(nova)
+            imagenID = getImagenesID(glance)
+            networkID = neutron.getNetworkID()
+            keyPairID = getKeyPairID(nova,keystone)
+            securityGroupID = getSecurityGroupID(nova)
+            nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID)
+        else:
+            print("[*] Ingrese un nombre de VirtualMachine válido\n")
+            continue
+
+#Funcion que permite listar las VirtualMachine
+def listarVirtualMachine(keystone,nova):
+    listado = nova.list_instances(keystone.ProjectID)
+    print("\n|-----------------------------------------------------|")
+    i = 1
+    for VM in listado:
+        print("| "+str(i)+". VM "+str(VM)+" |")
+        i = i + 1
+    print("|-----------------------------------------------------|")
+
+#Funcion que permite editar una VirtualMachine
+def editarVirtualMachine(nova):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        nombre = input("| Ingrese un nombre de VirtualMachine: ")
+        if(nombre != ''):
+            if(nombre == "ESC"):
+                print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
+                return
+            verificarNombre = input("| ¿Desea cambiar su nombre?[Y/N]: ")
+            nuevoNombre = None
+            if verificarNombre == "Y" or verificarNombre == "y":
+                while True:
+                    nuevoNombre = input("| Ingrese un nuevo nombre para la VirtualMachine: ")
+                    if(nuevoNombre == ''):
+                        print("[*] Ingrese un nombre válida\n")
+                        continue
+                    else:
+                        if(nuevoNombre == "ESC"):
+                            print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
+                            return
+                        break
+            elif(verificarNombre == "ESC"):
+                print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
+                return 
+            verificarDescripcion = input("| ¿Desea cambiar su descripcion?[Y/N]: ")
+            descripcion = None
+            if verificarDescripcion == "Y" or verificarDescripcion == "y":
+                while True:
+                    descripcion = input("| Ingrese una descripcion para la VirtualMachine: ")
+                    if(descripcion == ''):
+                        print("[*] Ingrese una descripcion válida\n")
+                        continue
+                    else:
+                        if(descripcion == "ESC"):
+                            print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
+                            return
+                        break
+            elif(verificarDescripcion == "ESC"):
+                print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
+                return           
+            nova.update_instance(nombre,nuevoNombre,descripcion)
+        else:
+            print("[*] Ingrese un nombre de VirtualMachine válido\n")
+            continue
+        
+#Funcion que permite eliminar una VM
+def borrarVirtualMachine(nova):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        nombre = input("| Ingrese el nombre de una VirtualMachine: ")
+        if(nombre != ''):
+            if(nombre == "ESC"):
+                print("[*] Ha salido de la opción de -Borrar VirtualMachine- \n")
+                return
+            nova.delete_instance(nombre)
+            break
+        else:
+            print("[*] Ingrese un nombre válido\n")
+            continue
+   
+#Funcion que permite obtener el ID de un Flavor   
+def getFlavorsID(nova):
+    listado = nova.list_flavors()
+    while True:
+        print("|--------------------Lista de Flavors------------------------|")
+        i = 0
+        for flavor in listado:
+            print("|- Flavor "+str(i+1)+" -> "+str(flavor[1])+"| RAM: "+ str(flavor[2])+ "   | DISK: "+ str(flavor[3])+" | VCPUS: "+ str(flavor[4]))
+            i = i + 1
+        print("|--------------------------------------------------------------|")
+        opcionFlavor = input("| Ingrese el # del flavor que desea usar: ")
+        if opcionFlavor > len(listado):
+            print("[*] Ingrese el # de un flavor válido\n")
+        else:
+            idFlavor = listado[int(opcionFlavor)-1][0]
+            break
+    return idFlavor
+    
+#Funcion que permite obtener el ID de una Imagen
+def getImagenesID(glance):   
+    listado = glance.listar_imagenes() 
+    while True:
+        print("|--------------------Lista de Imagenes------------------------|")
+        i = 0
+        for imagen in listado:
+            print("|- Imagen "+str(i+1)+" -> "+str(imagen[1]))
+            i = i + 1
+        print("|--------------------------------------------------------------|")
+        opcionImagen = input("| Ingrese el # de la imagen que desea usar: ")
+        if opcionImagen > len(listado):
+            print("[*] Ingrese el # de una imagen válida\n")
+        else:
+            idImagen = listado[int(opcionImagen)-1][0]
+            break
+    return idImagen
+
+#Funcion que permite obtener el ID de una keypair
+def getKeyPairID(nova,keystone):
+    listado = nova.listarKeyPair(keystone.getUserID())
+    while True:
+        print("\n|-----------------------------------------------------|")
+        i = 1
+        for key in listado:
+            print("| KeyPair "+str(i)+": "+str(key)+ "  |")
+            i = i + 1
+        print("|-----------------------------------------------------|")
+        opcionKeyPair = input("| Ingrese el # de la keypair que desea usar: ")
+        if opcionKeyPair > len(listado):
+            print("[*] Ingrese el # de una keypair válida\n")
+        else:
+            keypair = listado[int(opcionKeyPair)-1][0]
+            break
+    return nova.obtenerIDKeyPair(keypair)
+    
+#Funcion que permite obtener el ID de un SecurityGroup
+def getSecurityGroupID(nova):
+    listado = nova.listarSecurityGroup()
+    while True:
+        print("\n|-----------------------------------------------------|")
+        for SG in listado:
+            print("| SecurityGroup "+str(SG[0])+" |  Descripcion : "+str(str(SG[1]))+ "  |")
+        print("|-----------------------------------------------------|")    
+        opcionSecurityGroup = input("| Ingrese el # del securitygroup que desea usar: ")
+        if opcionSecurityGroup > len(listado):
+            print("[*] Ingrese el # de un securitygroup válido\n")
+        else:
+            securitygroup = listado[int(opcionSecurityGroup)-1][0]
+            break
+    return nova.obtenerIDSecurityGroup(securitygroup)
+    
+    
+#Funcion que muestra el Menú Flavors
+def menuFlavors():    
+    opciones = ["Crear Flavor","Listar Flavors","Editar Flavor","Eliminar Flavor"]
+    while True:
+            print("\n|-----------------------------------------------------|")
+            i = 0
+            for opt in opciones:
+                print("|- Opción "+str(i+1)+" -> "+str(opt))
+                i = i + 1   
+            print("|- Opción "+str(i+1)+" -> Salir")
+            print("|-----------------------------------------------------|")
+            opcion = input("| Ingrese una opción: ")
+            if int(opcion) == (len(opciones)+1):
+                opcion = "Salir"
+                break
+            else:
+                if int(opcion) <= len(opciones):
+                    opcion = opciones[int(opcion)-1]
+                    break
+                else:
+                    print("[*] Ingrese una opción válida.")
+    return opcion
+
+#Funcion que muestra el Menú Imagenes
+def menuImages():    
+    opciones = ["Crear Image","Listar Images","Editar Image","Eliminar Image"]
+    while True:
+            print("\n|-----------------------------------------------------|")
+            i = 0
+            for opt in opciones:
+                print("|- Opción "+str(i+1)+" -> "+str(opt))
+                i = i + 1   
+            print("|- Opción "+str(i+1)+" -> Salir")
+            print("|-----------------------------------------------------|")
+            opcion = input("| Ingrese una opción: ")
+            if int(opcion) == (len(opciones)+1):
+                opcion = "Salir"
+                break
+            else:
+                if int(opcion) <= len(opciones):
+                    opcion = opciones[int(opcion)-1]
+                    break
+                else:
+                    print("[*] Ingrese una opción válida.")
+    return opcion
+
+#Funcion SubMenú
+def menu2(opcion,nivel,keystone,nova,glance,neutron):
+    if opcion == "Usuario":
         if(nivel == "Menú"):
             while True:
-                seleccion = menuInfoUsuarios()
-                resultado = menu2(opcion,seleccion, jerarquia, keystone)  
+                seleccion = menuUsuarios()
+                resultado = menu2(opcion,seleccion,keystone,nova,glance,neutron)
                 if not (resultado):
                     break
-                
-        elif(nivel == "Crear usuario (General)"):
-            crearUsuario(keystone)
-            
-        elif(nivel == "Editar usuario (General)"):
+        elif(nivel == "Listar usuarios"):
+            listarUsuariosProyecto(keystone)
+        elif(nivel == "Crear usuario"):
+            crearUsuario(keystone)   
+        elif(nivel == "Añadir usuario"):
+            asignarRolUsuarioAProyecto(keystone) 
+        elif(nivel == "Editar usuario"):
             editarUsuario(keystone)
-            
-        elif(nivel == "Eliminar usuario (General)"):
-            eliminarUsuario(keystone)
-            
-        elif(nivel == "Listar proyectos por usuario"):
-            listarProyectosPorUsuario(keystone)
-            
-        elif(nivel == "Añadir usuario a un proyecto"):
-            asignarRolUsuarioAProyecto(keystone)
-            
-        elif(nivel == "Eliminar usuario de un proyecto"):
+        elif(nivel == "Eliminar usuario"):
             eliminarRolUsuarioDeProyecto(keystone)
-            
         elif(nivel == "Salir"):        
             return False
-        
         return True
         
-    elif opcion == "Información de slices":
+    elif opcion == "RedProvider":
         if(nivel == "Menú"):
             while True:
-                seleccion = menuInfoSlices()
-                resultado = menu2(opcion,seleccion, jerarquia, keystone)  
+                seleccion = menuRedes(keystone)
+                resultado = menu2(opcion,seleccion,keystone,nova,glance,neutron)  
                 if not (resultado):
                     break
-                
-        elif(nivel == "Crear proyecto"):
-            crearProyecto(keystone)
-            
-        elif(nivel == "Listar proyectos existentes"):
-            listarProyectos(keystone)
-            
-        elif(nivel == "Ingresar a un proyecto"):
-            entrarProyecto(keystone,jerarquia)
-            
-        elif(nivel == "Eliminar un proyecto"):
-            eliminarProyecto(keystone)
-            
+        elif(nivel == "Crear red"):
+            crearRed(keystone,neutron)
+        elif(nivel == "Info red"):
+            infoRed(neutron)         
         elif(nivel == "Salir"):        
             return False
-        
         return True
     
-    elif opcion == "Información de proyecto":
+    elif opcion == "KeyPair":
         if(nivel == "Menú"):
            while True:
-                seleccion = MenuInfoProyecto()
-                resultado = menu2(opcion,seleccion, jerarquia, keystone)  
+                seleccion = menuKeyPair()
+                resultado = menu2(opcion,seleccion,keystone,nova,glance,neutron)  
                 if not (resultado):
                     break
-                    
+        elif(nivel == "Crear keypair"):
+            crearKeyPair(keystone,nova)
+        elif(nivel == "Listar keypair"):
+            listarKeypair(keystone,nova)
+        elif(nivel == "Info keypair"):
+            infoKeypair(keystone,nova)
+        elif(nivel == "Eliminar keypair"):
+            borrarKeypair(keystone,nova)
+        elif(nivel == "Salir"):
+            return False
+        return True
+    
+    elif opcion == "SecurityGroup":
+        if(nivel == "Menú"):
+           while True:
+                seleccion = menuSecurityGroup()
+                resultado = menu2(opcion,seleccion,keystone,nova,glance,neutron)  
+                if not (resultado):
+                    break
+        elif(nivel == "Crear SecurityGroup"):
+            crearSecurityGroup(nova,keystone.getProjectID())
+        elif(nivel == "Listar SecurityGroup"):
+            listarSecurityGroup(nova,keystone.getProjectID())
+        elif(nivel == "Editar SecurityGroup"):
+            editarSecurityGroup(nova,keystone.getProjectID())
+        elif(nivel == "Eliminar SecurityGroup"):
+            borrarSecurityGroup(nova,keystone.getProjectID())
+        elif(nivel == "Configurar SecurityGroup"):
+            configurarSecurityGroup(nova,keystone.getProjectID())
+        elif(nivel == "Salir"):
+            return False
+        return True
+    
+    elif opcion == "VirtualMachine":
+        if(nivel == "Menú"):
+           while True:
+                seleccion = menuVirtualMachine()
+                resultado = menu2(opcion,seleccion,keystone,nova,glance,neutron)  
+                if not (resultado):
+                    break
+        elif(nivel == "Crear VirtualMachine"):
+            crearVirtualMachine(nova,neutron,glance,keystone)
+        elif(nivel == "Listar VirtualMachine"):
+            listarVirtualMachine(keystone,nova)
+        elif(nivel == "Editar VirtualMachine"):
+            editarVirtualMachine(nova)
+        elif(nivel == "Eliminar VirtualMachine"):
+            borrarVirtualMachine(nova)
         elif(nivel == "Salir"):
             return False
 
         return True
     
-    elif opcion == "Salir":
-        return False
-#-----------------------------------------------------------------------------------------------------------------------------------  
-    
-# Menú logico
-def menu(opcion,nivel,jerarquia,keystone):
-    try:
-        opcion = int(opcion)
-        if opcion == 1:
-            # Mapea desde qué menú se está ingresando p.e Menú principal -> Nivel 0 / Así se permite reusar el menú
-            # Mapea desde qué menú se está ingresando p.e MenuInfoServidores -> Nivel 1 / Así se permite reusar el menú
-            # Mapea desde qué menú se está ingresando p.e MenuInfoTopologia -> Nivel 2 / Así se permite reusar el menú
-            if(nivel == 0):
-                while True:
-                        opcion = menuInfoServidores(jerarquia)
-                        resultado = menu(opcion,1,jerarquia,keystone)
-                        if not (resultado):
-                            break
-                        
-            elif(nivel == 1):
-                # No es necesario validar porque la validacion se hace a nivel de menu
-                obtenerInfoServidores()
-                
-            elif(nivel == 2):
-                pass #ELIMINAR
-            
-            elif(nivel == 3):
-                pass #ELIMINAR
-            
-            return True
-        
-        elif opcion == 2:
-            if(nivel == 0):
-                pass
-            
-            if(nivel == 1):
-                #Posteriormente este nivel se vinculará con OpenStack
-                editarNivelAprovisionamiento()
-                
-            if(nivel == 2):
-                pass #ELIMINAR
-            
-            if(nivel == 3):
-                pass #ELIMINAR
-            
-            return True
-        
-        elif opcion == 3:
-            if(nivel == 0):
-                if(jerarquia == 3 or jerarquia == 1):
-                    while True:
-                        opcion = menuInfoTopologias()
-                        resultado = menu(opcion,2,jerarquia,keystone)
-                        if not (resultado):
-                            break
-                else:
-                    #Quiere decir que no tengo los privilegios para poder ingresar
-                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
-                    
-            if(nivel == 1):
-                #Posteriormente este nivel se vinculará con OpenStack
-                mostrarNivelAprovionamiento()
-    
-            if(nivel == 2):
-                if(jerarquia == 3 or jerarquia == 1):
-                    menuCrearTopologia()
-                    resultado = menu(3,0,jerarquia,keystone)
- 
-                else:
-                    #Quiere decir que no tengo los privilegios para poder ingresar
-                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
-            
-            if(nivel == 3):
-                pass #ELIMINAR
-                  
-            return True
-        
-        elif opcion == 4:
-            if(nivel == 0):
-                # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
-                if(jerarquia == 2 or jerarquia == 1):
-                    crearUsuario()
-                        
-                else:
-                    #Quiere decir que no tengo los privilegios para poder ingresar
-                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
-            
-            if(nivel == 1):
-                pass #ELIMINAR
-            
-            if(nivel == 2):
-                pass #ELIMINAR
-            
-            if(nivel == 3):
-                pass #ELIMINAR
-            
-            return True
-        
-        elif opcion == 5:
-            if(nivel == 0):
-                # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
-                if(jerarquia == 2 or jerarquia == 1):
-                    editarUsuario()
-                
-                else:
-                    #Quiere decir que no tengo los privilegios para poder ingresar
-                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
-            
-            if(nivel == 1):
-               pass #ELIMINAR
-           
-            if(nivel == 2):
-                print("|---------------------------------|")
-                nombreTopologia = input("| Ingrese el nombre de su topología: ")
-                #validaciones
-                print("[*]Topología lista para ser visualizada\n")
-                resultado = menu(3,0,jerarquia,keystone)
-            
-            if(nivel == 3):
-                pass #ELIMINAR
-            
-            return True
-        
-        elif opcion == 6:
-            if(nivel == 0):
-                # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
-                if(jerarquia == 3 or jerarquia == 1):
-                    keystone.list_users()
-                        
-                else:
-                    #Quiere decir que no tengo los privilegios para poder ingresar
-                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
-                    
-            if(nivel == 1):
-                pass
-            if(nivel == 2):
-                print("|---------------------------------|")
-                nombreTopologia = input("| Ingrese el nombre de su topología: ")
-                #validaciones
-                confirmacion = input("|¿Está seguro de borrar la topología "+nombreTopologia+" ?[Y/N]: ")
-                
-                if (confirmacion == "Y"):
-                    #se borra la topologia
-                    print("[*]Topología borrada exitosamente\n")
-                
-                resultado = menu(3,0,jerarquia,keystone) 
-            
-            return True
-        
-        elif opcion == 7:
-            if(nivel == 0):
-                 # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
-                if(jerarquia == 2 or jerarquia == 1):
-                    crearRol()
-                        
-                else:
-                    #Quiere decir que no tengo los privilegios para poder ingresar
-                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
-                
-            return True
-        
-        elif opcion == 8:
-            if(nivel == 0):
-                 # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
-                if(jerarquia == 3 or jerarquia == 1):
-                    keystone.listar_roles()
-                        
-                else:
-                    #Quiere decir que no tengo los privilegios para poder ingresar
-                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
-                
-            return True
-        
-        elif opcion == 9:
-            if(nivel == 0):
-                 # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
-                if(jerarquia == 2 or jerarquia == 1):
-                    name = eliminarUsuario()
-                    if name == username:
-                        print("[*]Se cerrará su sesión. Vuelva a logearse")
-                        return False    
-                        
-                else:
-                    #Quiere decir que no tengo los privilegios para poder ingresar
-                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
-                
-            return True
-        
-        
-        elif opcion == 10:
-            if(nivel == 0):
-                 # Instanciamos las políticas de jerarquía p.e Admin tiene permiso de visualizar la información de servidores la validacion siempre se dará a nivel de menú
-                if(jerarquia == 2 or jerarquia == 1):
-                    eliminarRol()    
-                else:
-                    #Quiere decir que no tengo los privilegios para poder ingresar
-                    print("Lo sentimos usted no tiene los privilegios para poder ingresar")
-                
-            return True
-            
-        elif opcion == 11:
+    elif opcion == "Flavors":
+        if(nivel == "Menú"):
+           while True:
+                seleccion = menuFlavors()
+                resultado = menu2(opcion,seleccion,keystone,nova,glance,neutron)  
+                if not (resultado):
+                    break    
+        elif(nivel == "Salir"):
             return False
-        
-        else:
-            print("Usted ha ingresado una opción inválida")
-            print("Por favor ingresa una opción valida")
-            return True
-        
-    except Exception as e:
-        print(e)
-        print("Usted ha ingresado una opción inválida")
-        print("Por favor ingresa una opción valida")
+
         return True
-
-def getTokensito(Keystone):
-    tokensito = Keystone.get_token()
-    return tokensito
-
-def getTokensitoAdmin(keystone):
-    keystone.get_token_admin()
-
-def validarCredenciales(username,pwd):
-    usuarios = credenciales.keys()
-    pwds = credenciales.values()
-    attemptcounter = 3
-    while True:
-        if (username in usuarios) and (pwd in pwds):
-            print("[*]Usuario logueado exitosamente!\n")
-            return jerarquias[username]
-        else:
-            if attemptcounter > 0:
-                print("[*]Usuario y/o contraseñas incorrectas")
-                attemptcounter -= 1
-                print("[*]Le quedan "+str(attemptcounter)+" intentos\n")
-                return -1
-            else:
-                #Quiere decir que excedio
-                print("[*]Excedió el número de intentos para el proceso de logueo\n")
-                return 0
     
-def MenuListaProyectos(keystone):
-    listaProyectos = keystone.getListProjects()
-    #Consideramos que un admin tiene que estar asignado a un unico proyecto llamado admin
-    if ((len(listaProyectos) == 1) and (listaProyectos[0][1] == "admin")):
-        keystone.setProjectID(listaProyectos[0][0])
-        return True,1 
-    
-    if len(listaProyectos) == 0:   
-        print("|--------------------Lista de Proyectos------------------------|")
-        print("|Actualmente, usted no se encuentra asignado a ningún proyecto.|")
-        print("|Porfavor, póngase en contacto con algún administrador.        |")
-        print("|--------------------------------------------------------------|")
-        return False,2
-    
-    else:
-        while True:
-            print("|--------------------Lista de Proyectos------------------------|")
-            i = 0
-            for proyecto in listaProyectos:
-                print("|- Proyecto "+str(i+1)+" -> "+str(proyecto[1])+"|")
-                i = i + 1
-            print("|--------------------------------------------------------------|")
-            opcionProyecto = input("| Ingrese el # del proyecto al que desea ingresar: ")
-            
-            if opcionProyecto > len(listaProyectos):
-                 print("[*]Ingrese el # de un proyecto válido\n")
-            else:
-                idProyecto = listaProyectos[int(opcionProyecto)-1][0]
-                keystone.setProjectID(idProyecto)
-                break
+    elif opcion == "Images":
+        if(nivel == "Menú"):
+           while True:
+                seleccion = menuImages()
+                resultado = menu2(opcion,seleccion,keystone,nova,glance,neutron)  
+                if not (resultado):
+                    break 
+        elif(nivel == "Salir"):
+            return False
 
-        keystone.setRolID()
-        return True,2     
-     
-      
+        return True
+    
+    
+    elif opcion == "Salir":
+        return False  
+    
 ############################################    M   A   I   N   ############################################      
 #Mensaje de bienvenida
 print("----------------Ingeniería de Redes Cloud--------------------")
@@ -911,44 +950,39 @@ print("|                Agustin Vizcarra Lizarbe (L)               |")
 print("-------------------------------------------------------------")
 print("|-----------------Ingrese sus crendenciales-----------------|")
 privilegios = -1
-
 while(int(privilegios)<0):
     username = input("| Ingrese su nombre de usuario: ")
     password = getpass("| Ingrese su contraseña: ")
-    tokensito = None
-    #keystone = KeystoneAuth(username, password)
-    #tokensito = getTokensito(keystone)
+    keystone = KeystoneAuth(username, password)
+    tokensito = keystone.get_token()
     #Si tiene cuenta de Openstack 
     if tokensito != None:
-        getTokensitoAdmin(keystone) #Para actualizar el token de admin para hacer las consultas
+        tokensito = keystone.updateToken()
+        nova = NovaClient(tokensito,username,password)
+        glance = GlanceClient(tokensito)
+        neutron = NeutronClient(tokensito)
         while True:
-            #Menu Lista de todos los proyectos
-            result,privilegios = MenuListaProyectos(keystone)
-                    
-            if not(result): #No esta asignado a ningun proyecto
-                print("[*]Gracias por usar nuestro sistema!\n")
+            result,keystone = MenuListaProyectos(keystone)
+            if not (result): #No esta asignado a ningun proyecto
+                print("[*] Gracias por usar nuestro sistema!\n")
                 privilegios = 0
                 break
- 
-            else:        
+            else:
                 while True:
-                    opcion = menuPrincipal(keystone,privilegios)
-                    resultado = menu2(opcion,"Menú",privilegios,keystone)
+                    opcion = menuPrincipal(keystone)
+                    resultado = menu2(opcion,"Menú",keystone,nova,glance,neutron)
                     if not (resultado):
                         break
-                
-                #Se cierra sesión en caso de ser admin y si le da a Salir
-                if resultado == False and privilegios == 1:
-                    print("[*]Gracias por usar nuestro sistema!\n")
-                    privilegios = 0
-                    break
+
                                  
     #Si tiene cuenta de Linux
     else:
-        AutenticacionLinux = AuthenticationManager()    
-        response = AutenticacionLinux.get_auth(username, password)
-        permisos = response["permisos"]
-        id = response["id"]
+        #AutenticacionLinux = AuthenticationManager()    
+        #response = AutenticacionLinux.get_auth(username, password)
+        #permisos = response["permisos"]
+        #id = response["id"]
+        id = 1
+        permisos = 1
         if id == 0:
             print("[*]Ha ingresado credenciales inválidas o su usuario no existe.")
         else:
