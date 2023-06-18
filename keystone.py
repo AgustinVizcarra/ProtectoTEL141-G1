@@ -61,6 +61,7 @@ class KeystoneAuth(object):
 
         if response.status_code == 201:
             self.token = response.headers['X-Subject-Token']
+            #print(self.token)
             self.UserID = response.json()["token"]["user"]['id']
             print("[*] La solicitud se completó correctamente\n")
             
@@ -264,6 +265,7 @@ class KeystoneAuth(object):
             print(self.ProjectID)
             print(user_id)
             print(role_id)
+            print(self.token)
             headers = {
                     'Content-Type': 'application/json',
                     'X-Auth-Token': self.token

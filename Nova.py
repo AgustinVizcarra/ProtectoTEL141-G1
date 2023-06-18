@@ -93,7 +93,7 @@ class NovaClient(object):
         else:
             raise Exception('Failed to get flavor. Status code: {}'.format(response.status_code))
 
-    def update_flavor(self, flavor_id, new_name, new_ram, new_vcpus, new_disk):
+    def update_flavor(self,new_name, new_ram, new_vcpus, new_disk):
         flavor_data = {
             'flavor': {
                 'name': new_name,
@@ -134,12 +134,12 @@ class NovaClient(object):
             keypair_name = keypair.get('name')
             keypair_key = keypair.get('public_key')
             keypair_id = keypair.get('user_id')
-            print("Keypair creado exitosamente:")
-            print("Nombre: ", keypair_name)
-            print("Llave pública: ", keypair_key)
-            print("ID de usuario: ", keypair_id)
+            print("[*] Keypair creado exitosamente")
+            #print("Nombre: ", keypair_name)
+            #print("Llave pública: ", keypair_key)
+            #print("ID de usuario: ", keypair_id)
         else:
-            print("Error al crear el Keypair:", response.status_code)
+            print("[*] Error al crear el Keypair:", response.status_code)
 
 
 #Info keypair
@@ -212,12 +212,12 @@ class NovaClient(object):
                 url_keypair = f"{url}"
                 response_borrar = requests.delete(url_keypair, headers=self.headers)
                 if response_borrar.status_code == 202:
-                    print("Keypair eliminado exitosamente")
+                    print("[*] Keypair eliminado exitosamente")
                 else:
-                    print("Error al eliminar el Keypair:", response_borrar.status_code)
+                    print("[*] Error al eliminar el Keypair:", response_borrar.status_code)
                 return
         else:
-            print("No se encontró el Keypair especificado")
+            print("[*] No se encontró el Keypair especificado")
 
 #Obtener ID de keypair
     def obtenerIDKeyPair(self,keypair):
@@ -236,7 +236,7 @@ class NovaClient(object):
 
 ##########SECURITY GROUP###########
 #Crear securitygroup
-    def crearSecurityGroup(self,name,descripcion,IdProject):
+    def crearSecurityGroup(self,name,descripcion):
         url = f"{self.nova_url}/v2.1/os-security-groups"
         data = {
             'security_group': {
@@ -246,28 +246,28 @@ class NovaClient(object):
         }
 
         # Obtener el token específico del proyecto
-        token = self.get_token_project(IdProject)
+        #token = self.get_token_project(IdProject)
 
         # Verificar si se obtuvo el token correctamente
-        if token is None:
-            print("Error al obtener el token del proyecto.")
+        #if token is None:
+        #    print("Error al obtener el token del proyecto.")
 
         # Establecer el encabezado con el token
         self.headers_security = {
             'Content-Type': 'application/json',
-            'X-Auth-Token': token
+            'X-Auth-Token': self.auth_token
         }
 
         response = requests.post(url, json=data, headers=self.headers_security)
 
         if response.status_code == 200:
             security_group = response.json().get('security_group', {})
-            print("Grupo de seguridad creado exitosamente:", security_group['name'])
+            print("[*] Grupo de seguridad creado exitosamente:", security_group['name'])
         else:
-            print("Error al crear el Grupo de seguridad:", response.status_code)
+            print("[*] Error al crear el Grupo de seguridad:", response.status_code)
     
 #Listar securitygroup
-    def listarSecurityGroup(self,IdProject):
+    def listarSecurityGroup(self):
         #token_project = self.get_token_project(IdProject)  # Obtener el token del proyecto utilizando el método get_token_project
         self.headers_security = {
             'Content-Type': 'application/json',
@@ -322,7 +322,7 @@ class NovaClient(object):
        
     
 #Eliminar securitygroup
-    def eliminarSecurityGroup(self,name,IdProject):
+    def eliminarSecurityGroup(self,name):
         id_security=self.obtenerIDSecurityGroup(name,IdProject)
 
         if id_security==None:
