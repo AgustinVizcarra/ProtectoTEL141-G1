@@ -382,9 +382,9 @@ async def listar_vms():
         return JSONResponse(content=data, status_code=400)
 
 @app.get("/getVM/{vm_id}")
-async def get_vm(vm_id: int = Path(..., description="ID del usuario a buscar")):
+async def get_vm(vm_id: int = Path(..., description="ID de la VM a buscar")):
     if vm_id is None:
-        data = {"mensaje": "No se proporcionó el ID del usuario"}
+        data = {"mensaje": "No se proporcionó el ID de la VM"}
         return JSONResponse(content=data, status_code=404)
     conn = psycopg2.connect(
         host="10.0.0.10",
@@ -1392,7 +1392,7 @@ async def add_Imagen(project_id: int = Path(..., description="ID del proyecto"),
             data = {"mensaje": "se enviaron campos incorrectos"}
             return JSONResponse(content=data,status_code=400)
         
-@app.get("/listarImagenes/{project_id}")
+@app.get("/listarImagenesxProyecto/{project_id}")
 async def listar_Proyecto(project_id: int = Path(..., description="ID del proyecto")):
     conn = psycopg2.connect(
         host="10.0.0.10",
@@ -1612,6 +1612,41 @@ async def edit_flavor(flavor_id: int = Path(..., description="ID de la topologia
         else:
             data = {"mensaje": "Se enviaron campos incorrectos"}
             return JSONResponse(content=data, status_code=400)
+
+@app.get("/getFlavor/{flavor_id}")
+async def get_flavor(flavor_id: int = Path(..., description="ID del flavor a buscar")):
+    if flavor_id is None:
+        data = {"mensaje": "No se proporcionó el ID del flavor"}
+        return JSONResponse(content=data, status_code=404)
+    conn = psycopg2.connect(
+        host="10.0.0.10",
+        database="linuxorch",
+        user="ubuntu",
+        password="ubu"
+    )
+    try:
+        cur = conn.cursor()
+        cur.execute("select * from flavor where id=%s and estado=1", (flavor_id,))
+        result = cur.fetchone()
+        cur.close()
+        conn.close()
+        if result is None:
+            data = {"mensaje": "No se encontró el flavor con el ID proporcionado o ha sido eliminada"}
+            return JSONResponse(content=data, status_code=404)
+        else:
+            flavor = {
+                "id": result[0],
+                "descripcion": result[2],
+                "cpu": result[3],
+                "memoria": result[4],
+                "disco": result[5]
+            }
+            data = {"mensaje": "Se encontró el flavor exitosamente", "vm": flavor}
+            return JSONResponse(content=data, status_code=200)
+    except psycopg2.Error as e:
+        print(e)
+        data = {"mensaje": "No se pudo obtener la vm"}
+        return JSONResponse(content=data, status_code=400)
 ## FIN ##
 if __name__ == "__main__":
     import uvicorn
