@@ -70,8 +70,6 @@ def menuPrincipal(keystone):
 
 #Funcion que muestra el Menú Usuarios
 def menuUsuarios():
-    #opciones = ["Listar usuarios","Crear usuario","Añadir usuario","Editar usuario",
-    #                 "Eliminar usuario"]
     opciones = ["Listar usuarios","Eliminar usuario"]
     while True:
             print("\n|-----------------------------------------------------|")
@@ -96,12 +94,13 @@ def menuUsuarios():
 #Funcion para listar proyectos por usuario
 def listarUsuariosProyecto(keystone):
     listado = keystone.listarProyectosUsuarios()
-    print("\n|-----------------------------------------------------|")
-    i = 1
-    for user in listado:
-        print("| Usuario "+str(i)+": "+str(user))
-        i = i + 1
-    print("|-----------------------------------------------------|")
+    if len(listado) != 0:
+        print("\n|-----------------------------------------------------|")
+        i = 1
+        for user in listado:
+            print("| Usuario "+str(i)+": "+str(user))
+            i = i + 1
+        print("|-----------------------------------------------------|")
     
 #Funcion para Crear Usuario
 def crearUsuario(keystone):
@@ -975,9 +974,8 @@ privilegios = -1
 while(int(privilegios)<0):
     username = input("| Ingrese su nombre de usuario: ")
     password = getpass("| Ingrese su contraseña: ")
-    # keystone = KeystoneAuth(username, password)
-    # tokensito = keystone.get_token()
-    tokensito = None
+    keystone = KeystoneAuth(username, password)
+    tokensito = keystone.get_token()
     #Si tiene cuenta de Openstack 
     if tokensito != None:
         tokensito = keystone.updateToken()

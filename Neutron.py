@@ -100,6 +100,7 @@ class NeutronClient(object):
                 network_id = networks[0]['id']
                 self.NetworkID =  network_id
                 return True
+        print(response.json())
         return False
         
         
