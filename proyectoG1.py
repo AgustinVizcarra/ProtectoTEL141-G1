@@ -70,7 +70,8 @@ def menuPrincipal(keystone):
 
 #Funcion que muestra el Menú Usuarios
 def menuUsuarios():
-    opciones = ["Listar usuarios","Eliminar usuario"]
+    #opciones = ["Listar usuarios","Eliminar usuario"]
+    opciones = ["Listar usuarios"]
     while True:
             print("\n|-----------------------------------------------------|")
             i = 0
