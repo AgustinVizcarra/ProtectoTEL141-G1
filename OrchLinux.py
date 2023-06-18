@@ -608,7 +608,7 @@ async def delete_user(proyecto_id: int = Path(..., description="ID del usuario a
     )
     try:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM proyecto WHERE id = %s", (proyecto_id,))
+        cur.execute("SELECT * FROM proyecto WHERE id = %s and estado = 1", (proyecto_id,))
         result = cur.fetchone()
 
         if result is None:
@@ -803,7 +803,7 @@ async def delete_user(topology_id: int = Path(..., description="ID del usuario a
     )
     try:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM topologia WHERE id = %s AND estado=1", (topology_id,))
+        cur.execute("SELECT * FROM topologia WHERE id = %s AND estado = 1", (topology_id,))
         result = cur.fetchone()
 
         if result is None:
@@ -1353,10 +1353,266 @@ async def listar_Roles():
         return JSONResponse(content=data, status_code=400)
 
 ## Espacio para implementaciones futuras ##
-## Falta implementación de Flavors e imagenes! ##
+## CRUD de Imagenes ##
+@app.post("/addImagen/{user_id}/{project_id}")
+async def add_Imagen(project_id: int = Path(..., description="ID del proyecto"),user_id: int = Path(..., description="ID del usuario"),body: dict=None):
+    if not body:
+        #Si en caso no se tiene valores dentro del body
+        data = {"mensaje": "no se envió datos en el body"}
+        return JSONResponse(content=data,status_code=400)
+    else:
+        if 'imagen' in body and project_id is not None and user_id is not None:
+            conn = psycopg2.connect(
+                host="10.0.0.10",
+                database="linuxorch",
+                user="ubuntu",
+                password="ubu"
+            )
+            try:
+                cur = conn.cursor()
+                cur.execute("INSERT INTO imagen (estado,imagen,proyecto,usuario) VALUES (1,%s,%s,%s)",(body['imagen'],project_id,user_id,))
+                cur.execute("SELECT currval('imagen_id_seq')")
+                result = cur.fetchone()
+                cur.close()
+                conn.commit()
+                conn.close()
+                if result is None:
+                    data = {"mensaje": "No se pudo añadir la imagen!",
+                            "id": 0}
+                    return JSONResponse(content=data,status_code=400)
+                else:
+                    data = {"mensaje": "se añadio la imagen con los parámetros especificados",
+                            "id": result[0]}
+                    return JSONResponse(content=data,status_code=200)
+            except psycopg2.Error as e:
+                print(e)
+                data = {"mensaje": "No se puede añadir la imagen!"}
+                return JSONResponse(content=data,status_code=400)
+        else:
+            data = {"mensaje": "se enviaron campos incorrectos"}
+            return JSONResponse(content=data,status_code=400)
+        
+@app.get("/listarImagenes/{project_id}")
+async def listar_Proyecto(project_id: int = Path(..., description="ID del proyecto")):
+    conn = psycopg2.connect(
+        host="10.0.0.10",
+        database="linuxorch",
+        user="ubuntu",
+        password="ubu"
+    )
+    if project_id is not None:
+        try:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM imagen WHERE estado = 1 and proyecto = %s",(project_id,))
+            result = cur.fetchall()
+            cur.close()
+            conn.close()
+            imagenes = []
+            for row in result:
+                imagen = {
+                    "id": row[0],
+                    "imagen": row[2]
+                }
+                imagenes.append(imagen)
+            data = {"mensaje": "Lista de imagenes", "imagenes": imagenes}
+            return JSONResponse(content=data, status_code=200)
+        except psycopg2.Error as e:
+            print(e)
+            data = {"mensaje": "No se pudo obtener la lista de imagenes"}
+            return JSONResponse(content=data, status_code=400)
+    else:
+        data = {"mensaje": "Se enviaron parámetros vacíos"}
+        return JSONResponse(content=data, status_code=400)
 
+@app.delete("/deleteImagen/{imagen_id}")
+async def delete_user(imagen_id: int = Path(..., description="ID de la imagen")):
+    if imagen_id is None:
+        data = {"mensaje": "No se proporcionó el ID del proyecto o ID del usuario"}
+        return JSONResponse(content=data, status_code=404)
+    conn = psycopg2.connect(
+        host="10.0.0.10",
+        database="linuxorch",
+        user="ubuntu",
+        password="ubu"
+    )
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM imagen WHERE id = %s and estado=1", (imagen_id,))
+        result = cur.fetchone()
+        if result is None:
+            cur.close()
+            conn.close()
+            data = {"mensaje": "No se encontró la imagen con el ID proporcionado"}
+            return JSONResponse(content=data, status_code=404)
+        else:
+            cur.execute("UPDATE imagen SET estado = 0 WHERE id = %s", (imagen_id,))
+            conn.commit()
+            cur.close()
+            conn.close()
+            data = {"mensaje": "imagen con id "+str(imagen_id)+" eliminado exitosamente"}
+            return JSONResponse(content=data, status_code=200)
+    except psycopg2.Error as e:
+        print(e)
+        data = {"mensaje": "No se pudo eliminar la imagen"}
+        return JSONResponse(content=data, status_code=400)
+## CRUD de Flavors ##
+@app.post("/addFlavor/{user_id}/{project_id}")
+async def add_Flavor(project_id: int = Path(..., description="ID del proyecto"),user_id: int = Path(..., description="ID del usuario"),body: dict=None):
+    if not body:
+        #Si en caso no se tiene valores dentro del body
+        data = {"mensaje": "no se envió datos en el body"}
+        return JSONResponse(content=data,status_code=400)
+    else:
+        if 'cpu' in body and 'descripcion' in body and 'memoria' in body and 'disco' in body and project_id is not None and user_id is not None:
+            conn = psycopg2.connect(
+                host="10.0.0.10",
+                database="linuxorch",
+                user="ubuntu",
+                password="ubu"
+            )
+            try:
+                cur = conn.cursor()
+                cur.execute("INSERT INTO flavor (estado,descripcion,cpu,memoria,disco,proyecto,usuario) VALUES (1,%s,%s,%s,%s,%s,%s)",(body['descripcion'],body['cpu'],body['memoria'],body['disco'],project_id,user_id,))
+                cur.execute("SELECT currval('flavor_id_seq')")
+                result = cur.fetchone()
+                cur.close()
+                conn.commit()
+                conn.close()
+                if result is None:
+                    data = {"mensaje": "No se pudo añadir el flavor!",
+                            "id": 0}
+                    return JSONResponse(content=data,status_code=400)
+                else:
+                    data = {"mensaje": "se añadio el flavor con los parámetros especificados",
+                            "id": result[0]}
+                    return JSONResponse(content=data,status_code=200)
+            except psycopg2.Error as e:
+                print(e)
+                data = {"mensaje": "No se puede añadir el flavor!"}
+                return JSONResponse(content=data,status_code=400)
+        else:
+            data = {"mensaje": "se enviaron campos incorrectos"}
+            return JSONResponse(content=data,status_code=400)
+        
+@app.get("/listarFlavors/{project_id}")
+async def listar_Proyecto(project_id: int = Path(..., description="ID del proyecto")):
+    conn = psycopg2.connect(
+        host="10.0.0.10",
+        database="linuxorch",
+        user="ubuntu",
+        password="ubu"
+    )
+    if project_id is not None:
+        try:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM flavor WHERE estado = 1 and proyecto = %s",(project_id,))
+            result = cur.fetchall()
+            cur.close()
+            conn.close()
+            flavors = []
+            for row in result:
+                flavor = {
+                    "id": row[0],
+                    "descripcion": row[2],
+                    "cpu": row[3],
+                    "memoria": row[4],
+                    "disco": row[5],
+                }
+                flavors.append(flavor)
+            data = {"mensaje": "Lista de flavors", "flavors": flavors}
+            return JSONResponse(content=data, status_code=200)
+        except psycopg2.Error as e:
+            print(e)
+            data = {"mensaje": "No se pudo obtener la lista de flavors"}
+            return JSONResponse(content=data, status_code=400)
+    else:
+        data = {"mensaje": "Se enviaron parámetros vacíos"}
+        return JSONResponse(content=data, status_code=400)
+
+@app.delete("/deleteFlavor/{flavor_id}")
+async def delete_flavor(flavor_id: int = Path(..., description="ID del flavor")):
+    if flavor_id is None:
+        data = {"mensaje": "No se proporcionó el ID del proyecto o ID del usuario"}
+        return JSONResponse(content=data, status_code=404)
+    conn = psycopg2.connect(
+        host="10.0.0.10",
+        database="linuxorch",
+        user="ubuntu",
+        password="ubu"
+    )
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM flavor WHERE id = %s and estado = 1", (flavor_id,))
+        result = cur.fetchone()
+        if result is None:
+            cur.close()
+            conn.close()
+            data = {"mensaje": "No se encontró el flavor con el ID proporcionado"}
+            return JSONResponse(content=data, status_code=404)
+        else:
+            cur.execute("UPDATE flavor SET estado = 0 WHERE id = %s", (flavor_id,))
+            conn.commit()
+            cur.close()
+            conn.close()
+            data = {"mensaje": "flavor con id "+str(flavor_id)+" eliminado exitosamente"}
+            return JSONResponse(content=data, status_code=200)
+    except psycopg2.Error as e:
+        print(e)
+        data = {"mensaje": "No se pudo eliminar la imagen"}
+        return JSONResponse(content=data, status_code=400)
+
+@app.put("/editflavor/{flavor_id}")
+async def edit_flavor(flavor_id: int = Path(..., description="ID de la topologia a editar"),
+                    body: dict = None):
+    if body is None:
+        data = {"mensaje": "No se envió datos en el body"}
+        return JSONResponse(content=data, status_code=400)
+    else:
+        if 'descripcion' in body and 'cpu' in body and 'memoria' in body and 'disco':
+            conn = psycopg2.connect(
+                host="10.0.0.10",
+                database="linuxorch",
+                user="ubuntu",
+                password="ubu"
+            )
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM flavor WHERE id = %s AND estado=1", (flavor_id,))
+            result = cur.fetchone()
+            if result is None:
+                cur.close()
+                conn.close()
+                data = {"mensaje": "No se encontró la topologia con el ID proporcionado"}
+                return JSONResponse(content=data, status_code=404)
+            else:
+                try:
+                    cur.execute("UPDATE flavor SET descripcion = %s, cpu = %s, memoria = %s, disco = %s WHERE id = %s",
+                                (body['descripcion'],body['cpu'],body['memoria'],body['disco'], flavor_id,))
+                    conn.commit()
+                    cur.execute("SELECT * FROM flavor WHERE id = %s", (flavor_id,))
+                    result = cur.fetchone()
+                    cur.close()
+                    conn.close()
+                    flavor={
+                        "id":result[0],
+                        "descripcion": result[2],
+                        "cpu": result[3],
+                        "memoria": result[4],
+                        "disco": result[5],
+                        "proyecto": result[6],
+                        "usuario": result[7],
+                    }
+                    data = {"mensaje": "Se editó correctamente el flavor", "flavor": flavor}
+                    return JSONResponse(content=data, status_code=200)
+                except psycopg2.Error as e:
+                    print(e)
+                    cur.close()
+                    conn.close()
+                    data = {"mensaje": "No se pudo editar el flavor"}
+                    return JSONResponse(content=data, status_code=400)
+        else:
+            data = {"mensaje": "Se enviaron campos incorrectos"}
+            return JSONResponse(content=data, status_code=400)
 ## FIN ##
-
 if __name__ == "__main__":
     import uvicorn
     #Inicalizando servicio de API
