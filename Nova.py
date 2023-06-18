@@ -3,12 +3,12 @@ import requests
 ##########FLAVOR###########
 class NovaClient(object):
     def __init__(self, auth_token,username, password):
-        self.auth_url = "http://10.20.12.48:5000/v3"
+        self.auth_url = "http://10.20.12.188:5000/v3"
         self.auth_token = auth_token
         self.username = username
         self.password = password
         self.IdProject = None  # Agregar propiedad IdProject
-        self.nova_url = "http://10.20.12.48:8774"
+        self.nova_url = "http://10.20.12.188:8774"
         self.headers = {
             'Content-Type': 'application/json',
             'X-Auth-Token': self.auth_token
@@ -161,10 +161,11 @@ class NovaClient(object):
                 
                 return info
             else:
-                print("No se encontró el Keypair especificado")
+                print("[*] No se encontró el Keypair especificado")
+                return []
         else:
-            print("Error al obtener la información del Keypair:", response.status_code)
-
+            print("[*] Error al obtener la información del Keypair:", response.status_code)
+            return []
     
 #Listar keypairs
     def listarKeyPair(self, user):
@@ -174,8 +175,9 @@ class NovaClient(object):
         if response.status_code == 200:
             keypairs = response.json().get('keypairs', [])
             if len(keypairs) == 0:
-                print("No cuenta con ninguna keypair, por favor cree una")
-                return None
+                print("[*] No cuenta con ninguna keypair, por favor cree una")
+                return []
+            
             else:
                 keypair_names = []
                 for keypair in keypairs:
@@ -185,7 +187,9 @@ class NovaClient(object):
                         keypair_names.append(keypair_name)
 
                 if len(keypair_names) == 0:
-                    print("No se encontraron keypairs para el usuario:", user)
+                    print("[*] No se encontraron keypairs para el usuario:", user)
+                    return []
+                
                 else:
                     print("Keypairs del usuario", user, ":")
                     for name in keypair_names:
@@ -193,8 +197,9 @@ class NovaClient(object):
 
                 return keypair_names
         else:
-            print("Error al listar los Keypairs:", response.status_code)
-    
+            print("[*] Error al listar los Keypairs:", response.status_code)
+            return []
+        
 #Borrar keypair
     def borrarKeyPair(self,keypair_name,user):
         url = f"{self.nova_url}/v2.1/os-keypairs/{keypair_name}"
@@ -263,10 +268,11 @@ class NovaClient(object):
     
 #Listar securitygroup
     def listarSecurityGroup(self,IdProject):
-        token_project = self.get_token_project(IdProject)  # Obtener el token del proyecto utilizando el método get_token_project
+        #token_project = self.get_token_project(IdProject)  # Obtener el token del proyecto utilizando el método get_token_project
         self.headers_security = {
             'Content-Type': 'application/json',
-            'X-Auth-Token': token_project
+            #'X-Auth-Token': token_project
+            'X-Auth-Token': self.auth_token
         }
         url = f"{self.nova_url}/v2.1/os-security-groups"
         response = requests.get(url, headers=self.headers_security)
@@ -274,18 +280,24 @@ class NovaClient(object):
 
         if response.status_code == 200:
             security_groups = response.json().get('security_groups', [])
-            print("Lista de Grupos de Seguridad:")
+            
+            if len(security_groups) == 0:
+                print("[*] No se encontraron security groups")
+                return []
+            
+            #print("Lista de Grupos de Seguridad:")
             lista_sg = []
             for sg in security_groups:
-                print("Nombre:", sg['name'])
-                print("Descripción:", sg['description'])
+                #print("Nombre:", sg['name'])
+                #print("Descripción:", sg['description'])
                 #print("ID:", sg['id'])
-                print("----------")
+                #print("----------")
                 lista_sg.append([sg['name'], sg['description']])
             return lista_sg
         else:
-            print("Error al listar los Grupos de Seguridad:", response.status_code)
-
+            print(" [*] Error al listar los Grupos de Seguridad:", response.status_code)
+            return []
+            
 #Editar securitygroup
     def editarSecurityGroup(self,name,nuevoname,descripcion,IdProject):
         id_security=self.obtenerIDSecurityGroup(name,IdProject)
@@ -418,12 +430,18 @@ class NovaClient(object):
         if response.status_code == 200:
             vm_names=[]
             instances = response.json().get('servers',[])
+            
+            if len(instances) == 0:
+                print("[*] No hay instancias creadas")
+                return []
+            
             for instance in instances:
                 vm_names.append(instance['name'])
             return vm_names
         else:
-            raise Exception('Failed to list instances. Status code: {}'.format(response.status_code))
-
+            print("[*] Error al listar las instancias")
+            return []
+        
     # Crear una instancia de VM
     def create_instance(self, name, flavor_id, image_id, network_id,keypairID,securitygroupID):
         instance_data = {

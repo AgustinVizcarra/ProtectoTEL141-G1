@@ -4,7 +4,7 @@ import json
 
 class KeystoneAuth(object):
     def __init__(self,username, password):
-        self.auth_url = "http://10.20.12.48:5000/v3"
+        self.auth_url = "http://10.20.12.188:5000/v3"
         self.username = username
         self.password = password
         self.token = None
@@ -50,11 +50,6 @@ class KeystoneAuth(object):
                             'domain': {'name': 'Default'}
                         }
                     }
-                },
-                "scope": {
-                    "system":{
-                        "all": True
-                    }
                 }
             }
         }
@@ -70,6 +65,7 @@ class KeystoneAuth(object):
             print("[*] La solicitud se completó correctamente\n")
             
         else:
+            print(response.json())
             print("[*] Error de autorización, verifique credenciales\n")
         
         return self.token
@@ -87,7 +83,8 @@ class KeystoneAuth(object):
                             'domain': {'name': 'Default'}
                         }
                     }
-                },
+                }
+                ,
                 "scope": {
                     "system":{
                         "all": True
@@ -102,7 +99,6 @@ class KeystoneAuth(object):
     
         if response.status_code == 201:
             self.token = response.headers['X-Subject-Token']
-            self.UserID = response.json()["token"]["user"]['id']
             print("[*] El token se actualizó correctamente\n")
         else:
             print("[*] Error al actualizar el token, verifique las credenciales\n")
@@ -250,10 +246,10 @@ class KeystoneAuth(object):
             users = response.json()['users']
             if len(users)!=0:
                 user_id = users[0]['id']
-
+        
       
         #obtenemos el ID del rol 'usuario'
-        response = requests.get(self.auth_url + '/roles?name=usuario',
+        response = requests.get(self.auth_url + '/roles?name=member',
                                 headers={'Content-Type': 'application/json',
                                         'X-Auth-Token': self.token})
         role_id = None
@@ -261,20 +257,24 @@ class KeystoneAuth(object):
             roles = response.json()['roles']
             if len(roles)!=0:
                 role_id = roles[0]['id']
-        
+       
         
         if (user_id is not None) and (role_id is not None):
             url='{}/projects/{}/users/{}/roles/{}'.format(self.auth_url,self.ProjectID,user_id,role_id)
+            print(self.ProjectID)
+            print(user_id)
+            print(role_id)
             headers = {
                     'Content-Type': 'application/json',
                     'X-Auth-Token': self.token
             }
-
+            
             response = requests.delete(url, headers=headers)  
             if response.status_code == 204:
                 print("[*] Se ha eliminado al usuario "+username+" del proyecto "+nameProject + " correctamente")
             
             else:
+                print(response.json())
                 print("[*] Ha ocurrido un error al eliminar al usuario del proyecto\n") 
         
         else:
@@ -311,6 +311,9 @@ class KeystoneAuth(object):
         else:
             print("[*] Ha ocurrido un problema al listar los usuarios\n")
         
+        if len(proyectos_usuario) == 0:
+            print("[*] No hay usuarios en este proyecto.")
+            return []
         return proyectos_usuario
 
 

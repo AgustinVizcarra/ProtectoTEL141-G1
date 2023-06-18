@@ -6,7 +6,7 @@ class NeutronClient(object):
 
     def __init__(self, auth_token):
         self.auth_token = auth_token
-        self.neutron_url = "http://10.20.12.48:9696/v2.0/"
+        self.neutron_url = "http://10.20.12.188:9696/v2.0/"
         self.headers = {
             'Content-Type': 'application/json',
             'X-Auth-Token': self.auth_token
@@ -100,6 +100,7 @@ class NeutronClient(object):
                 network_id = networks[0]['id']
                 self.NetworkID =  network_id
                 return True
+        print(response.json())
         return False
         
         
@@ -133,11 +134,14 @@ class NeutronClient(object):
                     información.append(subnet_info['gateway_ip'])
                     return información
                 else:
-                    print("Error al obtener la información de la subred:", subnet_response.status_code)
+                    print(" [*] Error al obtener la información de la subred:", subnet_response.status_code)
+                    return []
             else:
-                print("No se encontró información de la red y subred")
+                print(" [*] No se encontró información de la red y subred")
+                return[]
         else:
-            print("Error al obtener la información de la red y subred:", response.status_code)
+            print(" [*] Error al obtener la información de la red y subred:", response.status_code)
+            return []
     
         
 ###################SUBRED################## 
