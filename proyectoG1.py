@@ -975,8 +975,9 @@ privilegios = -1
 while(int(privilegios)<0):
     username = input("| Ingrese su nombre de usuario: ")
     password = getpass("| Ingrese su contraseña: ")
-    keystone = KeystoneAuth(username, password)
-    tokensito = keystone.get_token()
+    # keystone = KeystoneAuth(username, password)
+    # tokensito = keystone.get_token()
+    tokensito = None
     #Si tiene cuenta de Openstack 
     if tokensito != None:
         tokensito = keystone.updateToken()
@@ -994,17 +995,13 @@ while(int(privilegios)<0):
                     opcion = menuPrincipal(keystone)
                     resultado = menu2(opcion,"Menú",keystone,nova,glance,neutron)
                     if not (resultado):
-                        break
-
-                                 
+                        break                        
     #Si tiene cuenta de Linux
     else:
-        #AutenticacionLinux = AuthenticationManager()    
-        #response = AutenticacionLinux.get_auth(username, password)
-        #permisos = response["permisos"]
-        #id = response["id"]
-        id = 1
-        permisos = 1
+        AutenticacionLinux = AuthenticationManager()    
+        response = AutenticacionLinux.get_auth(username, password)
+        permisos = response["permisos"]
+        id = response["id"]
         if id == 0:
             print("[*]Ha ingresado credenciales inválidas o su usuario no existe.")
         else:

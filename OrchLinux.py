@@ -1,5 +1,6 @@
 import json
 import os
+from random import randint
 from fastapi import FastAPI, APIRouter, Path
 from fastapi.responses import JSONResponse
 import psycopg2
@@ -268,7 +269,7 @@ async def create_VM(body: dict):
         data = {"mensaje": "no se envió datos en el body"}
         return JSONResponse(content=data,status_code=400)
     else:
-        if 'imagen' in body:
+        if 'imagen' in body and 'flavor' in body:
             conn = psycopg2.connect(
                 host="10.0.0.10",
                 database="linuxorch",
@@ -277,7 +278,9 @@ async def create_VM(body: dict):
             )
             try:
                 cur = conn.cursor()
-                cur.execute("INSERT INTO vm (estado,imagen,vncport) VALUES (1,%s,%s)",(body['imagen'],body['vncport']))
+                vncport = randint(5000,9999)
+                pid = randint(10000,99999)
+                cur.execute("INSERT INTO vm (estado,vncport,imagen,flavor,pid) VALUES (1,%s,%s,%s,%s)",(vncport,body['imagen'],body['flavor'],pid))
                 cur.execute("SELECT currval('vm_id_seq')")
                 result = cur.fetchone()
                 cur.close()
@@ -306,7 +309,7 @@ async def edit_VM(vm_id: int = Path(..., description="ID de la VM a editar"),
         data = {"mensaje": "No se envió datos en el body"}
         return JSONResponse(content=data, status_code=400)
     else:
-        if 'imagen' in body:
+        if 'imagen' in body and 'flavor' in body:
             conn = psycopg2.connect(
                 host="10.0.0.10",
                 database="linuxorch",
@@ -323,8 +326,8 @@ async def edit_VM(vm_id: int = Path(..., description="ID de la VM a editar"),
                 return JSONResponse(content=data, status_code=404)
             else:
                 try:
-                    cur.execute("UPDATE vm SET imagen = %s, vncport = %s WHERE id = %s AND estado = 1",
-                                (body['imagen'],body['vncport'], vm_id))
+                    cur.execute("UPDATE vm SET imagen = %s, flavor = %s WHERE id = %s AND estado = 1",
+                                (body['imagen'],body['flavor'], vm_id))
                     conn.commit()
                     cur.execute("SELECT * FROM vm WHERE id = %s AND estado = 1", (vm_id,))
                     result = cur.fetchone()
@@ -333,7 +336,7 @@ async def edit_VM(vm_id: int = Path(..., description="ID de la VM a editar"),
                     vm={
                         "id":result[0],
                         "imagen": result[2],
-                        "vncport": result[3],
+                        "flavor": result[3],
                     }
                     data = {"mensaje": "Se editó correctamente la vm", "vm": vm}
                     return JSONResponse(content=data, status_code=200)
@@ -357,16 +360,18 @@ async def listar_vms():
     )
     try:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM vm WHERE estado = 1")
+        cur.execute("select vm.pid,vm.vncport,imagen.imagen,flavor.descripcion,proyecto.nombre from vm inner join imagen on vm.imagen = imagen.id inner join flavor on flavor.id = vm.flavor inner join proyecto on flavor.proyecto = proyecto.id where vm.estado = 1")
         result = cur.fetchall()
         cur.close()
         conn.close()
         vms = []
         for row in result:
             vm = {
-                "id": row[0],
+                "pid": row[0],
+                "vncport": row[1],
                 "imagen": row[2],
-                "vncport": row[3]
+                "descripcion": row[3],
+                "proyecto": row[4]
             }
             vms.append(vm)
         data = {"mensaje": "Lista de vms", "vms": vms}
@@ -389,7 +394,7 @@ async def get_vm(vm_id: int = Path(..., description="ID del usuario a buscar")):
     )
     try:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM vm WHERE id = %s AND estado = 1", (vm_id,))
+        cur.execute("select vm.pid,vm.vncport,imagen.imagen,flavor.descripcion,proyecto.nombre from vm inner join imagen on vm.imagen = imagen.id inner join flavor on flavor.id = vm.flavor inner join proyecto on flavor.proyecto = proyecto.id where vm.estado = 1 and vm.id = %s", (vm_id,))
         result = cur.fetchone()
         cur.close()
         conn.close()
@@ -398,9 +403,11 @@ async def get_vm(vm_id: int = Path(..., description="ID del usuario a buscar")):
             return JSONResponse(content=data, status_code=404)
         else:
             vm = {
-                "id": result[0],
+                "pid": result[0],
+                "vncport": result[1],
                 "imagen": result[2],
-                "vncport": result[3]
+                "descripcion": result[3],
+                "proyecto": result[4]
             }
             data = {"mensaje": "Se encontró la vm exitosamente", "vm": vm}
             return JSONResponse(content=data, status_code=200)
@@ -1346,6 +1353,7 @@ async def listar_Roles():
         return JSONResponse(content=data, status_code=400)
 
 ## Espacio para implementaciones futuras ##
+## Falta implementación de Flavors e imagenes! ##
 
 ## FIN ##
 
