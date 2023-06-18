@@ -4,7 +4,7 @@ import json
 
 class KeystoneAuth(object):
     def __init__(self,username, password):
-        self.auth_url = "http://10.20.12.48:5000/v3"
+        self.auth_url = "http://10.20.12.188:5000/v3"
         self.username = username
         self.password = password
         self.token = None
@@ -50,11 +50,6 @@ class KeystoneAuth(object):
                             'domain': {'name': 'Default'}
                         }
                     }
-                },
-                "scope": {
-                    "system":{
-                        "all": True
-                    }
                 }
             }
         }
@@ -70,6 +65,7 @@ class KeystoneAuth(object):
             print("[*] La solicitud se completó correctamente\n")
             
         else:
+            print(response.json())
             print("[*] Error de autorización, verifique credenciales\n")
         
         return self.token
@@ -87,7 +83,8 @@ class KeystoneAuth(object):
                             'domain': {'name': 'Default'}
                         }
                     }
-                },
+                }
+                ,
                 "scope": {
                     "system":{
                         "all": True
@@ -102,7 +99,6 @@ class KeystoneAuth(object):
     
         if response.status_code == 201:
             self.token = response.headers['X-Subject-Token']
-            self.UserID = response.json()["token"]["user"]['id']
             print("[*] El token se actualizó correctamente\n")
         else:
             print("[*] Error al actualizar el token, verifique las credenciales\n")

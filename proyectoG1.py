@@ -55,7 +55,7 @@ def menuPrincipal(keystone):
                 print("|- Opción "+str(i+1)+" -> "+str(opt))
                 i = i + 1
             print("|- Opción "+str(i+1)+" -> Salir                             ")
-            print("|------------------------------------------------------------|")
+            print("|----------------------------------------------------------|")
             opcion = input("| Ingrese una opción: ")
             if int(opcion) == (len(opciones)+1):
                 opcion = "Salir"
@@ -283,18 +283,24 @@ def crearRed(keystone,neutron):
 #Funcion que permite mostrar la info de la RedProvider
 def infoRed(neutron):
     informacion = neutron.infoRedProvider()
-    print(informacion)
-    print("\n|-----------------------------------------------------|")
-    print("|Nombre RedProvider: "+ str(informacion[0]))
-    print("|Descripcion: "+ str(informacion[1]))
-    print("|Fecha Creación: "+ str(informacion[2]))
-    print("|CIDR: "+ str(informacion[3]))
-    print("|Gateway IP: "+ str(informacion[4]))
-    print("|-----------------------------------------------------|")
+    if len(informacion) != 0:
+        print("\n|-----------------------------------------------------|")
+        print("|Nombre RedProvider: "+ str(informacion[0]))
+        print("|Descripcion: "+ str(informacion[1]))
+        print("|Fecha Creación: "+ str(informacion[2]))
+        print("|CIDR: "+ str(informacion[3]))
+        print("|Gateway IP: "+ str(informacion[4]))
+        print("|-----------------------------------------------------|")
     
 #Funcion que muestra el Menú keypair
 def menuKeyPair():
-    opciones = ["Crear keypair","Listar keypair","Info keypair","Eliminar keypair"]
+    opcionesAdmin = ["Crear keypair","Listar keypair","Info keypair","Eliminar keypair"]
+    opcionesUsuario = ["Listar keypair","Info keypair"]
+    if keystone.getRolName() == "admin":
+        opciones = opcionesAdmin
+    else:
+        opciones = opcionesUsuario
+    
     while True:
             print("\n|-----------------------------------------------------|")
             i = 0
@@ -343,12 +349,13 @@ def crearKeyPair(keystone,nova):
 #Funcion para listar las keypair
 def listarKeypair(keystone,nova):
     listado = nova.listarKeyPair(keystone.getUserID())
-    print("\n|-----------------------------------------------------|")
-    i = 1
-    for key in listado:
-        print("| KeyPair "+str(i)+": "+str(key))
-        i = i + 1
-    print("|-----------------------------------------------------|")
+    if len(listado) != 0:
+        print("\n|-----------------------------------------------------|")
+        i = 1
+        for key in listado:
+            print("| KeyPair "+str(i)+": "+str(key))
+            i = i + 1
+        print("|-----------------------------------------------------|")
 
 #Funcion para ver info de la keypair
 def infoKeypair(keystone,nova):
@@ -364,13 +371,14 @@ def infoKeypair(keystone,nova):
             print("[*] Ingrese un nombre válido\n")
             continue
     informacionsita = nova.infoKeyPair(nombre, keystone.getUserID())
-    print("\n|-----------------------------------------------------|")
-    print("|Nombre KeyPair: "+ str(informacionsita[0]))
-    print("|Tipo: "+ str(informacionsita[1]))
-    print("|FingerPrint: "+ str(informacionsita[2]))
-    print("|Fecha Creación: "+ str(informacionsita[3]))
-    print("|Public Key: "+ str(informacionsita[4]))
-    print("|-----------------------------------------------------|")
+    if len(informacionsita) != 0:
+        print("\n|-----------------------------------------------------|")
+        print("|Nombre KeyPair: "+ str(informacionsita[0]))
+        print("|Tipo: "+ str(informacionsita[1]))
+        print("|FingerPrint: "+ str(informacionsita[2]))
+        print("|Fecha Creación: "+ str(informacionsita[3]))
+        print("|Public Key: "+ str(informacionsita[4]))
+        print("|-----------------------------------------------------|")
 
 #Funcion para borrar la keypair
 def borrarKeypair(keystone,nova):
@@ -389,7 +397,13 @@ def borrarKeypair(keystone,nova):
 
 #Funcion que muestra el Menú SecurityGroup
 def menuSecurityGroup():
-    opciones = ["Crear SecurityGroup","Listar SecurityGroup","Editar SecurityGroup","Configurar SecurityGroup","Eliminar SecurityGroup"]
+    opcionesAdmin = ["Crear SecurityGroup","Listar SecurityGroup","Editar SecurityGroup","Configurar SecurityGroup","Eliminar SecurityGroup"]
+    opcionesUsuario = ["Listar SecurityGroup"]
+    if keystone.getRolName() == "admin":
+        opciones = opcionesAdmin
+    else:
+        opciones = opcionesUsuario
+    
     while True:
             print("\n|-----------------------------------------------------|")
             i = 0
@@ -439,10 +453,11 @@ def crearSecurityGroup(nova,IdProject):
 #Funcion que permite listar los security group
 def listarSecurityGroup(nova,IdProject):
     listado = nova.listarSecurityGroup(IdProject)
-    print("\n|-----------------------------------------------------|")
-    for SG in listado:
-        print("| SecurityGroup "+str(SG[0])+" |  Descripcion : "+str(str(SG[1])))
-    print("|-----------------------------------------------------|")
+    if len(listado) != 0:
+        print("\n|-----------------------------------------------------------------|")
+        for SG in listado:
+            print("| SecurityGroup "+str(SG[0])+" |  Descripcion : "+str(str(SG[1])))
+        print("|-------------------------------------------------------------------|")
 
 #Funcion que permite editar un security group
 def editarSecurityGroup(nova,IdProject):
@@ -581,7 +596,13 @@ def configurarSecurityGroup(nova,IdProject):
 
 #Funcion que muestra el Menú VirtualMachine
 def menuVirtualMachine():
-    opciones = ["Crear VirtualMachine","Listar VirtualMachine","Editar VirtualMachine","Eliminar VirtualMachine"]
+    opcionesAdmin = ["Crear VirtualMachine","Listar VirtualMachine","Editar VirtualMachine","Eliminar VirtualMachine"]
+    opcionesUsuario = ["Listar VirtualMachine"]
+    if keystone.getRolName() == "admin":
+        opciones = opcionesAdmin
+    else:
+        opciones = opcionesUsuario
+
     while True:
             print("\n|-----------------------------------------------------|")
             i = 0
@@ -624,12 +645,13 @@ def crearVirtualMachine(nova,neutron,glance,keystone):
 #Funcion que permite listar las VirtualMachine
 def listarVirtualMachine(keystone,nova):
     listado = nova.list_instances(keystone.ProjectID)
-    print("\n|-----------------------------------------------------|")
-    i = 1
-    for VM in listado:
-        print("| "+str(i)+". VM "+str(VM)+" |")
-        i = i + 1
-    print("|-----------------------------------------------------|")
+    if len(listado) != 0:
+        print("\n|-----------------------------------------------------|")
+        i = 1
+        for VM in listado:
+            print("| "+str(i)+". VM "+str(VM)+" |")
+            i = i + 1
+        print("|-----------------------------------------------------|")
 
 #Funcion que permite editar una VirtualMachine
 def editarVirtualMachine(nova):
