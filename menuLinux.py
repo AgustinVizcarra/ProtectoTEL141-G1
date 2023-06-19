@@ -214,9 +214,9 @@ class Administrador:
                                                 if opcion.isdigit():
                                                     match int(opcion):
                                                         case 1:
-                                                            print("[*] Ingresando al menú de edición de usuarios x proyecto")
+                                                            value=editandoUsuariosXProyecto()
                                                         case 2:
-                                                            print("[*] Ingresando al menú de edición de topología x proyecto")
+                                                            value=editandoTopologiaXProyecto()
                                                         case 3:
                                                             print("[*] Regresando al menú de slices")
                                                             break                    
@@ -567,12 +567,88 @@ def editandoUsuariosXProyecto():
         return 1
     return 0
     ##Defina Aquí la lógica para la edicion del proyecto
+def listarTopologias():
+    #def listar_topologias(self):
+    ProjectManagerLinux = NetworkingManager()
+    response = ProjectManagerLinux.listar_topologias()
+    filas = []
+    cabeceras = ["ID", "Tipo","SubnetName","Network","Gateway","Iprange","Worker"]
+    ids = []
+    if response['mensaje'] == 'Lista de topologias':
+        for value in response["topologias"]:
+            columnas = []
+            for data in value:
+                columnas.append(str(value[data]))
+                if data == 'id':
+                    ids.append(str(value[data]))
+            filas.append(columnas)   
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+    else:
+        print("[*] "+response['mensaje'])
+    return ids
 def editandoTopologiaXProyecto():
-    print("[*] Editando proyecto...")
-    ##Defina Aquí la lógica para la edicion del proyecto
-def eliminandoProyecto():
-    print("[*] Eliminando proyecto...")
-    ##Defina Aquí la lógica para la eliminación del proyecto
+    ProjectManagerLinux = NetworkingManager()
+    ids = listarTopologias()
+    idTopologia = input("Ingrese el ID de la topologia que desea editar: ")
+    if idTopologia in ids:
+        subnetname = input("| Desea editar el subnetname de la topologia [S/n]?: ")
+        network = input("| Desea editar la red de la topologia [S/n]?: ")
+        gateway = input("| Desea editar el gateway de la topologia [S/n]?: ")
+        iprange = input("| Desea editar el rango de IP's de la topologia [S/n]?: ")
+        edicionSubnetname = subnetname == "S" or subnetname == "s" 
+        edicionNetwork = network == "S" or network == "s"
+        edicionGateway = gateway == "S" or gateway == "s"
+        edicionIprange = iprange == "S" or iprange == "s"
+        response = ProjectManagerLinux.get_topology(idTopologia)
+        if response['mensaje'] == "Se encontró a la topologia exitosamente":
+            if edicionSubnetname:
+                response['topologia']['subnetname']=input("| Ingrese el nuevo nombre de la subred: ")
+            if edicionNetwork:
+                response['topologia']['network']=input("| Ingrese el nuevo formato de la subred en formato CIDR (x.x.x.x/y): ")
+            if edicionGateway:
+                response['topologia']['gateway']=input("| Ingrese la nueva direccion IP del gateway: ")
+            if edicionIprange:
+                response['topologia']['iprange']=input("| Ingrese un nuevo rango de direcciones IP's [a.a.a.a-b.b.b.b]: ")
+            if  edicionSubnetname or edicionNetwork or edicionGateway or edicionIprange:
+                print("[*] Procesando información ...")
+                # def edit_topology(self, topology_id, tipo, subnetname, network, gateway, iprange, worker):
+                response = ProjectManagerLinux.edit_topology(idTopologia,response['topologia']['tipo'],response['topologia']['subnetname'],response['topologia']['network'],response['topologia']['gateway'],response['topologia']['iprange'],response['topologia']['worker'])
+                if response['mensaje'] == "Se editó correctamente la topologia":
+                    print("[*] "+response['mensaje'])
+                else:
+                    print("[*] "+response['mensaje'])        
+                    return 1            
+            else:
+                print("[*] Usted no ingreso información a modificar")
+                return 1
+    else:
+        print("[*] Debe ingresar un ID de topologia válido")
+        return 1
+    return 0
+def eliminarUsuarioXProyecto():
+    UserManagerLinux = AuthenticationManager()
+    ids = listarProyectos()
+    idProyecto = input("| Ingrese el ID del proyecto a consultar: ")
+    if idProyecto in ids:
+        ids = listarUsuarios()
+        idUsuario = input("| Ingrese el ID del usuario a eliminar: ")
+        if idUsuario in ids:    
+            ## Validaciones ##
+            # def edit_user_project_role(self, user_id, project_id, usuario, proyecto, rol):
+            response = UserManagerLinux.delete_rol_project_user()
+            if response['mensaje'] == 'Se editó correctamente el vinculo':
+                print("[*] "+response['mensaje'])
+            else:
+                print("[*] "+response['mensaje'])
+                return 1
+        else:
+                print("[*] Debe ingresar un ID de proyecto válido")
+                return 1        
+    else:
+        print("[*] Debe ingresar un ID de proyecto válido")
+        return 1
+    return 0
+    
 #################################### 
 def listarProyectosxUsuario(id):
     print("[*] Listando proyestos")

@@ -1290,9 +1290,9 @@ async def get_user():
         data = {"mensaje": "No se pudo obtener los vinculos"}
         return JSONResponse(content=data, status_code=400)
 
-@app.delete("/deleteRolProjectUser/{role_id}/{project_id}/{user_id}")
-async def delete_rol_project_user(role_id: int = Path(..., description="ID de la topologia a editar"),project_id: int = Path(..., description="ID del proyecto a editar"),user_id: int = Path(..., description="ID del proyecto a editar")):
-    if role_id is None and user_id is None and project_id is None :
+@app.delete("/deleteRolProjectUser/{project_id}/{user_id}")
+async def delete_rol_project_user(project_id: int = Path(..., description="ID del proyecto a editar"),user_id: int = Path(..., description="ID del proyecto a editar")):
+    if  user_id is None and project_id is None :
         data = {"mensaje": "No se proporciono los parámetros para la eliminación de manera correcta"}
         return JSONResponse(content=data, status_code=404)
     conn = psycopg2.connect(
@@ -1303,7 +1303,7 @@ async def delete_rol_project_user(role_id: int = Path(..., description="ID de la
     )
     try:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM usuario_proyecto_rol WHERE rol = %s AND usuario = %s AND proyecto = %s AND estado=1", (role_id,user_id,project_id,))
+        cur.execute("SELECT * FROM usuario_proyecto_rol WHERE usuario = %s AND proyecto = %s AND estado=1", (user_id,project_id,))
         result = cur.fetchone()
         if result is None:
             cur.close()
@@ -1311,15 +1311,15 @@ async def delete_rol_project_user(role_id: int = Path(..., description="ID de la
             data = {"mensaje": "No se encontró el vinculo con el ID proporcionado"}
             return JSONResponse(content=data, status_code=404)
         else:
-            cur.execute("UPDATE usuario_proyecto_rol SET estado = 0 WHERE rol = %s AND usuario = %s AND proyecto = %s AND estado=1", (role_id,user_id,project_id,))
+            cur.execute("UPDATE usuario_proyecto_rol SET estado = 0 WHERE usuario = %s AND proyecto = %s AND estado=1", (user_id,project_id,))
             conn.commit()
             cur.close()
             conn.close()
-            data = {"mensaje": "Vinculo entre el  rol "+str(role_id)+", proyecto "+str(project_id)+" y usuario "+str(user_id)+" eliminado exitosamente"}
+            data = {"mensaje": "Vinculo entre el proyecto "+str(project_id)+" y usuario "+str(user_id)+" eliminado exitosamente"}
             return JSONResponse(content=data, status_code=200)
     except psycopg2.Error as e:
         print(e)
-        data = {"mensaje": "No se pudo eliminar el vinculo entre el usuario, el proyecto y el rol"}
+        data = {"mensaje": "No se pudo eliminar el vinculo entre el usuario, el proyecto"}
         return JSONResponse(content=data, status_code=400)
 
 #Listado de roles
