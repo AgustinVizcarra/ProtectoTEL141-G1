@@ -1,4 +1,4 @@
-import json
+import random
 from AutheticationDriver import AuthenticationManager
 from NetworkingDriver import NetworkingManager
 from tabulate import tabulate
@@ -132,16 +132,12 @@ class Administrador:
                                 if opcion.isdigit():
                                     match int(opcion):
                                         case 1:
-                                            print("[*] Listando usuarios ")
                                             ids = listarUsuarios()
                                         case 2:
-                                            print("[*] Ingresando al formulario de creación de usuarios ")
                                             creandoUsuario()
                                         case 3:
-                                            print("[*] Ingresando al formulario de edición de usuarios ")
                                             editandoUsuario()
                                         case 4:
-                                            print("[*] Ingresando al formulario de eliminación de usuarios ")
                                             eliminarUsuario()
                                         case 5:
                                             print("[*] Ingresando al menú de proyectos")
@@ -161,9 +157,8 @@ class Administrador:
                                                 if opcion.isdigit():
                                                     match int(opcion):
                                                         case 1:
-                                                            print("[*] Listando proyectos")
+                                                            listarProyectos()
                                                         case 2:
-                                                            print("[*] Ingresando al formulario de proyecto por usuario")
                                                             proyectoXUsuario()
                                                         case 3:
                                                             print("[*] Regresando al menú principal")
@@ -197,11 +192,10 @@ class Administrador:
                                 if opcion.isdigit():
                                     match int(opcion):
                                         case 1:
-                                            print("[*] Listando proyecto ")
                                             listarProyectos()
                                         case 2:
-                                            print("[*] Ingresando al formulario de creación de proyectos ")
-                                            creandoProyecto()
+                                            print("Ingresando al metodo")
+                                            value=creandoProyecto()
                                         case 3:
                                             print("[*] Ingresando al menú de edición de proyectos ")
                                             while True:
@@ -295,7 +289,6 @@ def creandoUsuario():
     ##Defina Aquí la lógica para la creacion de usuario
     #def create_user(self, nombre, correo, pwd):
     UserManagerLinux = AuthenticationManager()
-    ProyectoManager = NetworkingManager()
     print("--------Bienvenido al formulario de creacion de usuario-----")
     nombre = input("| Ingrese el nombre del usuario: ") 
     correo = input("| Ingrese el correo del usuario: ")
@@ -309,13 +302,31 @@ def creandoUsuario():
             print("[*] Ocurrio un error en la creacion del usuario "+response['mensaje'])
     else:
         print("[*] Las contraseñas registradas no coinciden")
+def listar_roles():
+    UserManagerLinux = AuthenticationManager()
+    response = UserManagerLinux.listar_roles()
+    ids = []
+    if response['mensaje'] == 'Lista de roles':
+        cabeceras = ["Id","Rol"]
+        filas = []
+        for value in response['roles']:
+            columnas= []
+            for data in value:
+                if data == 'id':
+                    ids.append(str(value[data]))                 
+                columnas.append(str(value[data]))
+            filas.append(columnas)
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+    else:
+        print("[*] "+response['mensaje'])
+    return ids
 def editandoUsuario():
     # edit_user(self, user_id, nombre, correo, pwd):
     UserManagerLinux = AuthenticationManager()
     print("--------Bienvenido al formulario de edición de usuario-----")
     ids = listarUsuarios()
-    id = input("| Ingrese el ID del usuairo a edita: ")
-    if id in ids:
+    id = input("| Ingrese el ID del usuario a editar: ")
+    if id in ids and id != "1":
         nombre = input("| Desea editar el nombre del usuario [S/n]?: ") 
         correo = input("| Desea editar el correo del usuario [S/n]?: ")
         edicionNombre = nombre == "S" or nombre == "s"
@@ -323,12 +334,12 @@ def editandoUsuario():
         response = UserManagerLinux.get_user_by_id(id)
         if response['mensaje'] == "Se encontró al usuario exitosamente":
             if edicionNombre:
-                response['nombre']=input("| Ingrese el nuevo nombre del usuario: ")
+                response['usuario']['nombre']=input("| Ingrese el nuevo nombre del usuario: ")
             if edicionCorreo:
-                response['correo']=input("| Ingrese el nuevo correo del usuario: ")
+                response['usuario']['correo']=input("| Ingrese el nuevo correo del usuario: ")
             if  edicionCorreo or edicionNombre:
                 print("[*] Procesando información ...")
-                response = UserManagerLinux.edit_user(id,response['nombre'],response['correo'],response['pwd'])
+                response = UserManagerLinux.edit_user(id,response['usuario']['nombre'],response['usuario']['correo'])
                 if response['mensaje'] == "Se editó correctamente al usuario":
                     print("[*] "+response['mensaje'])
                 else:
@@ -338,18 +349,174 @@ def editandoUsuario():
         else:
             print["[*] Hubo un error con el ID del usuario solicitado!"]
     else:
-        print("Digitó un ID inválido para edición")
+        print("[*] Digitó un ID inválido para edición")
 def eliminarUsuario():
-    print("[*] Eliminar usuario...")
+    UserManagerLinux = AuthenticationManager()
+    print("--------Bienvenido al formulario de edición de usuario-----")
+    ids = listarUsuarios()
+    id = input("| Ingrese el ID del usuario a editar: ")
+    if id in ids:
+        confirmacion = input("| Esta seguro de eliminar al usuario con ID="+id+" [S/n]?: ") 
+        if confirmacion == "S" or confirmacion == "s":
+            response=UserManagerLinux.delete_user(id)
+            if response['mensaje'] != "No se pudo eliminar al usuario":
+                print("[*] "+response['mensaje'])
+            else: 
+                print("[*] "+response['mensaje'])
+        else:
+            print("[*] Regresando al menú principal")
+    else:
+        print("[*] Digitó un ID inválido para edición")
     ##Defina Aquí la lógica para la eliminación de usuario
 def listarProyectos():
-    print("[*] Listando proyectos...")
+    # def listar_proyectos(self):
+    ProjectManagerLinux = NetworkingManager()
+    response = ProjectManagerLinux.listar_proyectos()
+    filas = []
+    cabeceras = ["ID", "Nombre"]
+    if response['mensaje'] == 'Lista de proyectos':
+        for value in response["proyectos"]:
+            columnas = []
+            for data in value:
+                columnas.append(str(value[data]))
+            filas.append(columnas)   
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+    else:
+        print("[*] "+response['mensaje'])
     ##Defina Aquí la lógica para el listado de proyecto
 def proyectoXUsuario():
-    print("[*] Obteniendo proyecto por usuario...")
+    UserManagerLinux = AuthenticationManager()
+    ids = listarUsuarios()
+    id = input("| Ingrese el ID del usuario a consultar: ")
+    if id in ids:
+        filas = []
+        cabeceras=["ID", "Nombre", "Rol"]
+        response = UserManagerLinux.get_role_project_por_user(id)
+        if response['mensaje'] == 'Lista de vinculos':
+            for value in response["vinculos"]:
+                columnas = []
+                for data in value:
+                    columnas.append(str(value[data]))
+                filas.append(columnas)  
+            print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+        else:
+            print("[*] "+response['mensaje'])
+    else:
+        print("[*] Digitó un ID inválido para la consulta")
     ##Defina Aquí la lógica para el proyecto x usuario
 def creandoProyecto():
-    print("[*] Creando proyecto...")
+    UserManagerLinux = AuthenticationManager()
+    ProjectManagerLinux = NetworkingManager()
+    print("--------Bienvenido al formulario de edición de usuario-----")
+    nombreProyecto = input("| Ingrese el nombre del proyecto a crear: ")
+    if nombreProyecto != "":
+        print("--------Ahora ingrese información acerca de la topologia-------")
+        tipos = ["bus","estrella","mesh","anillo"]
+        cabeceras = ["ID","Tipo"]
+        filas = []
+        i = 1
+        mapTipo = {}
+        for value in tipos:
+            columnas = [i,value]
+            filas.append(columnas)
+            mapTipo[str(i)] = value
+            i=i+1
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+        tipoTopologia = input("| Ingrese el ID del tipo de topologia: ")
+        if tipoTopologia in mapTipo.keys():
+            tipo = mapTipo[tipoTopologia]
+            subnetname = input("| Ingrese el nombre de la subred: ")
+            if subnetname != "":
+                network = input("| Ingrese el formato de la subred en formato CIDR (x.x.x.x/y): ")
+                if network != "":
+                    gateway = input("| Ingrese la direccion IP del gateway: ")
+                    if gateway != "":
+                        iprange=input("| Ingrese un rango de direcciones IP's [a.a.a.a-b.b.b.b]: ")
+                        if iprange != "":
+                            workers = ["Worker1","Worker2","Worker3"]
+                            ## Ojo para el que implemente el placement de los Workers
+                            worker = random.choice(workers)
+                            print("----Ahora ingrese información acerca de los usuarios de esta topología-----")
+                            numero_usuarios = input("Ingrese el numero de usuarios de esta topología: ")
+                            if numero_usuarios.isdigit():
+                                n = int(numero_usuarios)
+                                usuarios_roles = {}
+                                ids = listarUsuarios()
+                                ids_roles = listar_roles()
+                                for i in range(n):
+                                   id_user = input("Ingrese el ID de usuario a añadir al proyecto: ")
+                                   if id_user in ids:
+                                       id_rol = input("Ingrese el ID del rol a añadir al proyecto: ")
+                                       if id_rol in ids_roles and id_user in ids:
+                                           ## Quiere decir que todo esta bien
+                                           usuarios_roles[id_user] = id_rol
+                                       else:
+                                           print("[*] El ID del rol es incorrecto el usuario junto con el rol no serán añadidos")
+                                   else:
+                                       print("[*] El ID ingresado es incorrecto")
+                                if usuarios_roles:
+                                    ## Quiere decir que todo esta bien (en teoria)
+                                    # Creacion del proyecto
+                                    print("[*] Creando al proyecto...")
+                                    # def add_proyecto(self, nombre):
+                                    response = ProjectManagerLinux.add_proyecto(nombreProyecto)
+                                    if response["mensaje"] == "se añadio el proyecto con los parámetros especificados":
+                                        print("[*]"+response["mensaje"])
+                                        idProyecto = response["id"]
+                                        print("[*] Creando al topologia...")
+                                        #def create_topology(self, tipo, subnetname, network, gateway, iprange, worker):
+                                        response = ProjectManagerLinux.create_topology(tipo,subnetname,network,gateway,iprange,worker)
+                                        if response["mensaje"] == "se creo la topologia usuario con los parametros brindados":
+                                            idTopologia = response["id"]
+                                            print("[*]"+response["mensaje"])
+                                            print("[*] Añadiendo topologia al proyecto...")
+                                            # def create_link_topo_proyecto(self, proyecto, topologia):
+                                            response = ProjectManagerLinux.create_link_topo_proyecto(idProyecto,idTopologia)
+                                            if response["mensaje"] == "se vinculo la topologia con el proyecto de manera exitosa":
+                                                print("[*] "+response["mensaje"])
+                                                print("[*] Añadiendo usuario al proyecto...")
+                                                for value in usuarios_roles:
+                                                    #def add_user_project_role(self, usuario, proyecto, rol):
+                                                    response = UserManagerLinux.add_user_project_role(value, idProyecto, usuarios_roles[value])
+                                                    if response["mensaje"] == "se vinculo al usuario con el proyecto y su rol":
+                                                        print("[*]" + response["mensaje"])
+                                                    else:
+                                                        print("[*] "+response["mensaje"])
+                                                        return 1
+                                                print("[*] Se añadio satisfactoriamente los usuarios al proyecto")
+                                            else:
+                                                print("[*] "+response["mensaje"])
+                                                return 1    
+                                        else:
+                                            print("[*] "+response["mensaje"])
+                                            return 1    
+                                    else:
+                                        print("[*] "+response["mensaje"])
+                                        return 1
+                                else:
+                                    print("[*] Ingreso de manera incorrecta a los usuarios y sus roles")
+                                    return 1
+                            else:
+                                print("[*] El número de usuarios debe ser un numero") 
+                                return 1   
+                        else:
+                            print("[*] Ingreso una direccion una IP invalida ")
+                            return 1    
+                    else:
+                        print("[*] Ingreso una direccion una IP invalida ")
+                        return 1    
+                else:
+                    print("[*] Ingreso una direccion de red invalida")
+                    return 1    
+            else:
+                print("[*] Ingreso un nombre invalido de la subred")
+                return 1
+        else:
+            print("[*] Ingreso un tipo inválido de topologia")
+            return 1
+    else:
+        print("[*] Debe ingresar el nombre del proyecto de manera correcta")
+    return 0
     ##Defina Aquí la lógica para la creacion del proyecto
 def editandoProyecto():
     print("[*] Editando proyecto...")

@@ -33,14 +33,13 @@ class AuthenticationManager(object):
         }
         response = requests.post(endpoint, json=body)
         return response.json()
-    def edit_user(self, user_id, nombre, correo, pwd):
-        if not user_id or not nombre or not correo or not pwd:
-            return {"msg": "Se deben proporcionar valores válidos para nombre, correo, contraseña o ID"}
+    def edit_user(self, user_id, nombre, correo):
+        if not user_id or not nombre or not correo:
+            return {"msg": "Se deben proporcionar valores válidos para nombre, correo o ID"}
         endpoint = f"{self.auth_url}/editUser/{user_id}"
         body = {
             "nombre": nombre,
-            "correo": correo,
-            "pwd": encrypt_sha256(pwd)
+            "correo": correo
         }
         response = requests.put(endpoint, json=body)
         return response.json()

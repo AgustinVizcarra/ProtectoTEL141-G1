@@ -646,7 +646,8 @@ async def createTopology(body: dict):
             )
             try:
                 cur = conn.cursor()
-                cur.execute("INSERT INTO topologia (tipo,estado,subnetname,network,gateway,iprange,worker) VALUES (%s, 1, %s, %s, %s, %s)",(body['tipo'],body['subnetname'],body['network'],body['gateway'],body['iprange'],body['worker']))
+                print(body)
+                cur.execute("INSERT INTO topologia (tipo,estado,subnetname,network,gateway,iprange,worker) VALUES (%s, 1, %s, %s, %s, %s, %s)",(body['tipo'],body['subnetname'],body['network'],body['gateway'],body['iprange'],body['worker']))
                 cur.execute("SELECT currval('topologia_id_seq')")
                 result = cur.fetchone()
                 cur.close()
