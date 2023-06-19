@@ -253,7 +253,7 @@ class Administrador:
                                                 else:
                                                     print("[*] Ingrese una opción valida")       
                                         case 5:
-                                            print("[*] Ingresando al formulario de visualización del proyecto")
+                                            value = getInfoTopo()
                                         case 6:
                                             print("[*] Regresando al menú principal")
                                             break
@@ -674,6 +674,27 @@ def eliminarTopologia():
                 return 1
         else:
             print("[*] Debe ingresar un ID de topologia válido")
+            return 1
+    else:
+        print("[*] Debe ingresar un ID de proyecto válido")
+        return 1
+    return 0
+def getInfoTopo():
+    ProjectManagerLinux = NetworkingManager()
+    ids = listarProyectos()
+    idProyecto = input("| Ingrese el ID del proyecto a consultar: ")
+    if idProyecto in ids:
+        response = ProjectManagerLinux.get_link_topo_proyecto(idProyecto)
+        if response['mensaje'] == 'Vinculo encontrado exitosamente':
+            cabeceras = ["ID Vinculo","ID Proyecto","Nombre Proyecto","ID Topologia","Tipo","Subnet"]
+            filas = []
+            columnas = []
+            for value in response["vinculo"]:
+                columnas.append(str(response['vinculo'][value]))
+            filas.append(columnas)   
+            print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+        else:
+            print("[*] "+response['mensaje'])
             return 1
     else:
         print("[*] Debe ingresar un ID de proyecto válido")

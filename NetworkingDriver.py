@@ -126,6 +126,11 @@ class NetworkingManager:
         response = requests.get(endpoint)
         return response.json()
     
+    def get_link_topo_proyecto(self, project_id):
+        endpoint = f"{self.base_url}/getLinksTopoProyecto/{project_id}"
+        response = requests.get(endpoint)
+        return response.json()
+    
     def delete_link_topo_proyecto(self, topology_id, project_id):
         if not topology_id or not project_id:
             return {"msg": "Se deben proporcionar valores válidos para 'topology_id' y 'project_id'"}
