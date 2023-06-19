@@ -974,6 +974,35 @@ async def delete_user(topology_id: int = Path(..., description="ID de la topolog
         data = {"mensaje": "No se pudo eliminar a la Topologia"}
         return JSONResponse(content=data, status_code=400)
 
+@app.get("/getLinksTopoProyecto/{project_id}")
+async def listar_topologias(project_id: int = Path(..., description="ID del proyecto a editar")):
+    conn = psycopg2.connect(
+        host="10.0.0.10",
+        database="linuxorch",
+        user="ubuntu",
+        password="ubu"
+    )
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT proyecto_topologia.id,proyecto.id,proyecto.nombre,topologia.id,topologia.tipo,topologia.subnetname from proyecto_topologia JOIN proyecto on proyecto_topologia.proyecto = proyecto.id JOIN topologia on proyecto_topologia.topologia = topologia.id where proyecto_topologia.estado = 1 and topologia.estado = 1 and proyecto.estado=1 and proyecto.id=%s;",(project_id,))
+        result = cur.fetchone()
+        cur.close()
+        conn.close()
+        vinculo = {
+            "id":result[0],
+            "proyecto": result[1],
+            "nombre": result[2],
+            "topologia": result[3],
+            "tipo": result[4],
+            "subnet": result[5]
+        }
+        data = {"mensaje": "Vinculo encontrado exitosamente", "vinculo": vinculo}
+        return JSONResponse(content=data, status_code=200)
+    except psycopg2.Error as e:
+        print(e)
+        data = {"mensaje": "No se pudo obtener el vinculo con el ID de proyecto especificado"}
+        return JSONResponse(content=data, status_code=400)
+
 ###### Vinculo de Topologia y VM ######
 
 @app.post("/addVmTopology/")

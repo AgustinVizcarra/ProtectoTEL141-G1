@@ -96,11 +96,10 @@ class AuthenticationManager(object):
         response = requests.get(endpoint)
         return response.json()
 
-    def delete_rol_project_user(self, role_id, project_id, user_id):
-        if not all([role_id, project_id, user_id]):
-            return {"msg": "Se deben proporcionar valores válidos para 'role_id', 'project_id' y 'user_id'"}
-        
-        endpoint = f"{self.auth_url}/deleteRolProjectUser/{role_id}/{project_id}/{user_id}"
+    def delete_rol_project_user(self, project_id, user_id):
+        if not all([ project_id, user_id]):
+            return {"msg": "Se deben proporcionar valores válidos para 'project_id' y 'user_id'"}
+        endpoint = f"{self.auth_url}/deleteRolProjectUser/{project_id}/{user_id}"
         response = requests.delete(endpoint)
         return response.json()
 

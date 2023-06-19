@@ -242,9 +242,9 @@ class Administrador:
                                                 if opcion.isdigit():
                                                     match int(opcion):
                                                         case 1:
-                                                            print("[*] Ingresando al menú de eliminación de usuarios x proyecto")
+                                                            value = eliminarUsuarioXProyecto()
                                                         case 2:
-                                                            print("[*] Ingresando al menú de eliminación de topología x proyecto")
+                                                            value = eliminarTopologia()
                                                         case 3:
                                                             print("[*] Regresando al menú de slices")
                                                             break                    
@@ -589,7 +589,7 @@ def listarTopologias():
 def editandoTopologiaXProyecto():
     ProjectManagerLinux = NetworkingManager()
     ids = listarTopologias()
-    idTopologia = input("Ingrese el ID de la topologia que desea editar: ")
+    idTopologia = input("| Ingrese el ID de la topologia que desea editar: ")
     if idTopologia in ids:
         subnetname = input("| Desea editar el subnetname de la topologia [S/n]?: ")
         network = input("| Desea editar la red de la topologia [S/n]?: ")
@@ -635,8 +635,8 @@ def eliminarUsuarioXProyecto():
         if idUsuario in ids:    
             ## Validaciones ##
             # def edit_user_project_role(self, user_id, project_id, usuario, proyecto, rol):
-            response = UserManagerLinux.delete_rol_project_user()
-            if response['mensaje'] == 'Se editó correctamente el vinculo':
+            response = UserManagerLinux.delete_rol_project_user(idProyecto,idUsuario)
+            if response['mensaje'] != 'No se encontró el vinculo con el ID proporcionado':
                 print("[*] "+response['mensaje'])
             else:
                 print("[*] "+response['mensaje'])
@@ -648,7 +648,37 @@ def eliminarUsuarioXProyecto():
         print("[*] Debe ingresar un ID de proyecto válido")
         return 1
     return 0
-    
+def eliminarTopologia():
+    ProjectManagerLinux = NetworkingManager()
+    ids = listarProyectos()
+    idProyecto = input("| Ingrese el ID del proyecto a consultar: ")
+    if idProyecto in ids:
+        ids = listarTopologias()
+        idTopologia = input("| Ingrese el ID de la topologia que desea eliminar: ")
+        if idTopologia in ids:
+            # def delete_link_topo_proyecto(self, topology_id, project_id):
+            # def delete_topology(self, topology_id):
+            print("[*] Eliminando el vinculo entre el proyecto y la topologia...")
+            response = ProjectManagerLinux.delete_link_topo_proyecto(idTopologia, idProyecto)
+            if response['mensaje'] != 'No se encontró el vinculo con el ID proporcionado':
+                print("[*] "+response['mensaje'])
+                print("[*] Eliminando la topologia...")
+                response = ProjectManagerLinux.delete_topology(idTopologia)
+                if response['mensaje'] != 'No se encontró la topologia con el ID proporcionado':
+                    print("[*] "+response['mensaje'])
+                else:
+                    print("[*] "+response['mensaje'])
+                    return 1    
+            else:
+                print("[*] "+response['mensaje'])
+                return 1
+        else:
+            print("[*] Debe ingresar un ID de topologia válido")
+            return 1
+    else:
+        print("[*] Debe ingresar un ID de proyecto válido")
+        return 1
+    return 0
 #################################### 
 def listarProyectosxUsuario(id):
     print("[*] Listando proyestos")
