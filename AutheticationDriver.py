@@ -54,7 +54,12 @@ class AuthenticationManager(object):
         endpoint = f"{self.auth_url}/deleteUser/{user_id}"
         response = requests.delete(endpoint)
         return response.json()
-    
+    def get_user_by_id(self, user_id):
+        if not user_id:
+            return {"msg": "Se debe proporcionar un ID de usuario"}
+        endpoint = f"{self.auth_url}/getUser/{user_id}"
+        response = requests.get(endpoint)
+        return response.json()
     ## Gestion de los vinculos del usuario con sus proyectos y roles ##
     
     def add_user_project_role(self, usuario, proyecto, rol):

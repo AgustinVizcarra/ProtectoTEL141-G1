@@ -92,7 +92,7 @@ async def edit_user(user_id: int = Path(..., description="ID del usuario a edita
         data = {"mensaje": "No se envió datos en el body"}
         return JSONResponse(content=data, status_code=400)
     else:
-        if 'nombre' in body and 'pwd' in body and 'correo' in body and 'permisos' in body:
+        if 'nombre' in body and 'correo' in body:
             conn = psycopg2.connect(
                 host="10.0.0.10",
                 database="linuxorch",
@@ -109,8 +109,8 @@ async def edit_user(user_id: int = Path(..., description="ID del usuario a edita
                 return JSONResponse(content=data, status_code=404)
             else:
                 try:
-                    cur.execute("UPDATE usuario SET nombre = %s, correo = %s, pwd = %s, permisos = %s WHERE id = %s",
-                                (body['nombre'], body['correo'], body['pwd'],body['permisos'],user_id, ))
+                    cur.execute("UPDATE usuario SET nombre = %s, correo = %s WHERE id = %s",
+                                (body['nombre'], body['correo'],user_id, ))
                     conn.commit()
                     cur.execute("SELECT * FROM usuario WHERE id = %s", (user_id,))
                     result = cur.fetchone()

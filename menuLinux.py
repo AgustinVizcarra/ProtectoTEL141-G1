@@ -1,4 +1,7 @@
-
+import json
+from AutheticationDriver import AuthenticationManager
+from NetworkingDriver import NetworkingManager
+from tabulate import tabulate
 class Usuario:
     def __init__(self,id):
         self.id = id
@@ -130,7 +133,7 @@ class Administrador:
                                     match int(opcion):
                                         case 1:
                                             print("[*] Listando usuarios ")
-                                            listarUsuarios()
+                                            ids = listarUsuarios()
                                         case 2:
                                             print("[*] Ingresando al formulario de creación de usuarios ")
                                             creandoUsuario()
@@ -268,14 +271,74 @@ class Administrador:
                     print("[*] Ingrese una opción válida.")
 #### Funciones de Usuario y Proyecto#####
 def listarUsuarios():
-    print("[*] Listando usuarios ....")
-    ##Defina Aquí la lógica para el listado de usuarios
+    UserManagerLinux = AuthenticationManager()
+    response = UserManagerLinux.listar_usuarios()
+    ids = []
+    if response['mensaje'] == "Lista de usuarios":
+        cabeceras = ["Id","Nombre","Correo","Rol"]
+        filas = []
+        for value in response['usuarios']:
+            columnas= []
+            for data in value:
+                if data != 'pwd' and data != 'permisos':
+                    columnas.append(str(value[data]))
+                if data == 'permisos':
+                    columnas.append("admin" if value[data] == 1 else "user")
+                if data == 'id':
+                    ids.append(str(value[data]))                 
+            filas.append(columnas)
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+    else:
+        print("[*] Existió un error de conexión!")
+    return ids
 def creandoUsuario():
-    print("[*] Creando usuario...")
     ##Defina Aquí la lógica para la creacion de usuario
+    #def create_user(self, nombre, correo, pwd):
+    UserManagerLinux = AuthenticationManager()
+    ProyectoManager = NetworkingManager()
+    print("--------Bienvenido al formulario de creacion de usuario-----")
+    nombre = input("| Ingrese el nombre del usuario: ") 
+    correo = input("| Ingrese el correo del usuario: ")
+    contra = input("| Ingrese la contraseña del usuario: ")
+    confcontra = input("| Confirme la contraseña del usuario: ")
+    if contra == confcontra:
+        response = UserManagerLinux.create_user(nombre,correo,contra) 
+        if response['mensaje']=="se creo al usuario con las credenciales brindadas":
+            print("[*] Se creo el usuario "+nombre+"con id: "+str(response['id']))
+        else:
+            print("[*] Ocurrio un error en la creacion del usuario "+response['mensaje'])
+    else:
+        print("[*] Las contraseñas registradas no coinciden")
 def editandoUsuario():
-    print("[*] Editando usuario...")
-    ##Defina Aquí la lógica para la edicion de usuario
+    # edit_user(self, user_id, nombre, correo, pwd):
+    UserManagerLinux = AuthenticationManager()
+    print("--------Bienvenido al formulario de edición de usuario-----")
+    ids = listarUsuarios()
+    id = input("| Ingrese el ID del usuairo a edita: ")
+    if id in ids:
+        nombre = input("| Desea editar el nombre del usuario [S/n]?: ") 
+        correo = input("| Desea editar el correo del usuario [S/n]?: ")
+        edicionNombre = nombre == "S" or nombre == "s"
+        edicionCorreo = correo == "S" or correo == "s"
+        response = UserManagerLinux.get_user_by_id(id)
+        if response['mensaje'] == "Se encontró al usuario exitosamente":
+            if edicionNombre:
+                response['nombre']=input("| Ingrese el nuevo nombre del usuario: ")
+            if edicionCorreo:
+                response['correo']=input("| Ingrese el nuevo correo del usuario: ")
+            if  edicionCorreo or edicionNombre:
+                print("[*] Procesando información ...")
+                response = UserManagerLinux.edit_user(id,response['nombre'],response['correo'],response['pwd'])
+                if response['mensaje'] == "Se editó correctamente al usuario":
+                    print("[*] "+response['mensaje'])
+                else:
+                    print("[*] Ocurrio un error al momento de editar al usuario")                    
+            else:
+                print("[*] Usted no ingreso información a modificar")
+        else:
+            print["[*] Hubo un error con el ID del usuario solicitado!"]
+    else:
+        print("Digitó un ID inválido para edición")
 def eliminarUsuario():
     print("[*] Eliminar usuario...")
     ##Defina Aquí la lógica para la eliminación de usuario
