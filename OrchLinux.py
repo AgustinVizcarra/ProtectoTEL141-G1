@@ -646,7 +646,6 @@ async def createTopology(body: dict):
             )
             try:
                 cur = conn.cursor()
-                print(body)
                 cur.execute("INSERT INTO topologia (tipo,estado,subnetname,network,gateway,iprange,worker) VALUES (%s, 1, %s, %s, %s, %s, %s)",(body['tipo'],body['subnetname'],body['network'],body['gateway'],body['iprange'],body['worker']))
                 cur.execute("SELECT currval('topologia_id_seq')")
                 result = cur.fetchone()
@@ -1170,9 +1169,9 @@ async def createLinkUserProjectRole(body: dict):
             data = {"mensaje": "se enviaron campos incorrectos"}
             return JSONResponse(content=data,status_code=400)
         
-@app.put("/editUserProjectRole/{user_id}/{project_id}/{role_id}")
-async def editLinkTopoVMUser(user_id: int = Path(..., description="ID de la topologia a editar"),project_id: int = Path(..., description="ID del proyecto a editar"),role_id: int = Path(..., description="ID del proyecto a editar"),body: dict=None):
-    if user_id is None or project_id is None or role_id is None:
+@app.put("/editUserProjectRole/{user_id}/{project_id}")
+async def editLinkTopoVMUser(user_id: int = Path(..., description="ID de la topologia a editar"),project_id: int = Path(..., description="ID del proyecto a editar"),body: dict=None):
+    if user_id is None or project_id is None:
         data = {"mensaje": "No se envió datos en el path"}
         return JSONResponse(content=data, status_code=400)
     else:
@@ -1184,7 +1183,7 @@ async def editLinkTopoVMUser(user_id: int = Path(..., description="ID de la topo
                 password="ubu"
             )
             cur = conn.cursor()
-            cur.execute("SELECT * FROM usuario_proyecto_rol WHERE usuario = %s AND proyecto = %s AND rol = %s AND estado=1", (user_id,project_id,role_id,))
+            cur.execute("SELECT * FROM usuario_proyecto_rol WHERE usuario = %s AND proyecto = %s AND estado=1", (user_id,project_id,))
             result = cur.fetchone()
             if result is None:
                 cur.close()
@@ -1194,7 +1193,7 @@ async def editLinkTopoVMUser(user_id: int = Path(..., description="ID de la topo
             else:
                 try:
                     cur.execute("UPDATE usuario_proyecto_rol SET usuario = %s, proyecto = %s, rol = %s WHERE usuario = %s AND proyecto = %s AND rol = %s AND estado=1",
-                                (body['usuario'],body['proyecto'],body['rol'], user_id ,project_id,role_id,))
+                                (body['usuario'],body['proyecto'],body['rol'], user_id ,project_id,result[4]))
                     conn.commit()
                     cur.execute("SELECT * FROM usuario_proyecto_rol WHERE usuario = %s AND proyecto = %s AND rol = %s AND estado=1", (body['usuario'],body['proyecto'],body['rol'],))
                     result = cur.fetchone()

@@ -74,12 +74,12 @@ class AuthenticationManager(object):
         response = requests.post(endpoint, json=body)
         return response.json()
 
-    def edit_user_project_role(self, user_id, project_id, role_id, usuario, proyecto, rol):
+    def edit_user_project_role(self, user_id, project_id, usuario, proyecto, rol):
         
-        if not all([user_id, project_id, role_id, usuario, proyecto, rol]):
-            return {"msg": "Se deben proporcionar valores válidos para 'user_id', 'project_id', 'role_id', 'usuario', 'proyecto' y 'rol'"}
+        if not all([user_id, project_id, usuario, proyecto, rol]):
+            return {"msg": "Se deben proporcionar valores válidos para 'user_id', 'project_id', 'usuario', 'proyecto' y 'rol'"}
         
-        endpoint = f"{self.auth_url}/editUserProjectRole/{user_id}/{project_id}/{role_id}"
+        endpoint = f"{self.auth_url}/editUserProjectRole/{user_id}/{project_id}"
         body = {
             "usuario": usuario,
             "proyecto": proyecto,

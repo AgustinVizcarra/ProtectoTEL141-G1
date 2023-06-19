@@ -157,7 +157,7 @@ class Administrador:
                                                 if opcion.isdigit():
                                                     match int(opcion):
                                                         case 1:
-                                                            listarProyectos()
+                                                            ids=listarProyectos()
                                                         case 2:
                                                             proyectoXUsuario()
                                                         case 3:
@@ -176,7 +176,7 @@ class Administrador:
                                     print("[*] Ingrese una opción valida")
                         case 2:
                             #Información de Slices
-                            opcionesSlices = ["Listar proyectos","Crear un proyecto","Editar un proyecto","Eliminar un proyecto","Información del Proyecto","Salir"]
+                            opcionesSlices = ["Listar detalles de proyectos","Crear un proyecto","Editar un proyecto","Eliminar un proyecto","Información del Proyecto","Salir"]
                             while True:
                                 i = 0
                                 print("|----------------Menú de slices------------------|")
@@ -192,14 +192,14 @@ class Administrador:
                                 if opcion.isdigit():
                                     match int(opcion):
                                         case 1:
-                                            listarProyectos()
+                                            listarDetallesProyecto()
                                         case 2:
                                             print("Ingresando al metodo")
                                             value=creandoProyecto()
                                         case 3:
                                             print("[*] Ingresando al menú de edición de proyectos ")
                                             while True:
-                                                print("|----------------Menú de edición de proyecto------------------|")
+                                                print("|-----------Menú de edición de proyecto----------|")
                                                 opcionesEdicionProyectos = ["Editar usuarios","Editar topología","Salir"]
                                                 i = 0
                                                 for opt in opcionesEdicionProyectos:
@@ -227,7 +227,7 @@ class Administrador:
                                         case 4:
                                             print("[*] Ingresando al menú de eliminación de usuarios ")
                                             while True:
-                                                print("|----------------Menú de eliminación de proyecto------------------|")
+                                                print("|--------Menú de eliminación de proyecto---------|")
                                                 opcionesEdicionProyectos = ["Eliminar usuarios","Eliminar topología","Salir"]
                                                 i = 0
                                                 for opt in opcionesEdicionProyectos:
@@ -285,6 +285,21 @@ def listarUsuarios():
     else:
         print("[*] Existió un error de conexión!")
     return ids
+def listarDetallesProyecto():
+    #    def listar_links_topo_proyectos(self):
+    ProjectManagerLinux = NetworkingManager()
+    response = ProjectManagerLinux.listar_links_topo_proyectos()
+    if response['mensaje'] == 'Lista de vinculos':
+        cabeceras = ["Id","Proyecto","Nombre","Topologia","Tipo","Subnet"]
+        filas = []
+        for value in response['vinculos']:
+            columnas= []
+            for data in value:
+                columnas.append(str(value[data]))
+            filas.append(columnas)
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+    else:
+        print("[*] Existió un error de conexión!")
 def creandoUsuario():
     ##Defina Aquí la lógica para la creacion de usuario
     #def create_user(self, nombre, correo, pwd):
@@ -374,15 +389,19 @@ def listarProyectos():
     response = ProjectManagerLinux.listar_proyectos()
     filas = []
     cabeceras = ["ID", "Nombre"]
+    ids = []
     if response['mensaje'] == 'Lista de proyectos':
         for value in response["proyectos"]:
             columnas = []
             for data in value:
                 columnas.append(str(value[data]))
+                if data == 'id':
+                    ids.append(str(value[data]))
             filas.append(columnas)   
         print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
     else:
         print("[*] "+response['mensaje'])
+    return ids
     ##Defina Aquí la lógica para el listado de proyecto
 def proyectoXUsuario():
     UserManagerLinux = AuthenticationManager()
@@ -473,7 +492,7 @@ def creandoProyecto():
                                             # def create_link_topo_proyecto(self, proyecto, topologia):
                                             response = ProjectManagerLinux.create_link_topo_proyecto(idProyecto,idTopologia)
                                             if response["mensaje"] == "se vinculo la topologia con el proyecto de manera exitosa":
-                                                print("[*] "+response["mensaje"])
+                                                print("[*]"+response["mensaje"])
                                                 print("[*] Añadiendo usuario al proyecto...")
                                                 for value in usuarios_roles:
                                                     #def add_user_project_role(self, usuario, proyecto, rol):
@@ -518,7 +537,37 @@ def creandoProyecto():
         print("[*] Debe ingresar el nombre del proyecto de manera correcta")
     return 0
     ##Defina Aquí la lógica para la creacion del proyecto
-def editandoProyecto():
+def editandoUsuariosXProyecto():
+    UserManagerLinux = AuthenticationManager()
+    ids = listarProyectos()
+    idProyecto = input("| Ingrese el ID del proyecto a editar: ")
+    if idProyecto in ids:
+        ids = listarUsuarios()
+        idUsuario = input("| Ingrese el ID del usuario a editar: ")
+        if idUsuario in ids:
+            ids = listar_roles()
+            idRol = input("| Ingrese el ID del rol a editar: ")
+            if idRol in ids:
+                ## Validaciones ##
+                # def edit_user_project_role(self, user_id, project_id, usuario, proyecto, rol):
+                response = UserManagerLinux.edit_user_project_role(idUsuario,idProyecto,idUsuario,idProyecto,idRol)
+                if response['mensaje'] == 'Se editó correctamente el vinculo':
+                    print("[*] "+response['mensaje'])
+                else:
+                    print("[*] "+response['mensaje'])
+                    return 1
+            else:
+                print("[*] Debe ingresar un ID de proyecto válido")
+                return 1        
+        else:
+            print("[*] Debe ingresar un ID de proyecto válido")
+            return 1    
+    else:
+        print("[*] Debe ingresar un ID de proyecto válido")
+        return 1
+    return 0
+    ##Defina Aquí la lógica para la edicion del proyecto
+def editandoTopologiaXProyecto():
     print("[*] Editando proyecto...")
     ##Defina Aquí la lógica para la edicion del proyecto
 def eliminandoProyecto():
