@@ -100,6 +100,7 @@ class KeystoneAuth(object):
     
         if response.status_code == 201:
             self.token = response.headers['X-Subject-Token']
+            print(self.token)
             print("[*] El token se actualizó correctamente\n")
         else:
             print("[*] Error al actualizar el token, verifique las credenciales\n")

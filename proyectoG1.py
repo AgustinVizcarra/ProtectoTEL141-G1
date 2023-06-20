@@ -207,7 +207,7 @@ def eliminarRolUsuarioDeProyecto(keystone):
 
 #Funcion que muestra el Menú redesprovider
 def menuRedes(keystone):
-    opcionesAdmin = ["Crear red","Info red"]
+    opcionesAdmin = ["Crear red","Info red","Borrar red"]
     opcionesUsuario = ["Info red"]
     if keystone.getRolName() == "admin":
         opciones = opcionesAdmin
@@ -232,6 +232,45 @@ def menuRedes(keystone):
                 else:
                     print("[*] Ingrese una opción válida.")
     return opcion
+
+#Funcion que permite seleccionar una topología predefinida
+def topologiaPredefinida(keystone,neutron):
+    opciones= ["Lineal","Malla","Árbol","Anillo","Bus"]
+    while True:
+        print("\n|--------------Topologías Predefinidas----------------|")
+        i = 0
+        for opt in opciones:
+            print("|- Opción "+str(i+1)+" -> "+str(opt))
+            i = i + 1   
+        print("|- Opción "+str(i+1)+" -> Salir")
+        print("|-----------------------------------------------------|")
+        opcion = input("| Ingrese una opción: ")
+        if int(opcion) == (len(opciones)+1):
+            opcion = "Salir"
+            break
+        else:
+            if int(opcion) <= len(opciones):
+                opcion = opciones[int(opcion)-1]
+                break
+            else:
+                print("[*] Ingrese una opción válida.")
+                
+    if opcion == "Lineal":
+        cantidadNodos = input("| Ingrese la cantidad de nodos: ")
+        
+    elif opcion == "Malla":
+        numeroFilasColumnas = input("| Ingrese el número de filas y columnas con el formato A-B: ")
+        
+    elif opcion == "Árbol":
+        numeroNiveles = input("| Ingrese el número de nodos: ")
+        
+    elif opcion == "Anillo":
+        numeroNodos = input("| Ingrese el número de nodos: ")
+        
+    elif opcion == "Bus":
+        numeroNiveles = input("| Ingrese el número de niveles: ")
+        
+    return "Salir"
 
 #Funcion que permite crear RedProvider
 def crearRed(keystone,neutron):
@@ -264,7 +303,18 @@ def crearRed(keystone,neutron):
                                     if(gatewayIP == "ESC"):
                                         print("[*] Ha salido de la opción de -Crear RedProvider- \n")
                                         return
-                                    neutron.create_network(red,subred,cidr,gatewayIP,keystone.getProjectID())
+                                    creado = neutron.create_network(red,subred,cidr,gatewayIP,keystone.getProjectID())
+                                    if creado is True:
+                                        while True:
+                                            verificar = input("| Desea seleccionar una topología predefinida?[Y/N]: ")
+                                            if (verificar != ''):
+                                                if verificar == "N" or verificar == "n":
+                                                    print("[*] Ha decidido no seleccionar una topología predefinida\n")
+                                                if verificar == "Y" or verificar == "y":
+                                                    topologiaPredefinida(keystone, neutron)
+                                                return
+                                            else:
+                                                print("[*] Ingrese una opción correcta\n")
                                     return
                                 else:
                                     print("[*] Ingrese una IP válido\n")
@@ -290,6 +340,23 @@ def infoRed(keystone,neutron):
         print("|CIDR: "+ str(informacion[3]))
         print("|Gateway IP: "+ str(informacion[4]))
         print("|-----------------------------------------------------|")
+    
+#Funcion que permite borrar una RedProvider
+def borrarRed(keystone,neutron):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        verificar = input("| Está seguro de eliminar la red Provider?[Y/N]: ")
+        if (verificar != ''):
+            if(verificar == "ESC"):
+                print("[*] Ha salido de la opción de -Eliminar Red Provider-\n")
+                return 
+            if verificar == "Y" or verificar == "y":
+                neutron.delete_network(keystone.getProjectID())
+                return
+            continue
+        else:
+            print("[*] Ingrese una opción correcta\n")
+            continue
     
 #Funcion que muestra el Menú keypair
 def menuKeyPair():
@@ -969,7 +1036,7 @@ def crearImage(glance):
                 print("[*] Ha salido de la opción de -Crear Image-\n")
                 return
             while True:
-                ruta = input("| Ingrese la ruta de la imagen: ")
+                ruta = input("| Ingrese la ruta de la imagen a importar: ")
                 if(ruta != ''):
                     if(ruta == "ESC"):
                         print("[*] Ha salido de la opción de -Crear Image-\n")
@@ -1076,7 +1143,9 @@ def menu2(opcion,nivel,keystone,nova,glance,neutron):
         elif(nivel == "Crear red"):
             crearRed(keystone,neutron)
         elif(nivel == "Info red"):
-            infoRed(keystone,neutron)         
+            infoRed(keystone,neutron)   
+        elif(nivel == "Borrar red"):
+            borrarRed(keystone, neutron)      
         elif(nivel == "Salir"):        
             return False
         return True
