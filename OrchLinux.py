@@ -1678,10 +1678,10 @@ async def get_flavor(flavor_id: int = Path(..., description="ID del flavor a bus
         return JSONResponse(content=data, status_code=400)
 
 ## Listado de topologia x usuario x rol
-@app.get("/getTopoXUserXRol/{project_id}/{user_id}")
-async def get_flavor(project_id: int = Path(..., description="ID del proyecto a buscar"),user_id: int = Path(..., description="ID del usuario a buscar")):
-    if project_id is None and user_id is None:
-        data = {"mensaje": "No se proporcionó el ID del proyecto o del usuario"}
+@app.get("/getTopoXUserXRol/{user_id}")
+async def get_flavor(user_id: int = Path(..., description="ID del usuario a buscar")):
+    if user_id is None:
+        data = {"mensaje": "No se proporcionó el ID del usuario"}
         return JSONResponse(content=data, status_code=404)
     conn = psycopg2.connect(
         host="10.0.0.10",
@@ -1691,7 +1691,7 @@ async def get_flavor(project_id: int = Path(..., description="ID del proyecto a 
     )
     try:
         cur = conn.cursor()
-        cur.execute("select proyecto.nombre,rol.nombre,topologia.tipo,topologia.worker from proyecto inner join proyecto_topologia on proyecto.id = proyecto_topologia.proyecto inner join topologia on proyecto_topologia.topologia = topologia.id inner join usuario_proyecto_rol on usuario_proyecto_rol.proyecto = proyecto.id inner join usuario on usuario_proyecto_rol.usuario = usuario.id inner join rol on usuario_proyecto_rol.rol = rol.id where usuario_proyecto_rol.estado=1 and proyecto_topologia.estado=1 and usuario.estado=1 and topologia.estado=1 and proyecto.id=%s and usuario.id=%s", (project_id,user_id,))
+        cur.execute("select proyecto.nombre,rol.nombre,topologia.tipo,topologia.worker from proyecto inner join proyecto_topologia on proyecto.id = proyecto_topologia.proyecto inner join topologia on proyecto_topologia.topologia = topologia.id inner join usuario_proyecto_rol on usuario_proyecto_rol.proyecto = proyecto.id inner join usuario on usuario_proyecto_rol.usuario = usuario.id inner join rol on usuario_proyecto_rol.rol = rol.id where usuario_proyecto_rol.estado=1 and proyecto_topologia.estado=1 and usuario.estado=1 and topologia.estado=1 and usuario.id=%s", (user_id,))
         result = cur.fetchall()
         cur.close()
         conn.close()

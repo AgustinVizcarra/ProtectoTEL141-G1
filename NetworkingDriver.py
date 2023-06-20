@@ -145,9 +145,9 @@ class NetworkingManager:
         response = requests.get(endpoint)
         return response.json()
     
-    def get_user_topo_rol(self,project_id,user_id):
-        if not all([project_id,user_id]):
-            return {"msg": "Se deben proporcionar valores válidos para 'user_id y 'project_id'"}
-        endpoint = f"{self.base_url}/getTopoXUserXRol/{project_id}/{user_id}"
+    def get_user_topo_rol(self,user_id):
+        if not user_id:
+            return {"msg": "Se deben proporcionar valores válidos para 'user_id "}
+        endpoint = f"{self.base_url}/getTopoXUserXRol/{user_id}"
         response = requests.get(endpoint)
         return response.json()
