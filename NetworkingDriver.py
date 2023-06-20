@@ -151,4 +151,3 @@ class NetworkingManager:
         endpoint = f"{self.base_url}/getTopoXUserXRol/{project_id}/{user_id}"
         response = requests.get(endpoint)
         return response.json()
-            
