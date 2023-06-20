@@ -234,7 +234,7 @@ def menuRedes(keystone):
     return opcion
 
 #Funcion que permite seleccionar una topología predefinida
-def topologiaPredefinida(keystone,neutron,nova):
+def topologiaPredefinida(keystone,neutron,nova,glance):
     opciones= ["Lineal","Malla","Árbol","Anillo","Bus"]
     print("**Los nodos se crearán con los recursos seleccionados**")
     while True:
@@ -255,14 +255,16 @@ def topologiaPredefinida(keystone,neutron,nova):
                 break
             else:
                 print("[*] Ingrese una opción válida.")
-    nodosExistentesTopologia = nova.cantidadNodos(keystone.getProjectID(),neutron.getNetworkID())
-    #if nodosExistentesTopologia == 1:
-    #   #Crear el gateway
-    networkID = neutron.getNetworkID()
-    flavorID = getFlavorsID(nova)
-    imagenID = getImagenesID(glance)
-    keyPairID = getKeyPairID(nova,keystone)
-    securityGroupID = getSecurityGroupID(nova)
+    if opcion != "Salir":
+        nodosExistentesTopologia = nova.cantidadNodos(keystone.getProjectID(),neutron.getNetworkID())
+        networkID = neutron.getNetworkID()
+        flavorID = getFlavorsID(nova)
+        imagenID = getImagenesID(glance)
+        keyPairID = getKeyPairID(nova,keystone)
+        securityGroupID = getSecurityGroupID(nova)
+        if nodosExistentesTopologia == 0:
+            nova.create_instance("Nodo 1", flavorID, imagenID, networkID,keyPairID,securityGroupID)
+            nodosExistentesTopologia = 1
     if opcion == "Lineal":
         cantidadNodos = input("| Ingrese la cantidad de nodos: ")
         i = 1
@@ -312,7 +314,7 @@ def topologiaPredefinida(keystone,neutron,nova):
     return "Salir"
 
 #Funcion que permite crear RedProvider
-def crearRed(keystone,neutron,nova):
+def crearRed(keystone,neutron,nova,glance):
     existe = neutron.existe_network(keystone.getProjectID())
     if existe == True:
         print("[*] Ya existe una RedProvider creada.\n")
@@ -348,10 +350,16 @@ def crearRed(keystone,neutron,nova):
                                             verificar = input("| Desea seleccionar una topología predefinida?[Y/N]: ")
                                             if (verificar != ''):
                                                 if verificar == "N" or verificar == "n":
-                                                    #Crear el gateway
+                                                    print("\n[*] Seleccione las características para su gateway: \n")
+                                                    networkID = neutron.getNetworkID()
+                                                    flavorID = getFlavorsID(nova)
+                                                    imagenID = getImagenesID(glance)
+                                                    keyPairID = getKeyPairID(nova,keystone)
+                                                    securityGroupID = getSecurityGroupID(nova)
+                                                    nova.create_instance("Nodo 1", flavorID, imagenID, networkID,keyPairID,securityGroupID)
                                                     print("[*] Ha decidido no seleccionar una topología predefinida\n")
                                                 if verificar == "Y" or verificar == "y":
-                                                    topologiaPredefinida(keystone, neutron, nova)
+                                                    topologiaPredefinida(keystone, neutron, nova,glance)
                                                 return
                                             else:
                                                 print("[*] Ingrese una opción correcta\n")
@@ -1180,7 +1188,7 @@ def menu2(opcion,nivel,keystone,nova,glance,neutron):
                 if not (resultado):
                     break
         elif(nivel == "Crear red"):
-            crearRed(keystone,neutron,nova)
+            crearRed(keystone,neutron,nova,glance)
         elif(nivel == "Info red"):
             infoRed(keystone,neutron)   
         elif(nivel == "Borrar red"):
