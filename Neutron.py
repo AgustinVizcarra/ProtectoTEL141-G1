@@ -1,5 +1,6 @@
 ###########################################NEUTRON###############################################
 import requests
+import random
 ###############RED################## 
 
 class NeutronClient(object):
@@ -33,24 +34,34 @@ class NeutronClient(object):
         network_data = {
             'network': {
                 'name': red,
-                'project_id ': project
+                "admin_state_up": True,
+                "name": red,
+                "shared": True,
+                "provider:physical_network": "provider",
+                "provider:network_type": "vlan",
+                "provider:segmentation_id": random.randint(1, 1000)
+                #'project_id': project
             }
         }
+        
         response = requests.post(self.neutron_url + 'networks', json=network_data, headers=self.headers)
+        print(response.status_code)
 
         if response.status_code == 201:
             network_id = response.json()['network']['id']
             
             subnet_data = {
                 'subnet': {
-                    'name': subred,
                     'network_id': network_id,
+                    "name": subred,
+                    "ip_version": 4,
                     'cidr': cidr,
-                    'gateway_ip': gateway
+                    #'gateway_ip': gateway
                 }
             }
             
             response = requests.post(self.neutron_url + 'subnets', json=subnet_data, headers=self.headers)
+            print(response.json())
             if response.status_code == 201:
                 self.NetworkID = network_id
                 print("[*] Red Provider creada exitosamente\n")
@@ -111,6 +122,7 @@ class NeutronClient(object):
             networks = response.json().get('networks', [])
             if networks:
                 network = networks[0]  # Obtener solo la primera red para este ejemplo
+                print(network)
                 subnet_id = network.get('subnets', [''])[0]
                 
                 # Obtener información de la subred
