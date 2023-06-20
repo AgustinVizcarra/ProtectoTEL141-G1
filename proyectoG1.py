@@ -4,8 +4,8 @@ from Nova import NovaClient
 from Glance import GlanceClient
 from Neutron import NeutronClient
 from AutheticationDriver import AuthenticationManager
-from menuLinux import Usuario
-from menuLinux import Administrador
+#from menuLinux import Usuario
+#from menuLinux import Administrador
 import requests
 ############################################    F   U   N   C   I   O   N   E   S   ############################################
 #Funcion que muestra el menu de la lista de Proyectos
@@ -234,8 +234,9 @@ def menuRedes(keystone):
     return opcion
 
 #Funcion que permite seleccionar una topología predefinida
-def topologiaPredefinida(keystone,neutron):
+def topologiaPredefinida(keystone,neutron,nova):
     opciones= ["Lineal","Malla","Árbol","Anillo","Bus"]
+    print("**Los nodos se crearán con los recursos seleccionados**")
     while True:
         print("\n|--------------Topologías Predefinidas----------------|")
         i = 0
@@ -254,26 +255,62 @@ def topologiaPredefinida(keystone,neutron):
                 break
             else:
                 print("[*] Ingrese una opción válida.")
-                
+    nodosExistentesTopologia = nova.cantidadNodos(keystone.getProjectID(),neutron.getNetworkID())
+    networkID = neutron.getNetworkID()
+    flavorID = getFlavorsID(nova)
+    imagenID = getImagenesID(glance)
+    keyPairID = getKeyPairID(nova,keystone)
+    securityGroupID = getSecurityGroupID(nova)
     if opcion == "Lineal":
         cantidadNodos = input("| Ingrese la cantidad de nodos: ")
-        
+        i = 1
+        while i <= cantidadNodos:
+            nombre = "Nodo "+ str(nodosExistentesTopologia + i)
+            i = i + 1
+            nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID)
+            #Una vez creado se debe de realizar las uniones
     elif opcion == "Malla":
         numeroFilasColumnas = input("| Ingrese el número de filas y columnas con el formato A-B: ")
-        
+        filas = numeroFilasColumnas.split("-")[0]
+        columnas = numeroFilasColumnas.split("-")[1]
+        cantidadNodos = filas * columnas
+        i = 1
+        while i <= cantidadNodos:
+            nombre = "Nodo "+ str(nodosExistentesTopologia + i)
+            i = i + 1
+            nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID)
+            #Una vez creado se debe de realizar las uniones
     elif opcion == "Árbol":
-        numeroNiveles = input("| Ingrese el número de nodos: ")
-        
+        numeroNiveles = input("| Ingrese el número de niveles: ")
+        cantidadNodos = (numeroNiveles*3)-2
+        i = 1
+        while i <= cantidadNodos:
+            nombre = "Nodo "+ str(nodosExistentesTopologia + i)
+            i = i + 1
+            nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID)
+            #Una vez creado se debe de realizar las uniones
     elif opcion == "Anillo":
         numeroNodos = input("| Ingrese el número de nodos: ")
-        
+        cantidadNodos = numeroNodos
+        i = 1
+        while i <= cantidadNodos:
+            nombre = "Nodo "+ str(nodosExistentesTopologia + i)
+            i = i + 1
+            nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID)
+            #Una vez creado se debe de realizar las uniones
     elif opcion == "Bus":
         numeroNiveles = input("| Ingrese el número de niveles: ")
-        
+        cantidadNodos = numeroNiveles + 1
+        i = 1
+        while i <= cantidadNodos:
+            nombre = "Nodo "+ str(nodosExistentesTopologia + i)
+            i = i + 1
+            nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID)
+            #Una vez creado se debe de realizar las uniones
     return "Salir"
 
 #Funcion que permite crear RedProvider
-def crearRed(keystone,neutron):
+def crearRed(keystone,neutron,nova):
     existe = neutron.existe_network(keystone.getProjectID())
     if existe == True:
         print("[*] Ya existe una RedProvider creada.\n")
@@ -311,7 +348,7 @@ def crearRed(keystone,neutron):
                                                 if verificar == "N" or verificar == "n":
                                                     print("[*] Ha decidido no seleccionar una topología predefinida\n")
                                                 if verificar == "Y" or verificar == "y":
-                                                    topologiaPredefinida(keystone, neutron)
+                                                    topologiaPredefinida(keystone, neutron, nova)
                                                 return
                                             else:
                                                 print("[*] Ingrese una opción correcta\n")
@@ -678,23 +715,18 @@ def menuVirtualMachine():
 
 #Funcion que permite crear una VirtualMachine
 def crearVirtualMachine(nova,neutron,glance,keystone):
-    print("**Escriba ESC para poder salir de esta opción**")
-    while True:
-        nombre = input("| Ingrese un nombre para la VirtualMachine: ")
-        if(nombre != ''):
-            if(nombre == "ESC"):
-                print("[*] Ha salido de la opción de -Crear VirtualMachine-\n")
-                return
-            flavorID = getFlavorsID(nova)
-            imagenID = getImagenesID(glance)
-            networkID = neutron.getNetworkID()
-            keyPairID = getKeyPairID(nova,keystone)
-            securityGroupID = getSecurityGroupID(nova)
-            nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID)
-            break
-        else:
-            print("[*] Ingrese un nombre de VirtualMachine válido\n")
-            continue
+    nodosExistentesTopologia = nova.cantidadNodos(keystone.getProjectID(),neutron.getNetworkID())
+    if nodosExistentesTopologia == None:
+        print("[*] Debe de crear una Red Provider primero\n")
+    else:
+        nombre = "Nodo "+ str(nodosExistentesTopologia + 1)
+        flavorID = getFlavorsID(nova)
+        imagenID = getImagenesID(glance)
+        networkID = neutron.getNetworkID()
+        keyPairID = getKeyPairID(nova,keystone)
+        securityGroupID = getSecurityGroupID(nova)
+        nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID)
+
 
 #Funcion que permite listar las VirtualMachine
 def listarVirtualMachine(keystone,nova):
@@ -1141,7 +1173,7 @@ def menu2(opcion,nivel,keystone,nova,glance,neutron):
                 if not (resultado):
                     break
         elif(nivel == "Crear red"):
-            crearRed(keystone,neutron)
+            crearRed(keystone,neutron,nova)
         elif(nivel == "Info red"):
             infoRed(keystone,neutron)   
         elif(nivel == "Borrar red"):
@@ -1268,9 +1300,8 @@ privilegios = -1
 while(int(privilegios)<0):
     username = input("| Ingrese su nombre de usuario: ")
     password = getpass("| Ingrese su contraseña: ")
-    #keystone = KeystoneAuth(username, password)
-    #tokensito = keystone.get_token()
-    tokensito = None
+    keystone = KeystoneAuth(username, password)
+    tokensito = keystone.get_token()
     #Si tiene cuenta de Openstack 
     if tokensito != None:
         tokensito = keystone.updateToken()

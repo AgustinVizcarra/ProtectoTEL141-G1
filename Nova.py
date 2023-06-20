@@ -496,6 +496,11 @@ class NovaClient(object):
         else:
             raise Exception('Failed to delete instance. Status code: {}'.format(response.status_code))
     
+    #  Obtener la cantida de nodos que tiene una red provider
+    def cantidadNodos(self,project_id,network_id):
+        pass
+    
+    
      # Apagar una instancia de VM
     def stop_instance(self, instance_id):
         action_data = {
