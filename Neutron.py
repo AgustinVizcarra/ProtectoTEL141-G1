@@ -102,11 +102,10 @@ class NeutronClient(object):
                 return True
         print(response.json())
         return False
-        
-        
+    
     #Funcion que devuelve la info de una red y su subred
-    def infoRedProvider(self):
-        url = f"{self.neutron_url}/networks"
+    def infoRedProvider(self, project_id):
+        url = f"{self.neutron_url}/networks?project_id={project_id}"
         response = requests.get(url, headers=self.headers)
         if response.status_code == 200:
             networks = response.json().get('networks', [])
@@ -142,6 +141,7 @@ class NeutronClient(object):
         else:
             print(" [*] Error al obtener la información de la red y subred:", response.status_code)
             return []
+
     
         
 ###################SUBRED################## 

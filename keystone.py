@@ -106,6 +106,44 @@ class KeystoneAuth(object):
 
         return self.token
     
+#Obtener TOKEN por proyecto
+    def get_token_project(self,IdProject):
+        auth_data = {
+            'auth': {
+                'identity': {
+                    'methods': ['password'],
+                    'password': {
+                        'user': {
+                            'name': self.username, 
+                            'password': self.password, 
+                            'domain': {'name': 'Default'}
+                        }
+                    }
+                },
+                "scope": {
+                    "project":{
+                        "id": IdProject
+                    }
+                }
+            }
+        }
+        
+        
+        response = requests.post(self.auth_url+"/auth/tokens",
+                                 json=auth_data,
+                                 headers=self.headers)
+
+        if response.status_code == 201:
+            self.token = response.headers['X-Subject-Token']
+            self.UserID = response.json()["token"]["user"]['id']
+            print("[*] La solicitud se completó correctamente\n")
+            
+        else:
+            print("[*] Error de autorización, verifique credenciales\n")
+
+        
+        return self.token
+    
    
         
     #Obtener listado de proyectos en los que se encuentra asignado el usuario con su rol

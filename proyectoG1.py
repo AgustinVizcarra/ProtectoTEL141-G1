@@ -566,7 +566,8 @@ def configurarSecurityGroup(nova):
         elif int(opcion) == 2:
             print("**Escriba ESC para poder salir de esta opción**")
             while True:
-                id = input("| Ingrese el ID de la regla: ")
+                #id = input("| Ingrese el ID de la regla: ")
+                id = input("| Ingrese el nombre del Security Group: ")
                 if(id != ''):
                     if(id == "ESC"):
                         print("[*] Ha salido de la opción de -Eliminar Regla-\n")
@@ -1204,17 +1205,24 @@ while(int(privilegios)<0):
     #Si tiene cuenta de Openstack 
     if tokensito != None:
         tokensito = keystone.updateToken()
-        nova = NovaClient(tokensito,username,password)
-        glance = GlanceClient(tokensito)
-        neutron = NeutronClient(tokensito)
+        #nova = NovaClient(tokensito,username,password)
+        #glance = GlanceClient(tokensito)
+        #neutron = NeutronClient(tokensito)
         while True:
             result,keystone = MenuListaProyectos(keystone)
+            project_id=keystone.getProjectID()
+            
+            tokensito=keystone.get_token_project(project_id)
+            
             if not (result): #No esta asignado a ningun proyecto
                 print("[*] Gracias por usar nuestro sistema!\n")
                 privilegios = 0
                 break
             else:
                 while True:
+                    nova = NovaClient(tokensito,username,password)
+                    glance = GlanceClient(tokensito)
+                    neutron = NeutronClient(tokensito)
                     opcion = menuPrincipal(keystone)
                     resultado = menu2(opcion,"Menú",keystone,nova,glance,neutron)
                     if not (resultado):
