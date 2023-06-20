@@ -1,5 +1,6 @@
 ########################################## NOVA ##################################################
 import requests
+
 ##########FLAVOR###########
 class NovaClient(object):
     def __init__(self, auth_token,username, password):
@@ -13,76 +14,49 @@ class NovaClient(object):
             'Content-Type': 'application/json',
             'X-Auth-Token': self.auth_token
         }
-
-
-#Obtener TOKEN por proyecto
-    def get_token_project(self,IdProject):
-        auth_data = {
-            'auth': {
-                'identity': {
-                    'methods': ['password'],
-                    'password': {
-                        'user': {
-                            'name': self.username, 
-                            'password': self.password, 
-                            'domain': {'name': 'Default'}
-                        }
-                    }
-                },
-                "scope": {
-                    "project":{
-                        "id": IdProject
-                    }
-                }
-            }
-        }
-        
-        
-        response = requests.post(self.auth_url+"/auth/tokens",
-                                 json=auth_data,
-                                 headers=self.headers)
-
-        if response.status_code == 201:
-            self.token = response.headers['X-Subject-Token']
-            self.UserID = response.json()["token"]["user"]['id']
-            print("[*] La solicitud se completó correctamente\n")
-            
-        else:
-            print("[*] Error de autorización, verifique credenciales\n")
-        
-        return self.token
-
    
-       
-
     def list_flavors(self):
-        response = requests.get(self.nova_url + '/flavors', headers=self.headers)
+        url=f"{self.nova_url}/v2.1/flavors"
+        response = requests.get(url, headers=self.headers)
 
         if response.status_code == 200:
             flavors = response.json().get('flavors', [])
             flavor_info = []
             for flavor in flavors:
-                flavor_info.append([flavor['id'], flavor['name'], flavor['ram'], flavor['disk'], flavor['vcpus']])
+                flavorcito=self.obtenerDetallesFlavor(flavor['id'])
+                flavor_info.append([flavorcito['flavor']['id'], flavorcito['flavor']['name'], flavorcito['flavor']['ram'], flavorcito['flavor']['disk'], flavorcito['flavor']['vcpus']])
             return flavor_info
         else:
             raise Exception('Error al listar los flavors. Código de estado: {}'.format(response.status_code))
 
     def create_flavor(self, name, ram, vcpus, disk):
-        flavor_data = {
-            'flavor': {
-                'name': name,
-                'ram': ram,
-                'vcpus': vcpus,
-                'disk': disk
-            }
-        }
-        response = requests.post(self.nova_url + '/flavors', json=flavor_data, headers=self.headers)
+        url=f"{self.nova_url}/v2.1/flavors"
+        
 
-        if response.status_code == 200:
-            flavor = response.json()['flavor']
-            return flavor
-        else:
-            raise Exception('Failed to create flavor. Status code: {}'.format(response.status_code))
+        while True:
+            verificar=self.verificarFlavor(name)
+
+            if verificar is True:
+
+                flavor_data = {
+                    'flavor': {
+                        'name': name,
+                        'ram': ram,
+                        'vcpus': vcpus,
+                        'disk': disk
+                    }
+                }
+            
+                response = requests.post(url, json=flavor_data, headers=self.headers)
+
+                if response.status_code == 200:
+                    flavor = response.json()['flavor']
+                    print("Flavor",name,"creado exitosamente")
+                    return flavor
+                else:
+                    raise Exception('Failed to create flavor. Status code: {}'.format(response.status_code))
+            else:
+                name = input("Por favor, introduce un nombre diferente para el flavor: ")
 
     def get_flavor(self, flavor_id):
         response = requests.get(self.nova_url + '/flavors/{}'.format(flavor_id), headers=self.headers)
@@ -111,12 +85,43 @@ class NovaClient(object):
             raise Exception('Failed to update flavor. Status code: {}'.format(response.status_code))
 
     def delete_flavor(self, flavor_id):
-        response = requests.delete(self.nova_url + '/flavors/{}'.format(flavor_id), headers=self.headers)
+
+        url = f"{self.nova_url}/v2.1/flavors/{flavor_id}"
+        response = requests.delete(url, headers=self.headers)
+        
 
         if response.status_code == 204:
             return True
         else:
             raise Exception('Failed to delete flavor. Status code: {}'.format(response.status_code))
+        
+
+    def obtenerDetallesFlavor(self, flavor_id):
+        url = f"{self.nova_url}/v2.1/flavors/{flavor_id}"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print("Error al obtener los detalles del Flavor:", response.status_code)
+    
+    def verificarFlavor(self,flavor_name):
+        url=f"{self.nova_url}/v2.1/flavors"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            flavors = response.json().get('flavors', [])
+            # Buscar el flavor por nombre
+            for flavor in flavors:
+                if flavor['name'] == flavor_name:
+                    print("El flavor ya existe:", flavor['name'])
+                    return False
+            print(f"No se encontró el flavor: {flavor_name}")
+            return True
+        else:
+            print("Error al obtener los flavors:", response.status_code, response.json())
+        
+
 
 ##########KEYPAIR###########
 #Crear Keypair
@@ -253,12 +258,13 @@ class NovaClient(object):
         #    print("Error al obtener el token del proyecto.")
 
         # Establecer el encabezado con el token
-        self.headers_security = {
-            'Content-Type': 'application/json',
-            'X-Auth-Token': self.auth_token
-        }
+        #self.headers_security = {
+        #    'Content-Type': 'application/json',
+        #    'X-Auth-Token': self.auth_token
+        #}
 
-        response = requests.post(url, json=data, headers=self.headers_security)
+        response = requests.post(url, json=data, headers=self.headers)
+    
 
         if response.status_code == 200:
             security_group = response.json().get('security_group', {})
@@ -269,13 +275,13 @@ class NovaClient(object):
 #Listar securitygroup
     def listarSecurityGroup(self):
         #token_project = self.get_token_project(IdProject)  # Obtener el token del proyecto utilizando el método get_token_project
-        self.headers_security = {
-            'Content-Type': 'application/json',
+        #self.headers_security = {
+        #    'Content-Type': 'application/json',
             #'X-Auth-Token': token_project
-            'X-Auth-Token': self.auth_token
-        }
+        #    'X-Auth-Token': self.auth_token
+        #}
         url = f"{self.nova_url}/v2.1/os-security-groups"
-        response = requests.get(url, headers=self.headers_security)
+        response = requests.get(url, headers=self.headers)
     
 
         if response.status_code == 200:
@@ -299,19 +305,30 @@ class NovaClient(object):
             return []
             
 #Editar securitygroup
-    def editarSecurityGroup(self,name,nuevoname,descripcion,IdProject):
-        id_security=self.obtenerIDSecurityGroup(name,IdProject)
+    def editarSecurityGroup(self,name,nuevoname,descripcion):
+        id_security=self.obtenerIDSecurityGroup(name)
 
         if id_security==None:
             print("No existe el Grupo de seguridad especificado")
         else:
             url_editar = f"{self.nova_url}/v2.1/os-security-groups/{id_security}"
-            data = {
-                'security_group': {
-                    'name': nuevoname,
-                    'description': descripcion
+            descripcion = None
+            if descripcion is not None:
+                data = {
+                    'security_group': {
+                        'name': nuevoname,
+                        'description': descripcion
+                    }
                 }
-            }
+                
+            else:
+                data = {
+                    'security_group': {
+                        'name': nuevoname,
+                        'description': ''
+                    }
+                }
+                
             response_editar = requests.put(url_editar, json=data, headers=self.headers)
             if response_editar.status_code == 200:
                 print("Grupo de seguridad editado exitosamente")
@@ -323,7 +340,7 @@ class NovaClient(object):
     
 #Eliminar securitygroup
     def eliminarSecurityGroup(self,name):
-        id_security=self.obtenerIDSecurityGroup(name,IdProject)
+        id_security=self.obtenerIDSecurityGroup(name)
 
         if id_security==None:
             print("No existe el Grupo de seguridad especificado")
@@ -337,25 +354,25 @@ class NovaClient(object):
             #    for sg in security_groups:
             #        if sg['name'] == name:
                         #url_eliminar = f"{url}/{sg['id']}"
-            response_eliminar = requests.delete(url_eliminar, headers=self.headers)
-            if response_eliminar.status_code == 202:
-                print("Grupo de seguridad eliminado exitosamente")
-            else:
-                print("Error al eliminar el Grupo de seguridad:", response_eliminar.status_code)
-                print("Lalalala")
-            return
+        response_eliminar = requests.delete(url_eliminar, headers=self.headers)
+        if response_eliminar.status_code == 202:
+            print("Grupo de seguridad eliminado exitosamente")
+        else:
+            print("Error al eliminar el Grupo de seguridad:", response_eliminar.status_code)
+            print("Lalalala")
+        return
     
 
 
 #Obtener ID de securitygroup
-    def obtenerIDSecurityGroup(self,securitygroup,IdProject):
-        token_project1 = self.get_token_project(IdProject)  # Obtener el token del proyecto utilizando el método get_token_project
-        self.headers_security1 = {
-            'Content-Type': 'application/json',
-            'X-Auth-Token': token_project1
-        }
+    def obtenerIDSecurityGroup(self,securitygroup):
+        #token_project1 = self.get_token_project(IdProject)  # Obtener el token del proyecto utilizando el método get_token_project
+        #self.headers_security1 = {
+        #    'Content-Type': 'application/json',
+        #    'X-Auth-Token': token_project1
+        #}
         url = f"{self.nova_url}/v2.1/os-security-groups"
-        response = requests.get(url, headers=self.headers_security1)
+        response = requests.get(url, headers=self.headers)
         
 
         if response.status_code == 200:
@@ -371,40 +388,41 @@ class NovaClient(object):
             print("Lalalala3")
     
 #Agregar regla
-    def agregarRegla(self,nombre,protocol_ip,from_port,dest_port,cidr,IdProject):
-        token_project_rule = self.get_token_project(IdProject)  # Obtener el token del proyecto utilizando el método get_token_project
-        self.headers_security_rule = {
-            'Content-Type': 'application/json',
-            'X-Auth-Token': token_project_rule
-        }
-
-        id_security=self.obtenerIDSecurityGroup(nombre,IdProject)
+    def agregarRegla(self,nombre,protocol_ip,from_port,dest_port,cidr):
+       
+        id_security=self.obtenerIDSecurityGroup(nombre)
 
         url = f"{self.nova_url}/v2.1/os-security-group-rules"
         data = {
             'security_group_rule': {
                 'parent_group_id': id_security,
+                'direction': 'ingress',
+                'ethertype': 'IPv4',
                 'ip_protocol': protocol_ip,
                 'from_port': from_port,
                 'to_port': dest_port,
-                'cidr': cidr
+                'remote_ip_prefix': cidr
+                
             }
         }
-        response = requests.post(url, json=data, headers=self.headers_security_rule)
+        response = requests.post(url, json=data, headers=self.headers)
         if response.status_code == 200:
             security_group_rule = response.json().get('security_group_rule', {})
+            print("|-----------------------------------------------------|")
             print("Regla de seguridad agregada exitosamente:")
             print("Nombre del grupo de seguridad:", nombre)
             print("Protocolo:", security_group_rule['ip_protocol'])
             print("Puerto origen:", security_group_rule['from_port'])
             print("Puerto destino:", security_group_rule['to_port'])
             print("CIDR:", security_group_rule['ip_range']['cidr'])
+            print("|-----------------------------------------------------|")
         else:
             print("Error al agregar la regla de seguridad:", response.status_code)
 
 #Eliminar regla
     def eliminarRegla(self,ID):
-        url = f"{self.nova_url}/os-security-group-rules"
+        self.neutron_url = "http://10.20.12.188:9696"
+        url = f"{self.neutron_url}/v2.0/security-group-rules"
         response = requests.get(url, headers=self.headers)
 
         if response.status_code == 200:
