@@ -256,6 +256,8 @@ def topologiaPredefinida(keystone,neutron,nova):
             else:
                 print("[*] Ingrese una opción válida.")
     nodosExistentesTopologia = nova.cantidadNodos(keystone.getProjectID(),neutron.getNetworkID())
+    #if nodosExistentesTopologia == 1:
+    #   #Crear el gateway
     networkID = neutron.getNetworkID()
     flavorID = getFlavorsID(nova)
     imagenID = getImagenesID(glance)
@@ -346,6 +348,7 @@ def crearRed(keystone,neutron,nova):
                                             verificar = input("| Desea seleccionar una topología predefinida?[Y/N]: ")
                                             if (verificar != ''):
                                                 if verificar == "N" or verificar == "n":
+                                                    #Crear el gateway
                                                     print("[*] Ha decidido no seleccionar una topología predefinida\n")
                                                 if verificar == "Y" or verificar == "y":
                                                     topologiaPredefinida(keystone, neutron, nova)
@@ -389,6 +392,9 @@ def borrarRed(keystone,neutron):
                 return 
             if verificar == "Y" or verificar == "y":
                 neutron.delete_network(keystone.getProjectID())
+                return
+            if verificar == "N" or verificar == "n":
+                print("[*] Ha decidio no borrar la Red Provider\n")
                 return
             continue
         else:
@@ -1306,15 +1312,10 @@ while(int(privilegios)<0):
     #Si tiene cuenta de Openstack 
     if tokensito != None:
         tokensito = keystone.updateToken()
-        #nova = NovaClient(tokensito,username,password)
-        #glance = GlanceClient(tokensito)
-        #neutron = NeutronClient(tokensito)
         while True:
             result,keystone = MenuListaProyectos(keystone)
             project_id=keystone.getProjectID()
-            
             tokensito=keystone.get_token_project(project_id)
-            
             if not (result): #No esta asignado a ningun proyecto
                 print("[*] Gracias por usar nuestro sistema!\n")
                 privilegios = 0
@@ -1327,7 +1328,9 @@ while(int(privilegios)<0):
                     opcion = menuPrincipal(keystone)
                     resultado = menu2(opcion,"Menú",keystone,nova,glance,neutron)
                     if not (resultado):
-                        break                        
+                        break  
+            tokensito = keystone.updateToken()        
+                    
     #Si tiene cuenta de Linux
     else:
         AutenticacionLinux = AuthenticationManager()    
