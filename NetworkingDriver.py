@@ -137,3 +137,18 @@ class NetworkingManager:
         endpoint = f"{self.base_url}/deleteLinkTopoProyecto/{topology_id}/{project_id}"
         response = requests.delete(endpoint)
         return response.json()
+    
+    def get_users_topo_rol(self,project_id):
+        if not project_id:
+            return {"msg": "Se deben proporcionar valor válido para 'topology_id' "}
+        endpoint = f"{self.base_url}/getUsersXTopo/{project_id}"
+        response = requests.get(endpoint)
+        return response.json()
+    
+    def get_user_topo_rol(self,project_id,user_id):
+        if not all([project_id,user_id]):
+            return {"msg": "Se deben proporcionar valores válidos para 'user_id y 'project_id'"}
+        endpoint = f"{self.base_url}/getTopoXUserXRol/{project_id}/{user_id}"
+        response = requests.get(endpoint)
+        return response.json()
+            

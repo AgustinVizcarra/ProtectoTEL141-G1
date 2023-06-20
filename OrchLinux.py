@@ -1676,6 +1676,103 @@ async def get_flavor(flavor_id: int = Path(..., description="ID del flavor a bus
         print(e)
         data = {"mensaje": "No se pudo obtener la vm"}
         return JSONResponse(content=data, status_code=400)
+
+## Listado de topologia x usuario x rol
+@app.get("/getTopoXUserXRol/{project_id}/{user_id}")
+async def get_flavor(project_id: int = Path(..., description="ID del proyecto a buscar"),user_id: int = Path(..., description="ID del usuario a buscar")):
+    if project_id is None and user_id is None:
+        data = {"mensaje": "No se proporcionó el ID del proyecto o del usuario"}
+        return JSONResponse(content=data, status_code=404)
+    conn = psycopg2.connect(
+        host="10.0.0.10",
+        database="linuxorch",
+        user="ubuntu",
+        password="ubu"
+    )
+    try:
+        cur = conn.cursor()
+        cur.execute("select proyecto.nombre,rol.nombre,topologia.tipo,topologia.worker from proyecto inner join proyecto_topologia on proyecto.id = proyecto_topologia.proyecto inner join topologia on proyecto_topologia.topologia = topologia.id inner join usuario_proyecto_rol on usuario_proyecto_rol.proyecto = proyecto.id inner join usuario on usuario_proyecto_rol.usuario = usuario.id inner join rol on usuario_proyecto_rol.rol = rol.id where usuario_proyecto_rol.estado=1 and proyecto_topologia.estado=1 and usuario.estado=1 and topologia.estado=1 and proyecto.id=%s and usuario.id=%s", (project_id,user_id,))
+        result = cur.fetchall()
+        cur.close()
+        conn.close()
+        vinculos = []
+        for row in result:
+            vinculo = {
+                "proyecto": row[0],
+                "rol": row[1],
+                "tipo": row[2],
+                "worker": row[3],
+            }
+            vinculos.append(vinculo)
+        data = {"mensaje": "Lista de vinculos", "vinculos": vinculos}
+        return JSONResponse(content=data, status_code=200)
+    except psycopg2.Error as e:
+        print(e)
+        data = {"mensaje": "No se pudo obtener el listado de vinculos"}
+        return JSONResponse(content=data, status_code=400)
+
+@app.get("/getUsersXTopo/{project_id}")
+async def get_topos(project_id: int = Path(..., description="ID del proyecto a buscar")):
+    if project_id is None:
+        data = {"mensaje": "No se proporcionó el ID del proyecto o del usuario"}
+        return JSONResponse(content=data, status_code=404)
+    conn = psycopg2.connect(
+        host="10.0.0.10",
+        database="linuxorch",
+        user="ubuntu",
+        password="ubu"
+    )
+    try:
+        cur = conn.cursor()
+        cur.execute("select proyecto.nombre,usuario.nombre,rol.nombre,topologia.tipo,topologia.worker from proyecto inner join proyecto_topologia on proyecto.id = proyecto_topologia.proyecto inner join topologia on proyecto_topologia.topologia = topologia.id inner join usuario_proyecto_rol on usuario_proyecto_rol.proyecto = proyecto.id inner join usuario on usuario_proyecto_rol.usuario = usuario.id inner join rol on usuario_proyecto_rol.rol = rol.id where usuario_proyecto_rol.estado=1 and proyecto_topologia.estado=1 and usuario.estado=1 and topologia.estado=1 and proyecto.id=%s", (project_id,))
+        result = cur.fetchall()
+        cur.close()
+        conn.close()
+        vinculos = []
+        for row in result:
+            vinculo = {
+                "proyecto": row[0],
+                "usuario": row[1],
+                "rol": row[2],
+                "tipo": row[3],
+                "worker": row[4]
+            }
+            vinculos.append(vinculo)
+        data = {"mensaje": "Lista de vinculos", "vinculos": vinculos}
+        return JSONResponse(content=data, status_code=200)
+    except psycopg2.Error as e:
+        print(e)
+        data = {"mensaje": "No se pudo obtener el listado de vinculos"}
+        return JSONResponse(content=data, status_code=400)
+
+@app.get("/getRolXTopo/{project_id}/{user_id}/{topo_id}")
+async def getRolTopo(project_id: int = Path(..., description="ID del proyecto a buscar"),user_id: int = Path(..., description="ID del usuario a buscar"),topo_id: int = Path(..., description="ID de la topologia a buscar")):
+    if project_id is None and user_id is None and topo_id is None:
+        data = {"mensaje": "No se proporcionó el ID del proyecto o del usuario o de la topologia "}
+        return JSONResponse(content=data, status_code=404)
+    conn = psycopg2.connect(
+        host="10.0.0.10",
+        database="linuxorch",
+        user="ubuntu",
+        password="ubu"
+    )
+    try:
+        cur = conn.cursor()
+        cur.execute("select rol.nombre from proyecto inner join proyecto_topologia on proyecto.id = proyecto_topologia.proyecto inner join topologia on proyecto_topologia.topologia = topologia.id inner join usuario_proyecto_rol on usuario_proyecto_rol.proyecto = proyecto.id inner join usuario on usuario_proyecto_rol.usuario = usuario.id inner join rol on usuario_proyecto_rol.rol = rol.id where usuario_proyecto_rol.estado=1 and proyecto_topologia.estado=1 and usuario.estado=1 and topologia.estado=1 and proyecto.id=%s and usuario.id=%s and topologia.id=%s", (project_id,user_id,topo_id))
+        result = cur.fetchone()
+        cur.close()
+        conn.close()
+        if result is None:
+            data = {"mensaje": "No se encontró el rol con los ID's proporcionados o ha sido eliminado"}
+            return JSONResponse(content=data, status_code=404)
+        else:
+            data = {"mensaje": "Rol encontrado", "rol": result[0]}
+            return JSONResponse(content=data, status_code=200)
+    except psycopg2.Error as e:
+        print(e)
+        data = {"mensaje": "No se pudo obtener el rol con los ID's proporcionados"}
+        return JSONResponse(content=data, status_code=400)
+
 ## FIN ##
 if __name__ == "__main__":
     import uvicorn

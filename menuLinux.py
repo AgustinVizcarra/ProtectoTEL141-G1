@@ -27,9 +27,10 @@ class Usuario:
                 if int(opcion) <= len(opcionesUsuario):
                     match int(opcion):
                         case 1:
-                            opcionesTopologia = ["Listar VM's por Topologia","Modificar Topologia","Listar Usuarios asignados a la Topologia","Salir"]
+                            opcionesTopologia = ["Listar VM's por Topologia","Modificar Topologia","Listar Usuarios x Topologia","Salir"]
                             while True:
                                 print("|----------------Menú Topologias------------------|")
+                                i = 0
                                 for opt in opcionesTopologia:
                                     longitud_print = 50
                                     chain = "|- Opción "+str(i+1)+" -> "+opt
