@@ -33,14 +33,13 @@ class AuthenticationManager(object):
         }
         response = requests.post(endpoint, json=body)
         return response.json()
-    def edit_user(self, user_id, nombre, correo, pwd):
-        if not user_id or not nombre or not correo or not pwd:
-            return {"msg": "Se deben proporcionar valores válidos para nombre, correo, contraseña o ID"}
+    def edit_user(self, user_id, nombre, correo):
+        if not user_id or not nombre or not correo:
+            return {"msg": "Se deben proporcionar valores válidos para nombre, correo o ID"}
         endpoint = f"{self.auth_url}/editUser/{user_id}"
         body = {
             "nombre": nombre,
-            "correo": correo,
-            "pwd": encrypt_sha256(pwd)
+            "correo": correo
         }
         response = requests.put(endpoint, json=body)
         return response.json()
@@ -54,7 +53,12 @@ class AuthenticationManager(object):
         endpoint = f"{self.auth_url}/deleteUser/{user_id}"
         response = requests.delete(endpoint)
         return response.json()
-    
+    def get_user_by_id(self, user_id):
+        if not user_id:
+            return {"msg": "Se debe proporcionar un ID de usuario"}
+        endpoint = f"{self.auth_url}/getUser/{user_id}"
+        response = requests.get(endpoint)
+        return response.json()
     ## Gestion de los vinculos del usuario con sus proyectos y roles ##
     
     def add_user_project_role(self, usuario, proyecto, rol):
@@ -70,12 +74,12 @@ class AuthenticationManager(object):
         response = requests.post(endpoint, json=body)
         return response.json()
 
-    def edit_user_project_role(self, user_id, project_id, role_id, usuario, proyecto, rol):
+    def edit_user_project_role(self, user_id, project_id, usuario, proyecto, rol):
         
-        if not all([user_id, project_id, role_id, usuario, proyecto, rol]):
-            return {"msg": "Se deben proporcionar valores válidos para 'user_id', 'project_id', 'role_id', 'usuario', 'proyecto' y 'rol'"}
+        if not all([user_id, project_id, usuario, proyecto, rol]):
+            return {"msg": "Se deben proporcionar valores válidos para 'user_id', 'project_id', 'usuario', 'proyecto' y 'rol'"}
         
-        endpoint = f"{self.auth_url}/editUserProjectRole/{user_id}/{project_id}/{role_id}"
+        endpoint = f"{self.auth_url}/editUserProjectRole/{user_id}/{project_id}"
         body = {
             "usuario": usuario,
             "proyecto": proyecto,
@@ -92,11 +96,10 @@ class AuthenticationManager(object):
         response = requests.get(endpoint)
         return response.json()
 
-    def delete_rol_project_user(self, role_id, project_id, user_id):
-        if not all([role_id, project_id, user_id]):
-            return {"msg": "Se deben proporcionar valores válidos para 'role_id', 'project_id' y 'user_id'"}
-        
-        endpoint = f"{self.auth_url}/deleteRolProjectUser/{role_id}/{project_id}/{user_id}"
+    def delete_rol_project_user(self, project_id, user_id):
+        if not all([ project_id, user_id]):
+            return {"msg": "Se deben proporcionar valores válidos para 'project_id' y 'user_id'"}
+        endpoint = f"{self.auth_url}/deleteRolProjectUser/{project_id}/{user_id}"
         response = requests.delete(endpoint)
         return response.json()
 

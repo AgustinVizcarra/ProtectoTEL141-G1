@@ -1268,8 +1268,9 @@ privilegios = -1
 while(int(privilegios)<0):
     username = input("| Ingrese su nombre de usuario: ")
     password = getpass("| Ingrese su contraseña: ")
-    keystone = KeystoneAuth(username, password)
-    tokensito = keystone.get_token()
+    #keystone = KeystoneAuth(username, password)
+    #tokensito = keystone.get_token()
+    tokensito = None
     #Si tiene cuenta de Openstack 
     if tokensito != None:
         tokensito = keystone.updateToken()

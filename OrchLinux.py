@@ -92,7 +92,7 @@ async def edit_user(user_id: int = Path(..., description="ID del usuario a edita
         data = {"mensaje": "No se envió datos en el body"}
         return JSONResponse(content=data, status_code=400)
     else:
-        if 'nombre' in body and 'pwd' in body and 'correo' in body and 'permisos' in body:
+        if 'nombre' in body and 'correo' in body:
             conn = psycopg2.connect(
                 host="10.0.0.10",
                 database="linuxorch",
@@ -109,8 +109,8 @@ async def edit_user(user_id: int = Path(..., description="ID del usuario a edita
                 return JSONResponse(content=data, status_code=404)
             else:
                 try:
-                    cur.execute("UPDATE usuario SET nombre = %s, correo = %s, pwd = %s, permisos = %s WHERE id = %s",
-                                (body['nombre'], body['correo'], body['pwd'],body['permisos'],user_id, ))
+                    cur.execute("UPDATE usuario SET nombre = %s, correo = %s WHERE id = %s",
+                                (body['nombre'], body['correo'],user_id, ))
                     conn.commit()
                     cur.execute("SELECT * FROM usuario WHERE id = %s", (user_id,))
                     result = cur.fetchone()
@@ -646,7 +646,7 @@ async def createTopology(body: dict):
             )
             try:
                 cur = conn.cursor()
-                cur.execute("INSERT INTO topologia (tipo,estado,subnetname,network,gateway,iprange,worker) VALUES (%s, 1, %s, %s, %s, %s)",(body['tipo'],body['subnetname'],body['network'],body['gateway'],body['iprange'],body['worker']))
+                cur.execute("INSERT INTO topologia (tipo,estado,subnetname,network,gateway,iprange,worker) VALUES (%s, 1, %s, %s, %s, %s, %s)",(body['tipo'],body['subnetname'],body['network'],body['gateway'],body['iprange'],body['worker']))
                 cur.execute("SELECT currval('topologia_id_seq')")
                 result = cur.fetchone()
                 cur.close()
@@ -974,6 +974,35 @@ async def delete_user(topology_id: int = Path(..., description="ID de la topolog
         data = {"mensaje": "No se pudo eliminar a la Topologia"}
         return JSONResponse(content=data, status_code=400)
 
+@app.get("/getLinksTopoProyecto/{project_id}")
+async def listar_topologias(project_id: int = Path(..., description="ID del proyecto a editar")):
+    conn = psycopg2.connect(
+        host="10.0.0.10",
+        database="linuxorch",
+        user="ubuntu",
+        password="ubu"
+    )
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT proyecto_topologia.id,proyecto.id,proyecto.nombre,topologia.id,topologia.tipo,topologia.subnetname from proyecto_topologia JOIN proyecto on proyecto_topologia.proyecto = proyecto.id JOIN topologia on proyecto_topologia.topologia = topologia.id where proyecto_topologia.estado = 1 and topologia.estado = 1 and proyecto.estado=1 and proyecto.id=%s;",(project_id,))
+        result = cur.fetchone()
+        cur.close()
+        conn.close()
+        vinculo = {
+            "id":result[0],
+            "proyecto": result[1],
+            "nombre": result[2],
+            "topologia": result[3],
+            "tipo": result[4],
+            "subnet": result[5]
+        }
+        data = {"mensaje": "Vinculo encontrado exitosamente", "vinculo": vinculo}
+        return JSONResponse(content=data, status_code=200)
+    except psycopg2.Error as e:
+        print(e)
+        data = {"mensaje": "No se pudo obtener el vinculo con el ID de proyecto especificado"}
+        return JSONResponse(content=data, status_code=400)
+
 ###### Vinculo de Topologia y VM ######
 
 @app.post("/addVmTopology/")
@@ -1169,9 +1198,9 @@ async def createLinkUserProjectRole(body: dict):
             data = {"mensaje": "se enviaron campos incorrectos"}
             return JSONResponse(content=data,status_code=400)
         
-@app.put("/editUserProjectRole/{user_id}/{project_id}/{role_id}")
-async def editLinkTopoVMUser(user_id: int = Path(..., description="ID de la topologia a editar"),project_id: int = Path(..., description="ID del proyecto a editar"),role_id: int = Path(..., description="ID del proyecto a editar"),body: dict=None):
-    if user_id is None or project_id is None or role_id is None:
+@app.put("/editUserProjectRole/{user_id}/{project_id}")
+async def editLinkTopoVMUser(user_id: int = Path(..., description="ID de la topologia a editar"),project_id: int = Path(..., description="ID del proyecto a editar"),body: dict=None):
+    if user_id is None or project_id is None:
         data = {"mensaje": "No se envió datos en el path"}
         return JSONResponse(content=data, status_code=400)
     else:
@@ -1183,7 +1212,7 @@ async def editLinkTopoVMUser(user_id: int = Path(..., description="ID de la topo
                 password="ubu"
             )
             cur = conn.cursor()
-            cur.execute("SELECT * FROM usuario_proyecto_rol WHERE usuario = %s AND proyecto = %s AND rol = %s AND estado=1", (user_id,project_id,role_id,))
+            cur.execute("SELECT * FROM usuario_proyecto_rol WHERE usuario = %s AND proyecto = %s AND estado=1", (user_id,project_id,))
             result = cur.fetchone()
             if result is None:
                 cur.close()
@@ -1193,7 +1222,7 @@ async def editLinkTopoVMUser(user_id: int = Path(..., description="ID de la topo
             else:
                 try:
                     cur.execute("UPDATE usuario_proyecto_rol SET usuario = %s, proyecto = %s, rol = %s WHERE usuario = %s AND proyecto = %s AND rol = %s AND estado=1",
-                                (body['usuario'],body['proyecto'],body['rol'], user_id ,project_id,role_id,))
+                                (body['usuario'],body['proyecto'],body['rol'], user_id ,project_id,result[4]))
                     conn.commit()
                     cur.execute("SELECT * FROM usuario_proyecto_rol WHERE usuario = %s AND proyecto = %s AND rol = %s AND estado=1", (body['usuario'],body['proyecto'],body['rol'],))
                     result = cur.fetchone()
@@ -1290,9 +1319,9 @@ async def get_user():
         data = {"mensaje": "No se pudo obtener los vinculos"}
         return JSONResponse(content=data, status_code=400)
 
-@app.delete("/deleteRolProjectUser/{role_id}/{project_id}/{user_id}")
-async def delete_rol_project_user(role_id: int = Path(..., description="ID de la topologia a editar"),project_id: int = Path(..., description="ID del proyecto a editar"),user_id: int = Path(..., description="ID del proyecto a editar")):
-    if role_id is None and user_id is None and project_id is None :
+@app.delete("/deleteRolProjectUser/{project_id}/{user_id}")
+async def delete_rol_project_user(project_id: int = Path(..., description="ID del proyecto a editar"),user_id: int = Path(..., description="ID del proyecto a editar")):
+    if  user_id is None and project_id is None :
         data = {"mensaje": "No se proporciono los parámetros para la eliminación de manera correcta"}
         return JSONResponse(content=data, status_code=404)
     conn = psycopg2.connect(
@@ -1303,7 +1332,7 @@ async def delete_rol_project_user(role_id: int = Path(..., description="ID de la
     )
     try:
         cur = conn.cursor()
-        cur.execute("SELECT * FROM usuario_proyecto_rol WHERE rol = %s AND usuario = %s AND proyecto = %s AND estado=1", (role_id,user_id,project_id,))
+        cur.execute("SELECT * FROM usuario_proyecto_rol WHERE usuario = %s AND proyecto = %s AND estado=1", (user_id,project_id,))
         result = cur.fetchone()
         if result is None:
             cur.close()
@@ -1311,15 +1340,15 @@ async def delete_rol_project_user(role_id: int = Path(..., description="ID de la
             data = {"mensaje": "No se encontró el vinculo con el ID proporcionado"}
             return JSONResponse(content=data, status_code=404)
         else:
-            cur.execute("UPDATE usuario_proyecto_rol SET estado = 0 WHERE rol = %s AND usuario = %s AND proyecto = %s AND estado=1", (role_id,user_id,project_id,))
+            cur.execute("UPDATE usuario_proyecto_rol SET estado = 0 WHERE usuario = %s AND proyecto = %s AND estado=1", (user_id,project_id,))
             conn.commit()
             cur.close()
             conn.close()
-            data = {"mensaje": "Vinculo entre el  rol "+str(role_id)+", proyecto "+str(project_id)+" y usuario "+str(user_id)+" eliminado exitosamente"}
+            data = {"mensaje": "Vinculo entre el proyecto "+str(project_id)+" y usuario "+str(user_id)+" eliminado exitosamente"}
             return JSONResponse(content=data, status_code=200)
     except psycopg2.Error as e:
         print(e)
-        data = {"mensaje": "No se pudo eliminar el vinculo entre el usuario, el proyecto y el rol"}
+        data = {"mensaje": "No se pudo eliminar el vinculo entre el usuario, el proyecto"}
         return JSONResponse(content=data, status_code=400)
 
 #Listado de roles
