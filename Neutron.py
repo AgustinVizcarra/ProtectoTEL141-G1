@@ -1,6 +1,7 @@
 ###########################################NEUTRON###############################################
 import requests
 import random
+import re
 ###############RED################## 
 
 class NeutronClient(object):
@@ -45,10 +46,16 @@ class NeutronClient(object):
         }
         
         response = requests.post(self.neutron_url + 'networks', json=network_data, headers=self.headers)
-        print(response.status_code)
+
+        cidr_regex = re.compile(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2}$')
+        
 
         if response.status_code == 201:
             network_id = response.json()['network']['id']
+
+            # Mientras el CIDR sea '0.0.0.0/0', seguir pidiendo un nuevo CIDR
+            while cidr == '0.0.0.0/0' or not cidr_regex.match(cidr):
+                cidr = input("Por favor, introduce un CIDR válido de la forma 'x.x.x.x/x' que no sea '0.0.0.0/0': ")
             
             subnet_data = {
                 'subnet': {
@@ -61,7 +68,6 @@ class NeutronClient(object):
             }
             
             response = requests.post(self.neutron_url + 'subnets', json=subnet_data, headers=self.headers)
-            print(response.json())
             if response.status_code == 201:
                 self.NetworkID = network_id
                 print("[*] Red Provider creada exitosamente\n")
@@ -94,11 +100,20 @@ class NeutronClient(object):
         else:
             raise Exception('Failed to update network. Status code: {}'.format(response.status_code))
 
-    def delete_network(self, network_id):
-        response = requests.delete(self.neutron_url + 'networks/{}'.format(network_id), headers=self.headers)
+    def delete_network(self, project_id):
+        # Primero, obtener la lista de todas las redes del proyecto
+        url = self.neutron_url + 'networks?project_id=' + project_id
+        response = requests.get(url, headers=self.headers)
 
-        if response.status_code == 204:
-            return True
+        if response.status_code == 200:
+            networks = response.json().get('networks', [])
+            # Si el proyecto tiene una red, eliminarla
+            if networks:
+                network_id = networks[0]['id']  # Obtener el ID de la primera red
+                url_eliminar=self.neutron_url + 'networks/' + network_id
+                response = requests.delete(url_eliminar, headers=self.headers)
+                print("La red provider",networks[0]['name'],"se ha eliminado exitosamente")
+                return True
         else:
             raise Exception('Failed to delete network. Status code: {}'.format(response.status_code))
 
@@ -122,7 +137,6 @@ class NeutronClient(object):
             networks = response.json().get('networks', [])
             if networks:
                 network = networks[0]  # Obtener solo la primera red para este ejemplo
-                print(network)
                 subnet_id = network.get('subnets', [''])[0]
                 
                 # Obtener información de la subred
