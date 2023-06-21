@@ -792,7 +792,35 @@ def listarTopologiasXProyecto(id):
             print("[*] Ha ingresado un ID de proyecto incorrecto")
     
 def modificarTopologiaXUsuario(id):
-    print("[*] Ingresando al menú de modificación de topologia")
+    ## CRUD para añadir editar o eliminar VM's a una topología
+    ## Primero debo listar las topologias vinculadas al usuario definido por su ID
+    ProjectManagerLinux = NetworkingManager()
+    UserManagerLinux = AuthenticationManager()
+    response = ProjectManagerLinux.get_detalle_user_topo(id)
+    if response['mensaje'] == "Lista de vinculos":
+        filas = []
+        ids_topo = {}
+        cabeceras=["ID de Topologia", "Proyecto", "Worker","Rol"]
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                if data == 'id':
+                    ids_topo[str(value[data]['topologia'])] = str(value[data]['proyecto'])
+                    columnas.append(str(value[data]['topologia']))    
+                else:
+                    columnas.append(str(value[data]))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+        id_topo = input("| Ingrese el ID de la topología que desea modificar: ")
+        if id_topo in ids_topo.keys():
+            ## Quiere decir que puede modificar
+            ## Verificamos si es que tiene permisos o no
+            response = UserManagerLinux.get_rol_topo(ids_topo[id_topo],id,id_topo)
+            print(response['mensaje'])
+        else:
+            print("[*] Ha digitado una opción inválida")
+    else:
+        print("[*] No tiene topologias asociadas")
     ##Defina Aquí la lógica
 def listarUsuarioXTopologiaXProyecto(id):
     print("[*] Ingresando al menú de listado de usuarios por topologia")

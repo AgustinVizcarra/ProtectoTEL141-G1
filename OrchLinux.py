@@ -1793,17 +1793,20 @@ async def get_flavor(user_id: int = Path(..., description="ID del usuario a busc
     )
     try:
         cur = conn.cursor()
-        cur.execute("select topologia.id,proyecto.nombre,topologia.worker,rol.nombre from proyecto inner join proyecto_topologia on proyecto.id = proyecto_topologia.proyecto inner join topologia on proyecto_topologia.topologia = topologia.id inner join usuario_proyecto_rol on usuario_proyecto_rol.proyecto = proyecto.id inner join usuario on usuario_proyecto_rol.usuario = usuario.id inner join rol on usuario_proyecto_rol.rol = rol.id where usuario_proyecto_rol.estado=1 and proyecto_topologia.estado=1 and usuario.estado=1 and topologia.estado=1 and usuario.id=%s", (user_id,))
+        cur.execute("select topologia.id,proyecto.id,proyecto.nombre,topologia.worker,rol.nombre from proyecto inner join proyecto_topologia on proyecto.id = proyecto_topologia.proyecto inner join topologia on proyecto_topologia.topologia = topologia.id inner join usuario_proyecto_rol on usuario_proyecto_rol.proyecto = proyecto.id inner join usuario on usuario_proyecto_rol.usuario = usuario.id inner join rol on usuario_proyecto_rol.rol = rol.id where usuario_proyecto_rol.estado=1 and proyecto_topologia.estado=1 and usuario.estado=1 and topologia.estado=1 and usuario.id=%s", (user_id,))
         result = cur.fetchall()
         cur.close()
         conn.close()
         vinculos = []
         for row in result:
             vinculo = {
-                "id": row[0],
-                "proyecto": row[1],
-                "worker": row[2],
-                "rol": row[3],
+                "id": {
+                    "topologia": row[0],
+                    "proyecto": row[1],
+                    },
+                "proyecto": row[2],
+                "worker": row[3],
+                "rol": row[4],
             }
             vinculos.append(vinculo)
         data = {"mensaje": "Lista de vinculos", "vinculos": vinculos}
