@@ -7,16 +7,23 @@ class PlacementManager:
 
     ## Gestion de Colocaciones de VM's ##
     
-    def add_vm_topology(self, body):
-        if not body:
+    def add_vm_topology(self, topology_id, vm_id):
+        if not all([topology_id,vm_id]):
             return {"msg": "No se envió ningún dato en el cuerpo de la solicitud"}
         endpoint = f"{self.base_url}/addVmTopology/"
+        body={
+            "topologia": topology_id,
+            "vm": vm_id
+        }
         response = requests.post(endpoint, json=body)
         return response.json()
     
-    def edit_link_topo_vm(self, topology_id, vm_id, body):
-        if not all([topology_id, vm_id, body]):
+    def edit_link_topo_vm(self, topology_id, vm_id, new_vm_id):
+        if not all([topology_id, vm_id, new_vm_id]):
             return {"msg": "Se deben proporcionar valores válidos para 'topology_id', 'vm_id' y 'body'"}
+        body = {
+            "vm": new_vm_id,
+        }
         endpoint = f"{self.base_url}/editLinkTopoVM/{topology_id}/{vm_id}"
         response = requests.put(endpoint, json=body)
         return response.json()

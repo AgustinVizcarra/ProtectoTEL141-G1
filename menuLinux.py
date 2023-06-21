@@ -1,6 +1,7 @@
 import random
 from AutheticationDriver import AuthenticationManager
 from NetworkingDriver import NetworkingManager
+from PlacementDriver import PlacementManager
 from tabulate import tabulate
 class Usuario:
     def __init__(self,id):
@@ -39,16 +40,15 @@ class Usuario:
                                     print(chain)
                                     i += 1
                                 print("|------------------------------------------------|")     
-                                proyecto = input("| Ingrese el ID del proyecto: ")
                                 opcion = input("| Ingrese una opción: ")
-                                if opcion.isdigit() and proyecto.isdigit():
+                                if opcion.isdigit():
                                     match int(opcion):
                                         case 1:
-                                            listarTopologiasXProyecto(proyecto)
+                                            listarTopologiasXProyecto()
                                         case 2:
-                                            modificarTopologiaXUsuario(proyecto)
+                                            modificarTopologiaXUsuario()
                                         case 3:
-                                            listarUsuarioXTopologiaXProyecto(proyecto)
+                                            listarUsuarioXTopologiaXProyecto()
                                         case 4:
                                             print("[*] Regresando al menú principal")
                                             break
@@ -68,24 +68,23 @@ class Usuario:
                                         print(chain)
                                         i += 1
                                  print("|------------------------------------------------|")
-                                 proyecto = input("| Ingrese el ID del proyecto: ")
                                  opcion = input("| Ingrese una opción: ")
-                                 if opcion.isdigit() and proyecto.isdigit():
+                                 if opcion.isdigit():
                                      match int(opcion):
                                          case 1:
-                                             listarImagenesXVMXTopologiaXUsuario(id,proyecto)
+                                             listarImagenesXVMXTopologiaXUsuario(id)
                                          case 2:
-                                             agregarImagenXTopologiaXProyecto(id,proyecto)
+                                             agregarImagenXTopologiaXProyecto(id)
                                          case 3:
-                                             eliminarImagenXTopologiaXProyecto(id,proyecto)
+                                             eliminarImagenXTopologiaXProyecto(id)
                                          case 4:
-                                             listarImagenesXVMXTopologiaXUsuario(id,proyecto)
+                                             listarImagenesXVMXTopologiaXUsuario(id)
                                          case 5:
-                                             agregarFlavorXTopologiaXProyecto(id,proyecto)
+                                             agregarFlavorXTopologiaXProyecto(id)
                                          case 6:
-                                             editarFlavorXTopologiaXProyecto(id,proyecto)
+                                             editarFlavorXTopologiaXProyecto(id)
                                          case 7:
-                                             eliminarFlavorXTopologiaXProyecto(id,proyecto)
+                                             eliminarFlavorXTopologiaXProyecto(id)
                                          case 8:
                                              print("[*] Regresando al menú principal")
                                              break
@@ -423,7 +422,6 @@ def proyectoXUsuario():
             print("[*] "+response['mensaje'])
     else:
         print("[*] Digitó un ID inválido para la consulta")
-    ##Defina Aquí la lógica para el proyecto x usuario
 def creandoProyecto():
     UserManagerLinux = AuthenticationManager()
     ProjectManagerLinux = NetworkingManager()
@@ -703,28 +701,81 @@ def getInfoTopo():
     return 0
 #################################### 
 def listarProyectosxUsuario(id):
-    print("[*] Listando proyestos")
+    ProjectManagerLinux = NetworkingManager()
+    response = ProjectManagerLinux.get_user_topo_rol(id)
+    filas = []
+    cabeceras = ["Proyecto", "Rol","Tipo de Topología","Worker"]
+    if response['mensaje'] == 'Lista de vinculos':
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                columnas.append(str(value[data]))
+            filas.append(columnas)   
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+    else:
+        print("[*] "+response['mensaje'])
     ##Defina Aquí la lógica para el listado del proyecto
+## Variante sin input
+def proyectoXUsuarioSinInput(id):
+    UserManagerLinux = AuthenticationManager()
+    ids = listarUsuarios()
+    idProyectos = []
+    if id in ids:
+        filas = []
+        cabeceras=["ID", "Nombre", "Rol"]
+        response = UserManagerLinux.get_role_project_por_user(id)
+        if response['mensaje'] == 'Lista de vinculos':
+            for value in response["vinculos"]:
+                columnas = []
+                for data in value:
+                    columnas.append(str(value[data]))
+                    if data == 'id_proyecto':
+                        idProyectos.append(str(value['id_proyecto']))
+                filas.append(columnas)  
+            print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+        else:
+            print("[*] "+response['mensaje'])
+    else:
+        print("[*] Digitó un ID inválido para la consulta")
+    return idProyectos
 def listarTopologiasXProyecto(id):
-    print("[*] Listando la topología en el proyecto")
-    ##Defina Aquí la lógica
+    ## Muestro los proyectos en los que se encuentra el usuario
+    ProjectManagerLinux = NetworkingManager()
+    VmManagerLinux = PlacementManager()
+    idProyectos = proyectoXUsuarioSinInput(id)
+    if len(idProyectos) == 0:
+        print("[*] No tiene proyectos asignados, por favor contacte con el administrador")
+    else:
+        idProyecto=input("| Ingrese el ID de proyecto que desea consultar: ")
+        if idProyecto in idProyectos:
+            response = ProjectManagerLinux.get_link_topo_proyecto(idProyecto)
+            if response['mensaje'] == 'Vinculo encontrado exitosamente':
+                print("[*] Listando la VM's relacionadas a la topología ...")
+                response = VmManagerLinux.get_vms_por_topologia(response['vinculo']['topologia'])
+                
+            else:
+                print("[*] La topología aún no cuenta con una topología asociada")
+        else:
+            print("[*] Ha ingresado un ID de proyecto incorrecto")
+    ## Le indico que ID desea
+    
 def modificarTopologiaXUsuario(id):
     print("[*] Ingresando al menú de modificación de topologia")
     ##Defina Aquí la lógica
-def listarUsuarioXTopologiaXProyecto(id,proyecto):
+def listarUsuarioXTopologiaXProyecto(id):
     print("[*] Ingresando al menú de listado de usuarios por topologia")
     ##Defina Aquí la lógica
-def listarImagenesXVMXTopologiaXUsuario(id,proyecto):
+def listarImagenesXVMXTopologiaXUsuario(id):
     print("[*] Listando imagenes de la topologia")
-def agregarImagenXTopologiaXProyecto(id,proyecto):
+def agregarImagenXTopologiaXProyecto(id):
     print("[*] Ingresando al menú para añadir imagen")
-def eliminarImagenXTopologiaXProyecto(id,proyecto):
+def eliminarImagenXTopologiaXProyecto(id):
     print("[*] Ingresando al menú para eliminar imagen")
-def listarFlavorsXTopologiaXProyecto(id,proyecto):
+def listarFlavorsXTopologiaXProyecto(id):
     print("[*] Listando flavors de la topologia")
-def agregarFlavorXTopologiaXProyecto(id,proyecto):
+def agregarFlavorXTopologiaXProyecto(id):
     print("[*] Ingresando al menú para añadir un flavor")
-def editarFlavorXTopologiaXProyecto(id,proyecto):
+def editarFlavorXTopologiaXProyecto(id):
     print("[*] Ingresando al menú para editar un flavor")
-def eliminarFlavorXTopologiaXProyecto(id,proyecto):
+def eliminarFlavorXTopologiaXProyecto(id):
     print("[*] Ingresando al menú para eliminar un flavor")
