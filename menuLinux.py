@@ -144,7 +144,7 @@ class Administrador:
                                             print("[*] Ingresando al menú de proyectos")
                                             while True:
                                                 print("|----------------Menú de Proyectos------------------|")
-                                                opcionesProyectos = ["Listar proyectos","Listar proyectos por usuario","Salir"]
+                                                opcionesProyectos = ["Listar proyectos","Listar Proyecto por usuario","Salir"]
                                                 i = 0
                                                 for opt in opcionesProyectos:
                                                     longitud_print = 50
@@ -927,15 +927,15 @@ def editarVMxTopologia(idtopo,idproyecto):
                    idsVMs.append(str(value[data])) 
             filas.append(columnas)  
         print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))         
-        idVM = input("| Ingrese el ID de la VM que desea editar: ")
-        if idVM in idsVMs:
-            nombre = input("| Desea editar el subnetname de la topologia [S/n]?: ")
-            imagen = input("| Desea editar la red de la topologia [S/n]?: ")
-            flavor = input("| Desea editar el gateway de la topologia [S/n]?: ")
+        vm_id = input("| Ingrese el ID de la VM que desea editar: ")
+        if vm_id in idsVMs:
+            nombre = input("| Desea editar el nombre de la VM [S/n]?: ")
+            imagen = input("| Desea editar la imagen de la VM [S/n]?: ")
+            flavor = input("| Desea editar el flavor de la VM [S/n]?: ")
             edicionNombre = nombre == "S" or nombre == "s" 
             edicionImagen = imagen == "S" or imagen == "s"
             edicionflavor = flavor == "S" or flavor == "s"
-            response = ProvisionInstancesManager.get_vm_basic(idVM)
+            response = FlavorImageManager.get_vm_basic(vm_id)
             if response['mensaje'] == "Se encontró la vm exitosamente":
                 if edicionNombre:
                     response['vm']['nombre']=input("| Ingrese el nuevo nombre de la vm: ")
@@ -956,7 +956,7 @@ def editarVMxTopologia(idtopo,idproyecto):
                 if  edicionNombre or edicionImagen or edicionflavor:
                     print("[*] Procesando información ...")
                     # def edit_vm(self, vm_id, imagen_id,flavor_id,nombre):
-                    response = FlavorImageManager.edit_vm(idVM,response['vm']['imagen'],response['vm']['flavor'],response['vm']['nombre'])
+                    response = FlavorImageManager.edit_vm(vm_id,response['vm']['imagen'],response['vm']['flavor'],response['vm']['nombre'])
                     if response['mensaje'] == "Se editó correctamente la vm":
                         print("[*] "+response['mensaje'])
                     else:
@@ -969,8 +969,41 @@ def editarVMxTopologia(idtopo,idproyecto):
             print("[*] Debe ingresar un ID de VM válido")
             return 1
         return 0
-def eliminarVMxTopologia(idtopo):
-    pass
+def eliminarVMxTopologia(idtopo,idproyecto):
+    FlavorImageManager = ProvisionInstancesManager()
+    VmManagerLinux = PlacementManager()
+    response = VmManagerLinux.get_vms_por_topologia(idtopo)
+    if response['mensaje'] == "No se encontró VM's asociadas a esta topologia":
+        print("[*] No se encontró VM's asociadas a esta topología")
+    else:
+        filas = []
+        cabeceras=["ID", "PID", "Imagen","Flavor","VNC Port","Nombre VM"]
+        idsVMs = []
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                columnas.append(str(value[data]))
+                if data == 'id':
+                   idsVMs.append(str(value[data])) 
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))         
+        vm_id = input("| Ingrese el ID de la VM que desea eliminar: ")
+        if vm_id in idsVMs:
+            confirmacion = input("| Desea editar el nombre de la VM [S/n]?: ")
+            eliminacionconfirmacion = confirmacion == "S" or confirmacion == "s" 
+            if  eliminacionconfirmacion:
+                # def delete_vm(self, vm_id):
+                print("[*] Eliminando Vm ...")
+                response = FlavorImageManager.delete_vm(vm_id)
+                if response['mensaje'] != "No se pudo eliminar la vm":
+                    print("[*] "+response['mensaje'])
+                else:
+                    print("[*] "+response['mensaje'])        
+                    return 1            
+        else:
+            print("[*] Debe ingresar un ID de VM válido")
+            return 1
+        return 0
 def listarUsuarioXTopologiaXProyecto(id):
     print("[*] Ingresando al menú de listado de usuarios por topologia")
     ##Defina Aquí la lógica

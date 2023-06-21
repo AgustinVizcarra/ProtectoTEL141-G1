@@ -1325,6 +1325,43 @@ async def get_user(user_id: int = Path(..., description="ID del usuario a buscar
         data = {"mensaje": "No se pudo obtener los vinculos"}
         return JSONResponse(content=data, status_code=400)
 
+@app.get("/getRoleProjectPorUserPorTopo/{id_topo}")
+async def getRoleTopo(id_topo: int = Path(..., description="ID de la topologia a buscar")):
+    if id_topo is None:
+        data = {"mensaje": "No se proporcionó el ID de la topologia"}
+        return JSONResponse(content=data, status_code=404)
+    conn = psycopg2.connect(
+        host="10.0.0.10",
+        database="linuxorch",
+        user="ubuntu",
+        password="ubu"
+    )
+    try:
+        cur = conn.cursor()
+        cur.execute("select proyecto.nombre,usuario.nombre,usuario.correo,rol.nombre from usuario inner join usuario_proyecto_rol on usuario_proyecto_rol.usuario = usuario.id inner join proyecto_topologia on proyecto_topologia.proyecto = usuario_proyecto_rol.proyecto inner join rol on rol.id = usuario_proyecto_rol.rol inner join proyecto on proyecto.id = usuario_proyecto_rol.proyecto where proyecto_topologia.topologia=%s and usuario.estado=1 and proyecto_topologia.estado=1 and rol.estado=1 and proyecto.estado=1", (id_topo,))
+        result = cur.fetchall()
+        cur.close()
+        conn.close()
+        vinculos = []
+        if len(result)==0:
+                    data = {"mensaje": "No se encontró usuarios vinculados a esa topologia", "vinculos": vinculos}
+                    return JSONResponse(content=data, status_code=200)
+        else:
+            for row in result:
+                vinculo = {
+                    "proyecto":row[0],
+                    "nombre": row[1],
+                    "correo": row[2],
+                    "rol": row[3]
+                }
+                vinculos.append(vinculo)
+            data = {"mensaje": "Lista de vinculos", "vinculos": vinculos}
+            return JSONResponse(content=data, status_code=200)
+    except psycopg2.Error as e:
+        print(e)
+        data = {"mensaje": "No se pudo obtener los vinculos"}
+        return JSONResponse(content=data, status_code=400)
+
 #Listado de Proyecto y Rol por Usuario
 
 @app.get("/getRoleProjectPorUser")

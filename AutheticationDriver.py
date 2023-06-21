@@ -116,5 +116,13 @@ class AuthenticationManager(object):
         endpoint = f"{self.auth_url}/getRolXTopo/{project_id}/{user_id}/{topo_id}"
         response = requests.get(endpoint)
         return response.json()
+    
+    def get_rol_topoxuser(self,topo_id):
+        if not all([ topo_id ]):
+            return {"msg": "Se deben proporcionar valores válidos para  'topo_id'"}
+        endpoint = f"{self.auth_url}/getRoleProjectPorUserPorTopo/{topo_id}"
+        response = requests.get(endpoint)
+        return response.json()
+    
     ## Implementacion de notificación de envío de correo (Proximamente) ##
     
