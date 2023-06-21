@@ -49,7 +49,7 @@ class Usuario:
                                         case 2:
                                             modificarTopologiaXUsuario(id)
                                         case 3:
-                                            listarUsuarioXTopologiaXProyecto()
+                                            listarUserXRolXTopologia(id)
                                         case 4:
                                             print("[*] Regresando al menú principal")
                                             break
@@ -833,7 +833,7 @@ def modificarTopologiaXUsuario(id):
                         case "3":
                             eliminarVMxTopologia(id_topo,ids_topo[id_topo])
                         case "4":
-                            print("[*] Regresando al menú de topologías")
+                            print("[*] Regresando al menú de topologias")
                         case _:
                             print("[*] Ingresó una opción inválida (no debería pasar)")
                 else:
@@ -1004,9 +1004,43 @@ def eliminarVMxTopologia(idtopo,idproyecto):
             print("[*] Debe ingresar un ID de VM válido")
             return 1
         return 0
-def listarUsuarioXTopologiaXProyecto(id):
-    print("[*] Ingresando al menú de listado de usuarios por topologia")
-    ##Defina Aquí la lógica
+def listarUserXRolXTopologia(id):
+    ProjectManagerLinux = NetworkingManager()
+    UserManagerLinux = AuthenticationManager()
+    filas = []
+    response = ProjectManagerLinux.get_detalle_user_topo(id)
+    if response['mensaje'] == "Lista de vinculos":
+        filas = []
+        ids_topo = {}
+        cabeceras=["ID de Topologia", "Proyecto", "Worker","Rol"]
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                if data == 'id':
+                    ids_topo[str(value[data]['topologia'])] = str(value[data]['proyecto'])
+                    columnas.append(str(value[data]['topologia']))    
+                else:
+                    columnas.append(str(value[data]))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+        id_topo = input("| Ingrese el ID de la topología que desea consultar: ")
+        if id_topo in ids_topo.keys():
+            filas = []
+            cabeceras=["Proyecto", "Nombre", "Correo","Rol"]
+            # get_rol_topoxuser(self,topo_id,project_id):
+            response = UserManagerLinux.get_rol_topoxuser(id_topo,ids_topo[id_topo])
+            if response['mensaje'] == 'Lista de vinculos':
+                for value in response["vinculos"]:
+                    columnas = []
+                    for data in value:
+                        columnas.append(str(value[data]))
+                    filas.append(columnas)  
+                print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+        else:
+            print("[*] Digito una opcion de ID incorrecta")
+    else:
+        print("[*] No tiene topologias asociadas")
+##Defina Aquí la lógica
 def listarImagenesXVMXTopologiaXUsuario(id):
     print("[*] Listando imagenes de la topologia")
 def agregarImagenXTopologiaXProyecto(id):
