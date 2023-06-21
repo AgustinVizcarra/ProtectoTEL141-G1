@@ -2,6 +2,7 @@ import random
 from AutheticationDriver import AuthenticationManager
 from NetworkingDriver import NetworkingManager
 from PlacementDriver import PlacementManager
+from ProvisionInstancesDriver import ProvisionInstancesManager
 from tabulate import tabulate
 class Usuario:
     def __init__(self,id):
@@ -816,12 +817,160 @@ def modificarTopologiaXUsuario(id):
             ## Quiere decir que puede modificar
             ## Verificamos si es que tiene permisos o no
             response = UserManagerLinux.get_rol_topo(ids_topo[id_topo],id,id_topo)
-            print(response['mensaje'])
+            if response['mensaje'] == 'Rol encontrado' and response['rol'] == 'admin':
+                ## Crear, Editar y Eliminar Topologías
+                cabeceras=["Opción", "Descripción"]
+                filas = [["1","Crear VM"],["2","Editar VM"],["3","Eliminar VM"],["4","Salir"]]
+                print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+                opciones = [fila[0] for fila in filas]
+                opcion = input("| Ingrese la opcion que desea realizar: ")
+                if opcion in opciones:
+                    match opcion:
+                        case "1":
+                            crearVMxTopologia(id_topo,ids_topo[id_topo])
+                        case "2":
+                            editarVMxTopologia(id_topo,ids_topo[id_topo])
+                        case "3":
+                            eliminarVMxTopologia(id_topo,ids_topo[id_topo])
+                        case "4":
+                            print("[*] Regresando al menú de topologías")
+                        case _:
+                            print("[*] Ingresó una opción inválida (no debería pasar)")
+                else:
+                    print("[*] Ingreso una alternativa incorrecta")
+            else:
+                print("[*] No cuenta con los permisos necesarios para ejecutar esta acción")
         else:
             print("[*] Ha digitado una opción inválida")
     else:
         print("[*] No tiene topologias asociadas")
-    ##Defina Aquí la lógica
+
+def listFlavorsXProyecto(idproyecto):
+    FlavorImageManager = ProvisionInstancesManager()
+    filas = []
+    cabeceras=["ID", "Nombre", "CPU (cores)", "Memoria (MB)", "Disco (GB)"]
+    response = FlavorImageManager.listar_flavor_project(idproyecto)
+    ids = []
+    if response['mensaje'] == 'Lista de flavors':
+        for value in response["flavors"]:
+            columnas = []
+            for data in value:
+                columnas.append(str(value[data]))
+                if data == 'id':
+                    ids.append(str(value['id']))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+    return ids
+def listImagenesXProyecto(idproyecto):
+    FlavorImageManager = ProvisionInstancesManager()
+    filas = []
+    cabeceras=["ID", "Imagen"]
+    response = FlavorImageManager.listar_imagenes_project(idproyecto)
+    ids = []
+    if response['mensaje'] == 'Lista de imagenes':
+        for value in response["imagenes"]:
+            columnas = []
+            for data in value:
+                columnas.append(str(value[data]))
+                if data == 'id':
+                    ids.append(str(value['id']))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+    return ids
+def crearVMxTopologia(idtopo,idproyecto):
+    FlavorImageManager = ProvisionInstancesManager()
+    VmManagerLinux = PlacementManager()
+    print("--------Bienvenido al formulario de creacion de VM-----")
+    nombre = input("| Ingrese el nombre de la VM: ") 
+    ## Listar Imagenes
+    ids_imagenes = listImagenesXProyecto(idproyecto)
+    id_imagen = input("| Ingrese el ID de la imagen a usar: ")
+    ## Listar Flavors
+    ids_flavor = listFlavorsXProyecto(idproyecto)
+    id_flavor = input("| Ingrese el ID del flavor a usar: ")
+    # Si no se tienen o flavors o imagenes no se podrá crear
+    if len(ids_flavor) == 0 or len(ids_imagenes) == 0:
+        print("[*] No tiene imagenes o flavors que pueda utilizar en este proyecto por lo que no podrá efectuar la creación de una VM")
+    else:
+        if id_flavor in ids_flavor and id_imagen in ids_imagenes:
+            ## Proceso con la creacion
+            #  add_vm(self, imagen_id, flavor_id,nombre):
+            print("[*] Instanciando la VM ...")
+            response = FlavorImageManager.add_vm(id_imagen, id_flavor, nombre)
+            if response['mensaje'] == "se añadio la VM con los parámetros especificados":
+                print("[*]" + response['mensaje'])
+                idVM = response['id']
+                print("[*] Creando el enlace entre la VM y la topología ...")
+                # add_vm_topology(self, topology_id, vm_id):
+                response = VmManagerLinux.add_vm_topology(idtopo,idVM)
+                print("[*]"+ response['mensaje'])
+            else:
+                print("[*] "+response['mensaje'])
+        else:
+            print("[*] Digito una opción inválida de ID ya sea de Flavor o de Imagen en el proceso de la creacion")
+def editarVMxTopologia(idtopo,idproyecto):
+    FlavorImageManager = ProvisionInstancesManager()
+    VmManagerLinux = PlacementManager()
+    print("--------Bienvenido al formulario de creacion de VM-----")
+    response = VmManagerLinux.get_vms_por_topologia(idtopo)
+    if response['mensaje'] == "No se encontró VM's asociadas a esta topologia":
+        print("[*] No se encontró VM's asociadas a esta topología")
+    else:
+        filas = []
+        cabeceras=["ID", "PID", "Imagen","Flavor","VNC Port","Nombre VM"]
+        idsVMs = []
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                columnas.append(str(value[data]))
+                if data == 'id':
+                   idsVMs.append(str(value[data])) 
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))         
+        idVM = input("| Ingrese el ID de la VM que desea editar: ")
+        if idVM in idsVMs:
+            nombre = input("| Desea editar el subnetname de la topologia [S/n]?: ")
+            imagen = input("| Desea editar la red de la topologia [S/n]?: ")
+            flavor = input("| Desea editar el gateway de la topologia [S/n]?: ")
+            edicionNombre = nombre == "S" or nombre == "s" 
+            edicionImagen = imagen == "S" or imagen == "s"
+            edicionflavor = flavor == "S" or flavor == "s"
+            response = ProvisionInstancesManager.get_vm_basic(idVM)
+            if response['mensaje'] == "Se encontró la vm exitosamente":
+                if edicionNombre:
+                    response['vm']['nombre']=input("| Ingrese el nuevo nombre de la vm: ")
+                if edicionImagen:
+                    ids_imagenes = listImagenesXProyecto(idproyecto)
+                    new_imagen=input("| Ingrese el ID de la nueva imagen: ")
+                    if new_imagen in ids_imagenes:
+                        response['vm']['imagen'] = new_imagen
+                    else:
+                        print("[*] Ingresó el ID de forma incorrecta, los cambios no se guardarán")
+                if edicionflavor:
+                    ids_flavor = listFlavorsXProyecto(idproyecto)
+                    new_flavor=input("| Ingrese el ID del nuevo flavor: ")
+                    if new_flavor in ids_flavor:
+                        response['vm']['flavor'] = new_flavor
+                    else:
+                        print("[*] Ingresó el ID de forma incorrecta, los cambios no se guardarán")
+                if  edicionNombre or edicionImagen or edicionflavor:
+                    print("[*] Procesando información ...")
+                    # def edit_vm(self, vm_id, imagen_id,flavor_id,nombre):
+                    response = FlavorImageManager.edit_vm(idVM,response['vm']['imagen'],response['vm']['flavor'],response['vm']['nombre'])
+                    if response['mensaje'] == "Se editó correctamente la vm":
+                        print("[*] "+response['mensaje'])
+                    else:
+                        print("[*] "+response['mensaje'])        
+                        return 1            
+                else:
+                    print("[*] Usted no ingreso información a modificar")
+                    return 1
+        else:
+            print("[*] Debe ingresar un ID de VM válido")
+            return 1
+        return 0
+def eliminarVMxTopologia(idtopo):
+    pass
 def listarUsuarioXTopologiaXProyecto(id):
     print("[*] Ingresando al menú de listado de usuarios por topologia")
     ##Defina Aquí la lógica

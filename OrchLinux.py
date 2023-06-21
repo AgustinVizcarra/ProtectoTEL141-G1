@@ -419,6 +419,40 @@ async def get_vm(vm_id: int = Path(..., description="ID de la VM a buscar")):
         print(e)
         data = {"mensaje": "No se pudo obtener la vm"}
         return JSONResponse(content=data, status_code=400)
+
+@app.get("/getVMBasic/{vm_id}")
+async def get_vmBasic(vm_id: int = Path(..., description="ID de la VM a buscar")):
+    if vm_id is None:
+        data = {"mensaje": "No se proporcionó el ID de la VM"}
+        return JSONResponse(content=data, status_code=404)
+    conn = psycopg2.connect(
+        host="10.0.0.10",
+        database="linuxorch",
+        user="ubuntu",
+        password="ubu"
+    )
+    try:
+        cur = conn.cursor()
+        cur.execute("select * from vm where vm.id = %s and vm.estado=1", (vm_id,))
+        result = cur.fetchone()
+        cur.close()
+        conn.close()
+        if result is None:
+            data = {"mensaje": "No se encontró la vm con el ID proporcionado o ha sido eliminada"}
+            return JSONResponse(content=data, status_code=404)
+        else:
+            vm = {
+                "id": result[0],
+                "nombre": result[6],
+                "imagen": result[3],
+                "flavor": result[4]
+            }
+            data = {"mensaje": "Se encontró la vm exitosamente", "vm": vm}
+            return JSONResponse(content=data, status_code=200)
+    except psycopg2.Error as e:
+        print(e)
+        data = {"mensaje": "No se pudo obtener la vm"}
+        return JSONResponse(content=data, status_code=400)
     
 @app.delete("/deleteVm/{vm_id}")
 async def delete_user(vm_id: int = Path(..., description="ID del usuario a eliminar")):

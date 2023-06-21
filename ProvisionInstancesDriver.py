@@ -48,6 +48,13 @@ class ProvisionInstancesManager:
         response = requests.get(endpoint)
         return response.json()
     
+    def get_vm_basic(self, vm_id):
+        if not vm_id:
+            return {"msg": "Se debe proporcionar un ID de VM válido"}
+        endpoint = f"{self.base_url}/getVMBasic/{vm_id}"
+        response = requests.get(endpoint)
+        return response.json()
+    
     def listar_imagenes(self):
         endpoint = f"{self.base_url}/listarImagenes/"
         response = requests.get(endpoint)
