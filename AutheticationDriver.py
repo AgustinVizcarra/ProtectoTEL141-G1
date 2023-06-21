@@ -117,10 +117,10 @@ class AuthenticationManager(object):
         response = requests.get(endpoint)
         return response.json()
     
-    def get_rol_topoxuser(self,topo_id):
-        if not all([ topo_id ]):
-            return {"msg": "Se deben proporcionar valores válidos para  'topo_id'"}
-        endpoint = f"{self.auth_url}/getRoleProjectPorUserPorTopo/{topo_id}"
+    def get_rol_topoxuser(self,topo_id,project_id):
+        if not all([ topo_id,project_id]):
+            return {"msg": "Se deben proporcionar valores válidos para 'topo_id' y 'project_id'"}
+        endpoint = f"{self.auth_url}/getRoleProjectPorUserPorTopo/{topo_id}/{project_id}"
         response = requests.get(endpoint)
         return response.json()
     

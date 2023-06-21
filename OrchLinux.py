@@ -1325,9 +1325,9 @@ async def get_user(user_id: int = Path(..., description="ID del usuario a buscar
         data = {"mensaje": "No se pudo obtener los vinculos"}
         return JSONResponse(content=data, status_code=400)
 
-@app.get("/getRoleProjectPorUserPorTopo/{id_topo}")
-async def getRoleTopo(id_topo: int = Path(..., description="ID de la topologia a buscar")):
-    if id_topo is None:
+@app.get("/getRoleProjectPorUserPorTopo/{id_topo}/{id_project}")
+async def getRoleTopo(id_topo: int = Path(..., description="ID de la topologia a buscar"),id_project: int = Path(..., description="ID del proyecto a buscar")):
+    if id_topo is None or id_project is None:
         data = {"mensaje": "No se proporcionó el ID de la topologia"}
         return JSONResponse(content=data, status_code=404)
     conn = psycopg2.connect(
@@ -1338,7 +1338,7 @@ async def getRoleTopo(id_topo: int = Path(..., description="ID de la topologia a
     )
     try:
         cur = conn.cursor()
-        cur.execute("select proyecto.nombre,usuario.nombre,usuario.correo,rol.nombre from usuario inner join usuario_proyecto_rol on usuario_proyecto_rol.usuario = usuario.id inner join proyecto_topologia on proyecto_topologia.proyecto = usuario_proyecto_rol.proyecto inner join rol on rol.id = usuario_proyecto_rol.rol inner join proyecto on proyecto.id = usuario_proyecto_rol.proyecto where proyecto_topologia.topologia=%s and usuario.estado=1 and proyecto_topologia.estado=1 and rol.estado=1 and proyecto.estado=1", (id_topo,))
+        cur.execute("select proyecto.nombre,usuario.nombre,usuario.correo,rol.nombre from usuario inner join usuario_proyecto_rol on usuario_proyecto_rol.usuario = usuario.id inner join proyecto_topologia on proyecto_topologia.proyecto = usuario_proyecto_rol.proyecto inner join rol on rol.id = usuario_proyecto_rol.rol inner join proyecto on proyecto.id = usuario_proyecto_rol.proyecto where proyecto_topologia.topologia=%s and proyecto.id=%s and usuario.estado=1 and proyecto_topologia.estado=1 and rol.estado=1 and proyecto.estado=1", (id_topo,id_project))
         result = cur.fetchall()
         cur.close()
         conn.close()
