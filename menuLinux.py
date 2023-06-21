@@ -44,9 +44,9 @@ class Usuario:
                                 if opcion.isdigit():
                                     match int(opcion):
                                         case 1:
-                                            listarTopologiasXProyecto()
+                                            listarTopologiasXProyecto(id)
                                         case 2:
-                                            modificarTopologiaXUsuario()
+                                            modificarTopologiaXUsuario(id)
                                         case 3:
                                             listarUsuarioXTopologiaXProyecto()
                                         case 4:
@@ -285,6 +285,29 @@ def listarUsuarios():
     else:
         print("[*] Existió un error de conexión!")
     return ids
+## variante
+def listarUsuariosSinPrint():
+    UserManagerLinux = AuthenticationManager()
+    response = UserManagerLinux.listar_usuarios()
+    ids = []
+    if response['mensaje'] == "Lista de usuarios":
+        cabeceras = ["Id","Nombre","Correo","Rol"]
+        filas = []
+        for value in response['usuarios']:
+            columnas= []
+            for data in value:
+                if data != 'pwd' and data != 'permisos':
+                    columnas.append(str(value[data]))
+                if data == 'permisos':
+                    columnas.append("admin" if value[data] == 1 else "user")
+                if data == 'id':
+                    ids.append(str(value[data]))                 
+            filas.append(columnas)
+        # print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+    else:
+        print("[*] Existió un error de conexión!")
+    return ids
+##
 def listarDetallesProyecto():
     #    def listar_links_topo_proyectos(self):
     ProjectManagerLinux = NetworkingManager()
@@ -718,9 +741,9 @@ def listarProyectosxUsuario(id):
 ## Variante sin input
 def proyectoXUsuarioSinInput(id):
     UserManagerLinux = AuthenticationManager()
-    ids = listarUsuarios()
+    ids = listarUsuariosSinPrint()
     idProyectos = []
-    if id in ids:
+    if str(id) in ids:
         filas = []
         cabeceras=["ID", "Nombre", "Rol"]
         response = UserManagerLinux.get_role_project_por_user(id)
@@ -752,12 +775,21 @@ def listarTopologiasXProyecto(id):
             if response['mensaje'] == 'Vinculo encontrado exitosamente':
                 print("[*] Listando la VM's relacionadas a la topología ...")
                 response = VmManagerLinux.get_vms_por_topologia(response['vinculo']['topologia'])
-                
+                if response['mensaje'] == "No se encontró VM's asociadas a esta topologia":
+                    print("[*] No se encontró VM's asociadas a esta topología")
+                else:
+                    filas = []
+                    cabeceras=["ID", "PID", "Imagen","Flavor","VNC Port","Nombre VM"]
+                    for value in response["vinculos"]:
+                        columnas = []
+                        for data in value:
+                            columnas.append(str(value[data]))
+                        filas.append(columnas)  
+                    print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))         
             else:
                 print("[*] La topología aún no cuenta con una topología asociada")
         else:
             print("[*] Ha ingresado un ID de proyecto incorrecto")
-    ## Le indico que ID desea
     
 def modificarTopologiaXUsuario(id):
     print("[*] Ingresando al menú de modificación de topologia")

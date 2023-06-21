@@ -151,3 +151,10 @@ class NetworkingManager:
         endpoint = f"{self.base_url}/getTopoXUserXRol/{user_id}"
         response = requests.get(endpoint)
         return response.json()
+    
+    def get_detalle_user_topo(self,user_id):
+        if not user_id:
+            return {"msg": "Se deben proporcionar valores válidos para 'user_id "}
+        endpoint = f"{self.base_url}/getDetalleTopoXUser/{user_id}"
+        response = requests.get(endpoint)
+        return response.json()
