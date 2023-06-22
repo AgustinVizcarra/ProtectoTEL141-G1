@@ -51,7 +51,7 @@ class NovaClient(object):
 
                 if response.status_code == 200:
                     flavor = response.json()['flavor']
-                    print("Flavor",name,"creado exitosamente")
+                    print("[*] Flavor creado exitosamente")
                     return flavor
                 else:
                     raise Exception('Failed to create flavor. Status code: {}'.format(response.status_code))
@@ -91,6 +91,7 @@ class NovaClient(object):
         
 
         if response.status_code == 204:
+            print("[*] Flavoy eliminado exitosamente\n")
             return True
         else:
             raise Exception('Failed to delete flavor. Status code: {}'.format(response.status_code))
@@ -116,7 +117,7 @@ class NovaClient(object):
                 if flavor['name'] == flavor_name:
                     print("El flavor ya existe:", flavor['name'])
                     return False
-            print(f"No se encontró el flavor: {flavor_name}")
+            
             return True
         else:
             print("Error al obtener los flavors:", response.status_code, response.json())
@@ -161,9 +162,6 @@ class NovaClient(object):
                 info.append("ssh")
                 info.append(keypair['fingerprint'])
                 info.append(keypair['created_at'])
-                info.append(keypair['public_key'])
-                info.append(keypair['user_id'])
-                
                 return info
             else:
                 print("[*] No se encontró el Keypair especificado")
@@ -187,9 +185,14 @@ class NovaClient(object):
                 keypair_names = []
                 for keypair in keypairs:
                     keypair_name = keypair['keypair']['name']
-                    info = self.infoKeyPair(keypair_name, user)
-                    if info[5] == user:
-                        keypair_names.append(keypair_name)
+                    url = f"{self.nova_url}/v2.1/os-keypairs/{keypair_name}"
+                    response = requests.get(url, headers=self.headers)
+                    if response.status_code == 200:
+                        keypair = response.json().get('keypair', [])
+                        if keypair['user_id'] == user and keypair['name'] == keypair_name:
+                            usuario = keypair['user_id']
+                            if usuario == user:
+                                keypair_names.append(keypair_name)
 
                 if len(keypair_names) == 0:
                     print("[*] No se encontraron keypairs para el usuario:", user)
@@ -268,7 +271,7 @@ class NovaClient(object):
 
         if response.status_code == 200:
             security_group = response.json().get('security_group', {})
-            print("[*] Grupo de seguridad creado exitosamente:", security_group['name'])
+            print("[*] Grupo de seguridad creado exitosamente")
         else:
             print("[*] Error al crear el Grupo de seguridad:", response.status_code)
     
@@ -309,7 +312,7 @@ class NovaClient(object):
         id_security=self.obtenerIDSecurityGroup(name)
 
         if id_security==None:
-            print("No existe el Grupo de seguridad especificado")
+            print("[*] No existe el Grupo de seguridad especificado")
         else:
             url_editar = f"{self.nova_url}/v2.1/os-security-groups/{id_security}"
             descripcion = None
@@ -331,7 +334,7 @@ class NovaClient(object):
                 
             response_editar = requests.put(url_editar, json=data, headers=self.headers)
             if response_editar.status_code == 200:
-                print("Grupo de seguridad editado exitosamente")
+                print("[*] Grupo de seguridad editado exitosamente")
             else:
                 print("Error al editar el Grupo de seguridad:", response_editar.status_code)
             return
@@ -356,10 +359,9 @@ class NovaClient(object):
                         #url_eliminar = f"{url}/{sg['id']}"
         response_eliminar = requests.delete(url_eliminar, headers=self.headers)
         if response_eliminar.status_code == 202:
-            print("Grupo de seguridad eliminado exitosamente")
+            print("[*] Grupo de seguridad eliminado exitosamente")
         else:
-            print("Error al eliminar el Grupo de seguridad:", response_eliminar.status_code)
-            print("Lalalala")
+            print("[*] Error al eliminar el Grupo de seguridad")
         return
     
 
@@ -379,7 +381,6 @@ class NovaClient(object):
             security_groups = response.json().get('security_groups', [])
             for sg in security_groups:
                 if sg['name'] == securitygroup:
-                    print("ID del Grupo de seguridad:", sg['id'])
                     return sg['id']
             #print("No se encontró el Grupo de seguridad especificado")
             return None
