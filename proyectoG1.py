@@ -1339,7 +1339,6 @@ while(int(privilegios)<0):
     else:
         AutenticacionLinux = AuthenticationManager()    
         response = AutenticacionLinux.get_auth(username, password)
-        permisos = response["permisos"]
         id = response["id"]
         if id == 0:
             print("[*]Ha ingresado credenciales inválidas o su usuario no existe.")
@@ -1347,6 +1346,7 @@ while(int(privilegios)<0):
             while True:
                 print("[*]Bienvenido al Menú Principal")
                 print("[*]Orquestador: Linux")
+                permisos = response["permisos"] 
                 if permisos == 0:
                     print("[*] Bienvenido usuario "+username+" !")
                     usuario = Usuario(id=id)

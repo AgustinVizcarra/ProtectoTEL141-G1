@@ -4,24 +4,26 @@ class ProvisionInstancesManager:
     def __init__(self):
         self.base_url = "http://10.20.12.48:7070"
 
-    def add_vm(self, imagen_id, flavor_id):
-        if not imagen_id or not flavor_id:
-            return {"msg": "Se deben proporcionar valores válidos para 'imagen' y 'vncport'"}    
+    def add_vm(self, imagen_id, flavor_id,nombre):
+        if not imagen_id or not flavor_id or not nombre:
+            return {"msg": "Se deben proporcionar valores válidos para 'imagen','flavor','nombre"}    
         endpoint = f"{self.base_url}/addVM/"
         body = {
             "imagen": imagen_id,
-            "flavor": flavor_id
+            "flavor": flavor_id,
+            "nombre": nombre
         }
         response = requests.post(endpoint, json=body)
         return response.json()
 
-    def edit_vm(self, vm_id, imagen_id,flavor_id):
-        if not vm_id or not imagen_id or not flavor_id:
-            return {"msg": "Se deben proporcionar valores válidos para 'vm_id', 'imagen' y 'vncport'"}
+    def edit_vm(self, vm_id, imagen_id,flavor_id,nombre):
+        if not vm_id or not imagen_id or not flavor_id or not nombre:
+            return {"msg": "Se deben proporcionar valores válidos para 'vm_id', 'imagen', 'nombre' y 'vncport'"}
         endpoint = f"{self.base_url}/editVM/{vm_id}"
         body = {
             "imagen": imagen_id,
-            "flavor": flavor_id
+            "flavor": flavor_id,
+            "nombre": nombre
         }
         response = requests.put(endpoint, json=body)
         return response.json()
@@ -43,6 +45,13 @@ class ProvisionInstancesManager:
         if not vm_id:
             return {"msg": "Se debe proporcionar un ID de VM válido"}
         endpoint = f"{self.base_url}/getVM/{vm_id}"
+        response = requests.get(endpoint)
+        return response.json()
+    
+    def get_vm_basic(self, vm_id):
+        if not vm_id:
+            return {"msg": "Se debe proporcionar un ID de VM válido"}
+        endpoint = f"{self.base_url}/getVMBasic/{vm_id}"
         response = requests.get(endpoint)
         return response.json()
     
