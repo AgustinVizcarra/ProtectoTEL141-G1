@@ -8,7 +8,6 @@ class Usuario:
     def __init__(self,id):
         self.id = id
     def menuUsuario(self,id):
-        print("Esto es el menú de Usuario...")
         opcionesUsuario = ["Topologias","VM's","Salir"]
         while True:
             print("|----------------Menú principal------------------|")
@@ -60,7 +59,8 @@ class Usuario:
                         case 2:
                             opcionesVMs = ["Listar Imagenes","Agregar una imagen","Eliminar una imagen","Listar flavors","Agregar un flavor","Editar un Flavor","Eliminar un flavor","Salir"]
                             while True:
-                                 print("|----------------Menú VM's------------------|")
+                                 print("|----------------Menú VM's-----------------------|")
+                                 i=0
                                  for opt in opcionesVMs:
                                         longitud_print = 50
                                         chain = "|- Opción "+str(i+1)+" -> "+opt
@@ -79,7 +79,7 @@ class Usuario:
                                          case 3:
                                              eliminarImagenXTopologiaXProyecto(id)
                                          case 4:
-                                             listarImagenesXVMXTopologiaXUsuario(id)
+                                             listarFlavorsXTopologiaXProyecto(id)
                                          case 5:
                                              agregarFlavorXTopologiaXProyecto(id)
                                          case 6:
@@ -1042,16 +1042,384 @@ def listarUserXRolXTopologia(id):
         print("[*] No tiene topologias asociadas")
 ##Defina Aquí la lógica
 def listarImagenesXVMXTopologiaXUsuario(id):
-    print("[*] Listando imagenes de la topologia")
+    ## Debo listar ahora preguntando a que proyecto o topologia desea consultar el usuario 
+    ProjectManagerLinux = NetworkingManager()
+    FlavorImageManager = ProvisionInstancesManager()
+    filas = []
+    response = ProjectManagerLinux.get_detalle_user_topo(id)
+    if response['mensaje'] == "Lista de vinculos":
+        filas = []
+        ids_topo = {}
+        cabeceras=["ID de Topologia", "Proyecto", "Worker","Rol"]
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                if data == 'id':
+                    ids_topo[str(value[data]['topologia'])] = str(value[data]['proyecto'])
+                    columnas.append(str(value[data]['topologia']))    
+                else:
+                    columnas.append(str(value[data]))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+        id_topo = input("| Ingrese el ID de la topología que desea consultar: ")
+        if id_topo in ids_topo.keys():
+            filas = []
+            cabeceras=["ID", "Imagen"]
+            # listar_imagenes_project(self,project_id):/ids_topo[id_topo]=project_id
+            response = FlavorImageManager.listar_imagenes_project(ids_topo[id_topo])
+            if response['mensaje'] == 'Lista de imagenes':
+                for value in response["imagenes"]:
+                    columnas = []
+                    for data in value:
+                        columnas.append(str(value[data]))
+                    filas.append(columnas)  
+                print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+        else:
+            print("[*] Digito una opcion de ID incorrecta")
+    else:
+        print("[*] No tiene topologias asociadas")    
 def agregarImagenXTopologiaXProyecto(id):
-    print("[*] Ingresando al menú para añadir imagen")
+    ## Debo listar ahora preguntando a que proyecto o topologia desea consultar el usuario 
+    ProjectManagerLinux = NetworkingManager()
+    FlavorImageManager = ProvisionInstancesManager()
+    UserManagerLinux = AuthenticationManager()
+    filas = []
+    response = ProjectManagerLinux.get_detalle_user_topo(id)
+    if response['mensaje'] == "Lista de vinculos":
+        filas = []
+        ids_topo = {}
+        cabeceras=["ID de Topologia", "Proyecto", "Worker","Rol"]
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                if data == 'id':
+                    ids_topo[str(value[data]['topologia'])] = str(value[data]['proyecto'])
+                    columnas.append(str(value[data]['topologia']))    
+                else:
+                    columnas.append(str(value[data]))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+        id_topo = input("| Ingrese el ID de la topología en la que desea añadir una nueva imagen: ")
+        response = UserManagerLinux.get_rol_topo(ids_topo[id_topo],id,id_topo)
+        if response['mensaje'] == 'Rol encontrado' and response['rol'] == 'admin':
+            if id_topo in ids_topo.keys():
+            ## Aqui comienza la creación
+                imagen = input("| Ingrese el valor de la imagen incluyendo el formato a considerar (.img,.qcow2,.vhd): ")
+                try:
+                    terminacion = imagen.split('.')[2]
+                    if terminacion == 'img' or terminacion == 'vhd' or terminacion == 'qcow2':
+                        ## Quiere decir que todo esta bien
+                        print("[*] Añadiendo la imagen...")
+                        # add_imagen(self, user_id, project_id,imagen):
+                        response = FlavorImageManager.add_imagen(id,ids_topo[id_topo],imagen)
+                        print("[*] "+response["mensaje"])
+                    else:
+                        print("[*] Ingreso un formato no soportado por el sistema")
+                except ValueError as e:
+                    print("[*] Ingreso un formato de imagen que no contiene un formato correcto")
+            else:
+                print("[*] Digito una opcion de ID incorrecta")
+        else:
+            print("[*] Usted no cuenta con los permisos suficientes para añadir imagenes en este proyecto")
+    else:
+        print("[*] No tiene topologias asociadas") 
 def eliminarImagenXTopologiaXProyecto(id):
-    print("[*] Ingresando al menú para eliminar imagen")
+    ProjectManagerLinux = NetworkingManager()
+    FlavorImageManager = ProvisionInstancesManager()
+    UserManagerLinux = AuthenticationManager()
+    filas = []
+    response = ProjectManagerLinux.get_detalle_user_topo(id)
+    if response['mensaje'] == "Lista de vinculos":
+        filas = []
+        ids_topo = {}
+        cabeceras=["ID de Topologia", "Proyecto", "Worker","Rol"]
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                if data == 'id':
+                    ids_topo[str(value[data]['topologia'])] = str(value[data]['proyecto'])
+                    columnas.append(str(value[data]['topologia']))    
+                else:
+                    columnas.append(str(value[data]))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+        id_topo = input("| Ingrese el ID de la topología en la que desea añadir una nueva imagen: ")
+        response = UserManagerLinux.get_rol_topo(ids_topo[id_topo],id,id_topo)
+        if response['mensaje'] == 'Rol encontrado' and response['rol'] == 'admin':
+            if id_topo in ids_topo.keys():
+            ## Aqui comienza la eliminación
+                filas = []
+                cabeceras=["ID", "Imagen"]
+                # listar_imagenes_project(self,project_id):/ids_topo[id_topo]=project_id
+                ids = []
+                response = FlavorImageManager.listar_imagenes_project(ids_topo[id_topo])
+                if response['mensaje'] == 'Lista de imagenes':
+                    for value in response["imagenes"]:
+                        columnas = []
+                        for data in value:
+                            columnas.append(str(value[data]))
+                            if data == 'id':
+                                ids.append(str(value[data]))       
+                        filas.append(columnas)  
+                    print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+                    idImagenEliminar = input("| Ingrese el ID de la imagen que desea eliminar: ")
+                    if idImagenEliminar in ids:
+                        # delete_imagen(self, imagen_id):
+                        response = FlavorImageManager.delete_imagen(idImagenEliminar)
+                        print("[*] "+response['mensaje'])
+                    else:
+                        print("[*] Ingreso un ID inválido para la eliminación")
+                else:
+                    print("[*] Ocurrio un problema obteniendo las imagenes ...")
+            else:
+                print("[*] Digito una opcion de ID incorrecta")
+        else:
+            print("[*] Usted no cuenta con los permisos suficientes para añadir imagenes en este proyecto")
+    else:
+        print("[*] No tiene topologias asociadas") 
 def listarFlavorsXTopologiaXProyecto(id):
-    print("[*] Listando flavors de la topologia")
+    ## Debo listar ahora preguntando a que proyecto o topologia desea consultar el usuario 
+    ProjectManagerLinux = NetworkingManager()
+    FlavorImageManager = ProvisionInstancesManager()
+    filas = []
+    response = ProjectManagerLinux.get_detalle_user_topo(id)
+    if response['mensaje'] == "Lista de vinculos":
+        filas = []
+        ids_topo = {}
+        cabeceras=["ID de Topologia", "Proyecto", "Worker","Rol"]
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                if data == 'id':
+                    ids_topo[str(value[data]['topologia'])] = str(value[data]['proyecto'])
+                    columnas.append(str(value[data]['topologia']))    
+                else:
+                    columnas.append(str(value[data]))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+        id_topo = input("| Ingrese el ID de la topología que desea consultar: ")
+        if id_topo in ids_topo.keys():
+            filas = []
+            cabeceras=["ID", "descripcion","CPU cores","Memoria (MB)","Disco (GB)"]
+            # listar_flavor_project(self,project_id):
+            response = FlavorImageManager.listar_flavor_project(ids_topo[id_topo])
+            if response['mensaje'] == 'Lista de flavors':
+                for value in response["flavors"]:
+                    columnas = []
+                    for data in value:
+                        columnas.append(str(value[data]))
+                    filas.append(columnas)  
+                print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+        else:
+            print("[*] Digito una opcion de ID incorrecta")
+    else:
+        print("[*] No tiene topologias asociadas")
 def agregarFlavorXTopologiaXProyecto(id):
-    print("[*] Ingresando al menú para añadir un flavor")
+     ## Debo listar ahora preguntando a que proyecto o topologia desea consultar el usuario 
+    ProjectManagerLinux = NetworkingManager()
+    FlavorImageManager = ProvisionInstancesManager()
+    UserManagerLinux = AuthenticationManager()
+    filas = []
+    response = ProjectManagerLinux.get_detalle_user_topo(id)
+    if response['mensaje'] == "Lista de vinculos":
+        filas = []
+        ids_topo = {}
+        cabeceras=["ID de Topologia", "Proyecto", "Worker","Rol"]
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                if data == 'id':
+                    ids_topo[str(value[data]['topologia'])] = str(value[data]['proyecto'])
+                    columnas.append(str(value[data]['topologia']))    
+                else:
+                    columnas.append(str(value[data]))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+        id_topo = input("| Ingrese el ID de la topología en la que desea añadir el nuevo flavor: ")
+        response = UserManagerLinux.get_rol_topo(ids_topo[id_topo],id,id_topo)
+        if response['mensaje'] == 'Rol encontrado' and response['rol'] == 'admin':
+            if id_topo in ids_topo.keys():
+            ## Aqui comienza la creación
+                descripcion = input("| Ingrese una descripción del flavor: ")
+                if descripcion == "":
+                    print("[*] La descripción del flavor no puede ir vacía")
+                else:
+                    cpus = input("| Ingrese la cantidad de CPUs: ")
+                    if cpus.isdigit():
+                        memoria = input("| Ingrese la cantidad de memoria (en MB): ")
+                        if memoria.isdigit():
+                            disco = input("| Ingrese la cantidad de almacenamiento (en GB): ")
+                            if disco.isdigit():
+                                ## Todo bien hasta aquí
+                                # add_flavor(self, user_id, project_id,descripcion, cpu,memoria,disco):
+                                print("[*] Creando el flavor ...")
+                                response = FlavorImageManager.add_flavor(id,ids_topo[id_topo],descripcion,cpus,memoria,disco)
+                                print("[*] "+response['mensaje'])
+                            else:
+                                print("[*] La cantidad de almacenamiento debe ser un número")
+                        else:
+                            print("[*] La cantidad de memoria debe ser un número")
+                    else:
+                        print("[*] La cantidad de CPUS debe ser un número")
+            else:
+                print("[*] Digito una opcion de ID incorrecta")
+        else:
+            print("[*] Usted no cuenta con los permisos suficientes para añadir flavors en este proyecto")
+    else:
+        print("[*] No tiene topologias asociadas")
 def editarFlavorXTopologiaXProyecto(id):
-    print("[*] Ingresando al menú para editar un flavor")
+    ProjectManagerLinux = NetworkingManager()
+    FlavorImageManager = ProvisionInstancesManager()
+    UserManagerLinux = AuthenticationManager()
+    filas = []
+    response = ProjectManagerLinux.get_detalle_user_topo(id)
+    if response['mensaje'] == "Lista de vinculos":
+        filas = []
+        ids_topo = {}
+        cabeceras=["ID de Topologia", "Proyecto", "Worker","Rol"]
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                if data == 'id':
+                    ids_topo[str(value[data]['topologia'])] = str(value[data]['proyecto'])
+                    columnas.append(str(value[data]['topologia']))    
+                else:
+                    columnas.append(str(value[data]))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+        id_topo = input("| Ingrese el ID de la topología en la que desea añadir el nuevo flavor: ")
+        response = UserManagerLinux.get_rol_topo(ids_topo[id_topo],id,id_topo)
+        if response['mensaje'] == 'Rol encontrado' and response['rol'] == 'admin':
+            if id_topo in ids_topo.keys():
+            ## Aqui comienza la edicion
+                ## Primero debo de listar las imagenes en cuestion 
+                filas = []
+                cabeceras=["ID", "descripcion","CPU cores","Memoria (MB)","Disco (GB)"]
+                # listar_flavor_project(self,project_id):
+                response = FlavorImageManager.listar_flavor_project(ids_topo[id_topo])
+                ids = []
+                if response['mensaje'] == 'Lista de flavors':
+                    for value in response["flavors"]:
+                        columnas = []
+                        for data in value:
+                            columnas.append(str(value[data]))
+                            if data == 'id':
+                                ids.append(str(value[data]))         
+                        filas.append(columnas)  
+                    print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+                    idFlavorEditar = input ("| Ingrese el ID del flavor que desea editar: ")
+                    if idFlavorEditar in ids:
+                        response = FlavorImageManager.get_flavor(idFlavorEditar)
+                        if response['mensaje']=='Se encontró el flavor exitosamente':
+                            descripcion = input("| Desea editar la descripcion del flavor [S/n]?: ")
+                            cpu = input("| Desea los cores del flavor [S/n]?: ")
+                            memoria = input("| Desea la memoria del flavor [S/n]?: ")
+                            disco = input("| Desea el almacenamiento del flavor [S/n]?: ")
+                            edicionDescripcion = descripcion == "S" or descripcion == "s" 
+                            edicionCPU = cpu == "S" or cpu == "s"
+                            edicionMemoria = memoria == "S" or memoria == "s"
+                            edicionAlmacenamiento = disco == "S" or disco == "s"
+                            if edicionDescripcion or edicionCPU or edicionMemoria or edicionAlmacenamiento:
+                                if edicionDescripcion:
+                                    editDescripcion = input("| Ingrese la nueva descripción: ")
+                                    if editDescripcion  != "":
+                                        response['vm']['descripcion'] = editDescripcion
+                                    else:
+                                        print("[*] La descripcion no puede estar vacía")
+                                if edicionCPU:
+                                    editCpu = input("| Ingrese la nueva cantidad de cores de CPU del flavor: ")
+                                    if editCpu.isdigit():
+                                        response['vm']['cpu'] = editCpu
+                                    else:
+                                        print("[*] La cantidad de cores de CPU debe ser un número")
+                                if edicionMemoria:
+                                    editMem = input("| Ingrese la nueva cantidad de memoria del flavor (en MB): ")
+                                    if editMem.isdigit():
+                                        response['vm']['memoria'] = editMem
+                                    else:
+                                        print("[*] La cantidad de memoria debe ser un número")
+                                if edicionAlmacenamiento:
+                                    editSto = input("| Ingrese la nueva cantidad de almacenamiento del flavor (en GB): ")
+                                    if editSto.isdigit():
+                                        response['vm']['disco'] = editSto
+                                    else:
+                                        print("[*] La cantidad de almacenamiento debe ser un número")
+                                ## Proceso a editar propiamente
+                                print("[*] Editando el flavor ...")
+                                ## edit_flavor(self, flavor_id,descripcion,cpu,memoria,disco):
+                                response = FlavorImageManager.edit_flavor(idFlavorEditar,response['vm']['descripcion'],response['vm']['cpu'],response['vm']['memoria'],response['vm']['disco'])
+                                print("[*] "+response['mensaje'])
+                            else:
+                                print("[*] Usted no ha seleccionado nada para editar en el flavor")
+                        else:
+                            print("[*] No se encontró información del Flavor digitado")
+                    else:
+                        print("[*] Ingreso un ID inválido para la edición")
+                else:
+                    print("[*] No se encontró flavors asociados al proyecto")
+            else:
+                print("[*] Digito una opcion de ID incorrecta")
+        else:
+            print("[*] Usted no cuenta con los permisos suficientes para añadir flavors en este proyecto")
+    else:
+        print("[*] No tiene topologias asociadas")
 def eliminarFlavorXTopologiaXProyecto(id):
-    print("[*] Ingresando al menú para eliminar un flavor")
+    ProjectManagerLinux = NetworkingManager()
+    FlavorImageManager = ProvisionInstancesManager()
+    UserManagerLinux = AuthenticationManager()
+    filas = []
+    response = ProjectManagerLinux.get_detalle_user_topo(id)
+    if response['mensaje'] == "Lista de vinculos":
+        filas = []
+        ids_topo = {}
+        cabeceras=["ID de Topologia", "Proyecto", "Worker","Rol"]
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                if data == 'id':
+                    ids_topo[str(value[data]['topologia'])] = str(value[data]['proyecto'])
+                    columnas.append(str(value[data]['topologia']))    
+                else:
+                    columnas.append(str(value[data]))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+        id_topo = input("| Ingrese el ID de la topología en la que desea añadir eliminar el flavor: ")
+        response = UserManagerLinux.get_rol_topo(ids_topo[id_topo],id,id_topo)
+        if response['mensaje'] == 'Rol encontrado' and response['rol'] == 'admin':
+            if id_topo in ids_topo.keys():
+            ## Aqui comienza la edicion
+                ## Primero debo de listar las imagenes en cuestion 
+                filas = []
+                cabeceras=["ID", "descripcion","CPU cores","Memoria (MB)","Disco (GB)"]
+                # listar_flavor_project(self,project_id):
+                response = FlavorImageManager.listar_flavor_project(ids_topo[id_topo])
+                ids = []
+                if response['mensaje'] == 'Lista de flavors':
+                    for value in response["flavors"]:
+                        columnas = []
+                        for data in value:
+                            columnas.append(str(value[data]))
+                            if data == 'id':
+                                ids.append(str(value[data]))         
+                        filas.append(columnas)  
+                    print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+                    idFlavorEliminar = input ("| Ingrese el ID del flavor que desea eliminar: ")
+                    if idFlavorEliminar in ids:
+                        confirmacion = input ("| Está seguro que desea eliminar el flavor seleccionado [S/n]?: ")
+                        if confirmacion == "S" or confirmacion == "s":
+                            print("[*] Eliminando el flavor ...")
+                            # delete_flavor(self, flavor_id):
+                            response = FlavorImageManager.delete_flavor(idFlavorEliminar)
+                            print("[*] "+response['mensaje'])
+                        else:
+                            print("[*] Regresando al menú anterior")
+                    else:
+                        print("[*] Ingreso un ID inválido para la edición")
+                else:
+                    print("[*] No se encontró flavors asociados al proyecto")
+            else:
+                print("[*] Digito una opcion de ID incorrecta")
+        else:
+            print("[*] Usted no cuenta con los permisos suficientes para añadir flavors en este proyecto")
+    else:
+        print("[*] No tiene topologias asociadas")
