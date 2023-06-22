@@ -3,7 +3,7 @@ from Classes.Network import Network
 from NetworkHandler import NetworkConstructor
 from VMHandler import VMConstructor
 class TopoConstructor:
-    def lineConstructor(VMs,CIDR,neutron,nova):
+    def lineConstructor(self,VMs,CIDR,neutron,nova):
         numberNetworks = len(VMs) - 1
         networks = []
         #Create Networks
@@ -23,7 +23,7 @@ class TopoConstructor:
                 VMConstructor.createVM(VMs[i],[networks[i-1],networks[i]],neutron,nova)
         return 1
     
-    def ringConstructor(VMs,CIDR,neutron,nova):
+    def ringConstructor(self,VMs,CIDR,neutron,nova):
         numberNetworks = len(VMs)
         networks = []
         #Create Networks
@@ -39,7 +39,7 @@ class TopoConstructor:
         return 1
     
 
-    def busConstructor(VMs,CIDR,neutron,nova):
+    def busConstructor(self,VMs,CIDR,neutron,nova):
         numberNetworks = 1
         networks = []
         #Create Networks
@@ -55,7 +55,7 @@ class TopoConstructor:
         return 1
 
 
-    def meshConstructor(VMs,CIDR,neutron,nova):
+    def meshConstructor(self,VMs,CIDR,neutron,nova):
         n = len(VMs)
         numberNetworksPerimetrales = n 
         diagonalexArista = n - 3
