@@ -90,8 +90,8 @@ class TopoConstructor:
         enlacesCruzados = {}
         mapVMNetwork = {}
         i = 1
-        for VM in VMs:
-            mapVMVertice[i] = VM
+        for vm in VMs:
+            mapVMVertice[i] = vm
         ## Esto se mapea de la siguiente manera p.e {Vertice: 1, VM: VM1}
         ## Ahora si quere mapear los enlaces perimetrales se hace de la siguiente manera
         ## Si la secuencia a nivel de vertices es 1-2-3-4-5-6-1 (Para tener una figura cerrada) (Siendo N=6)
