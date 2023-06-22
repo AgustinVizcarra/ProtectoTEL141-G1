@@ -4,33 +4,34 @@ from Nova import NovaClient
 from Glance import GlanceClient
 from Neutron import NeutronClient
 from AutheticationDriver import AuthenticationManager
-#from menuLinux import Usuario
-#from menuLinux import Administrador
+from menuLinux import Usuario
+from menuLinux import Administrador
 import requests
+from tabulate import tabulate
 ############################################    F   U   N   C   I   O   N   E   S   ############################################
 #Funcion que muestra el menu de la lista de Proyectos
 def MenuListaProyectos(keystone):
     listaProyectos, listaRoles = keystone.getListProjects()
     if len(listaProyectos) == 0:   
-        print("|--------------------Lista de Proyectos------------------------|")
-        print("|Actualmente, usted no se encuentra asignado a ningún proyecto.|")
-        print("|Porfavor, póngase en contacto con su PhD. Santivañez.         |")
-        print("|--------------------------------------------------------------|")
+        Cabecera = ["Lista de Proyectos"]
+        Filas = [["Actualmente, usted no se encuentra asignado a ningún proyecto.\nPorfavor, póngase en contacto con su PhD. Santivañez."]]
+        print(tabulate(Filas1,headers=Cabecera1,tablefmt='fancy_grid',stralign='center'))
         return False,keystone
     else:
         while True:
-            print("\n|--------------------Lista de Proyectos------------------------|")
+            Cabecera = ["Lista de Proyectos"]
+            filas = []
+            filasopt = []
             i = 0
             for proyecto in listaProyectos:
-                print("|- Proyecto "+str(i+1)+" -> "+str(proyecto[1])+"     |   Rol: "+ str(listaRoles[i]))
+                filasopt.append("Proyecto "+str(i+1)+". -> "+str(proyecto[1])+"     |   Rol: "+ str(listaRoles[i]))
                 i = i + 1
-            print("|--------------------------------------------------------------|")
-            print("                **Escriba ESC para poder salir**               ")
-            print("|--------------------------------------------------------------|")
+            filas.append(["\n".join(filasopt)])
+            filas.append(["**Escriba ESC para poder salir**"])
+            print(tabulate(filas,headers=Cabecera,tablefmt='fancy_grid',stralign='center'))
             opcionProyecto = input("| Ingrese el # del proyecto al que desea ingresar: ")
             if str(opcionProyecto) == "ESC":
                 return False,keystone
-            
             if int(opcionProyecto) > len(listaProyectos):
                  print("[*] Ingrese el # de un proyecto válido\n")
             else:
@@ -42,20 +43,23 @@ def MenuListaProyectos(keystone):
    
 #Funcion que muestra el Menú Principal        
 def menuPrincipal(keystone):
-    opcionesAdmin = ["Usuario","RedProvider","KeyPair","SecurityGroup","VirtualMachine","Flavors","Images"]
+    opcionesAdmin = ["Usuario","RedProvider","Topología","KeyPair","SecurityGroup","VirtualMachine","Flavors","Images"]
     opcionesUsuario = ["RedProvider","KeyPair","SecurityGroup","VirtualMachine"]
     if keystone.getRolName() == "admin":
         opciones = opcionesAdmin
     else:
         opciones = opcionesUsuario
     while True:
-            print("\n|--------------------Menú Principal------------------------|")
+            Cabecera = ["Menú Principal"]
+            filas = []
+            filasopt = []
             i = 0
             for opt in opciones:
-                print("|- Opción "+str(i+1)+" -> "+str(opt))
+                filasopt.append("Opción "+str(i+1)+" -> "+str(opt))
                 i = i + 1
-            print("|- Opción "+str(i+1)+" -> Salir                             ")
-            print("|----------------------------------------------------------|")
+            filas.append(["\n".join(filasopt)])
+            filas.append(["Opción "+str(i+1)+" -> Salir"])
+            print(tabulate(filas,headers=Cabecera,tablefmt='fancy_grid',stralign='center'))
             opcion = input("| Ingrese una opción: ")
             if int(opcion) == (len(opciones)+1):
                 opcion = "Salir"
@@ -1299,18 +1303,10 @@ def menu2(opcion,nivel,keystone,nova,glance,neutron):
     
 ############################################    M   A   I   N   ############################################      
 #Mensaje de bienvenida
-print("----------------Ingeniería de Redes Cloud--------------------")
-print("|                        TEL141                             |")
-print("|                 Proyecto del Grupo 1                      |")
-print("|               Profesor: Cesar Santivañez                  |")
-print("|                 Asesor: Fernando Guzman                   |")
-print("|----------------------Integrantes--------------------------|")
-print("|                   José Ortiz Velasquez                    |")
-print("|                   Alonso Rosales Antunez                  |")
-print("|                   Ronny Pastor Kolmakov                   |")
-print("|                Agustin Vizcarra Lizarbe (L)               |")
-print("-------------------------------------------------------------")
-print("|-----------------Ingrese sus crendenciales-----------------|")
+Cabecera1 = ["Ingeniería de Redes Cloud"]
+Filas1 = [["TEL141\nProyecto del Grupo 1\nProfesor: Cesar Santivañez\nAsesor: Fernando Guzman"] , ["Integrantes"], ["José Ortiz Velasquez\nAlonso Rosales Antunez\nRonny Pastor Kolmakov\nAgustin Vizcarra Lizarbe (L)"]]
+print(tabulate(Filas1,headers=Cabecera1,tablefmt='fancy_grid',stralign='center'))
+print("|---Ingrese sus crendenciales--|")
 privilegios = -1
 while(int(privilegios)<0):
     username = input("| Ingrese su nombre de usuario: ")
