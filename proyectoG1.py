@@ -1015,7 +1015,7 @@ def editarFlavor(nova):
             elif(verificarDISK == "ESC"):
                 print("[*] Ha salido de la opción de -Editar Flavor-\n")
                 return
-            nova.update_flavor(nombre, new_ram, new_vcpus, new_disk)
+            nova.update_flavor(nombre, nuevaRAM, nuevoVCPU, nuevoDISK)
             break
         else:
             print("[*] Ingrese un nombre de flavor válido\n")

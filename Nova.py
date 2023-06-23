@@ -68,6 +68,11 @@ class NovaClient(object):
             raise Exception('Failed to get flavor. Status code: {}'.format(response.status_code))
 
     def update_flavor(self,new_name, new_ram, new_vcpus, new_disk):
+
+        
+
+
+
         flavor_data = {
             'flavor': {
                 'name': new_name,
@@ -84,16 +89,20 @@ class NovaClient(object):
         else:
             raise Exception('Failed to update flavor. Status code: {}'.format(response.status_code))
 
-    def delete_flavor(self, flavor_id):
-
-        url = f"{self.nova_url}/v2.1/flavors/{flavor_id}"
-        response = requests.delete(url, headers=self.headers)
+    def delete_flavor(self, name):
+        flavor_id=self.obtenerIdFlavor(name)
         
+        if flavor_id is not None:
 
-        if response.status_code == 204:
-            return True
+            url = f"{self.nova_url}/v2.1/flavors/{flavor_id}"
+            response = requests.delete(url, headers=self.headers)
+            
+            if response.status_code == 202:
+                return True
+            else:
+                raise Exception('Failed to delete flavor. Status code: {}'.format(response.status_code))
         else:
-            raise Exception('Failed to delete flavor. Status code: {}'.format(response.status_code))
+            print("El flavor que intenta borrar no existe")
         
 
     def obtenerDetallesFlavor(self, flavor_id):
@@ -118,6 +127,22 @@ class NovaClient(object):
                     return False
             print(f"No se encontró el flavor: {flavor_name}")
             return True
+        else:
+            print("Error al obtener los flavors:", response.status_code, response.json())
+
+    def obtenerIdFlavor(self,flavor_name):
+        url=f"{self.nova_url}/v2.1/flavors"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            flavors = response.json().get('flavors', [])
+            # Buscar el flavor por nombre
+            for flavor in flavors:
+                if flavor['name'] == flavor_name:
+                    print("El Id del flavor:", flavor['name'],"es",flavor['id'])
+                    flavor_id=flavor['id']
+                    return flavor_id
+            return None
         else:
             print("Error al obtener los flavors:", response.status_code, response.json())
         
