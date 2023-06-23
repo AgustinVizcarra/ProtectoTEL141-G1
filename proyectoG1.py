@@ -8,6 +8,8 @@ from menuLinux import Usuario
 from menuLinux import Administrador
 import requests
 from tabulate import tabulate
+from Classes.VM import VM
+from TopoHandler import TopoConstructor
 ############################################    F   U   N   C   I   O   N   E   S   ############################################
 #Funcion que muestra el menu de la lista de Proyectos
 def MenuListaProyectos(keystone):
@@ -140,86 +142,6 @@ def menuRedes(keystone):
                 else:
                     print("[*] Ingrese una opción válida.")
     return opcion
-
-#Funcion que permite seleccionar una topología predefinida
-def topologiaPredefinida(keystone,neutron,nova,glance):
-    opciones= ["Lineal","Malla","Árbol","Anillo","Bus"]
-    print("**Los nodos se crearán con los recursos seleccionados**")
-    while True:
-        print("\n|--------------Topologías Predefinidas----------------|")
-        i = 0
-        for opt in opciones:
-            print("|- Opción "+str(i+1)+" -> "+str(opt))
-            i = i + 1   
-        print("|- Opción "+str(i+1)+" -> Salir")
-        print("|-----------------------------------------------------|")
-        opcion = input("| Ingrese una opción: ")
-        if int(opcion) == (len(opciones)+1):
-            opcion = "Salir"
-            break
-        else:
-            if int(opcion) <= len(opciones):
-                opcion = opciones[int(opcion)-1]
-                break
-            else:
-                print("[*] Ingrese una opción válida.")
-    if opcion != "Salir":
-        nodosExistentesTopologia = nova.cantidadNodos(keystone.getProjectID(),neutron.getNetworkID())
-        networkID = neutron.getNetworkID()
-        flavorID = getFlavorsID(nova)
-        imagenID = getImagenesID(glance)
-        keyPairID = getKeyPairID(nova,keystone)
-        securityGroupID = getSecurityGroupID(nova)
-        if nodosExistentesTopologia == 0:
-            nova.create_instance("Nodo 1", flavorID, imagenID, networkID,keyPairID,securityGroupID)
-            nodosExistentesTopologia = 1
-    if opcion == "Lineal":
-        cantidadNodos = input("| Ingrese la cantidad de nodos: ")
-        i = 1
-        while i <= cantidadNodos:
-            nombre = "Nodo "+ str(nodosExistentesTopologia + i)
-            i = i + 1
-            nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID)
-            #Una vez creado se debe de realizar las uniones
-    elif opcion == "Malla":
-        numeroFilasColumnas = input("| Ingrese el número de filas y columnas con el formato A-B: ")
-        filas = numeroFilasColumnas.split("-")[0]
-        columnas = numeroFilasColumnas.split("-")[1]
-        cantidadNodos = filas * columnas
-        i = 1
-        while i <= cantidadNodos:
-            nombre = "Nodo "+ str(nodosExistentesTopologia + i)
-            i = i + 1
-            nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID)
-            #Una vez creado se debe de realizar las uniones
-    elif opcion == "Árbol":
-        numeroNiveles = input("| Ingrese el número de niveles: ")
-        cantidadNodos = (numeroNiveles*3)-2
-        i = 1
-        while i <= cantidadNodos:
-            nombre = "Nodo "+ str(nodosExistentesTopologia + i)
-            i = i + 1
-            nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID)
-            #Una vez creado se debe de realizar las uniones
-    elif opcion == "Anillo":
-        numeroNodos = input("| Ingrese el número de nodos: ")
-        cantidadNodos = numeroNodos
-        i = 1
-        while i <= cantidadNodos:
-            nombre = "Nodo "+ str(nodosExistentesTopologia + i)
-            i = i + 1
-            nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID)
-            #Una vez creado se debe de realizar las uniones
-    elif opcion == "Bus":
-        numeroNiveles = input("| Ingrese el número de niveles: ")
-        cantidadNodos = numeroNiveles + 1
-        i = 1
-        while i <= cantidadNodos:
-            nombre = "Nodo "+ str(nodosExistentesTopologia + i)
-            i = i + 1
-            nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID)
-            #Una vez creado se debe de realizar las uniones
-    return "Salir"
 
 #Funcion que permite crear RedProvider
 def crearRed(keystone,neutron,nova,glance):
@@ -618,7 +540,7 @@ def crearVirtualMachine(nova,neutron,glance,keystone):
                 return
             flavorID = getFlavorsID(nova)
             imagenID = getImagenesID(glance)
-            #networkID = getNetworkID(neutron)
+            networkID = getNetworkID(neutron,keystone)
             keyPairID = getKeyPairID(nova,keystone)
             securityGroupID = getSecurityGroupID(nova)
             nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID)
@@ -749,6 +671,33 @@ def getImagenesID(glance):
                 idImagen = listado[int(opcionImagen)-1][0]
                 break
     return idImagen
+
+#Funcion que permite obtener el ID de una red
+def getNetworkID(neutron,keystone):
+    idRed = None
+    listado = neutron.listar_redes(keystone.getProjectID())
+    if len(listado) != 0:
+        while True:
+            Cabecera = ["#","NOMBRE RED PROVIDER","CIDR","GATEWAY IP"]
+            filas = []
+            i = 0
+            for red in listado:
+                filasopt = []
+                filasopt.append(str(i+1))
+                filasopt.append(str(red[1]))
+                filasopt.append(str(red[2]))
+                filasopt.append(str(red[3]))
+                filas.append(filasopt)
+                i = i + 1
+            print("\n")
+            print(tabulate(filas,headers=Cabecera,tablefmt='grid',stralign='center'))
+            opcionRed= input("| Ingrese el # de la red que desea usar: ")
+            if int(opcionRed) > len(listado):
+                print("[*] Ingrese el # de una red válida\n")
+            else:
+                idRed = listado[int(opcionRed)-1][0]
+                break
+    return idRed
 
 #Funcion que permite obtener el ID de una keypair
 def getKeyPairID(nova,keystone):
@@ -1010,6 +959,211 @@ def borrarImage(glance):
             print("[*] Ingrese un nombre válido\n")
             continue
 
+#Funcion que muestra el menú Topología
+def menuTopologia():
+    opciones = ["Añadir Topología","Editar Slice"]
+    while True:
+        filas = []
+        filasopt = []
+        i = 0
+        for opt in opciones:
+            filasopt.append("Opción "+str(i+1)+" -> "+str(opt))
+            i = i + 1   
+        filas.append(["\n".join(filasopt)])
+        filas.append(["Opción "+str(i+1)+" -> Salir"])
+        print("\n")
+        print(tabulate(filas,headers=[],tablefmt='fancy_grid',stralign='center'))
+        opcion = input("| Ingrese una opción: ")
+        if int(opcion) == (len(opciones)+1):
+            opcion = "Salir"
+            break
+        else:
+            if int(opcion) <= len(opciones):
+                opcion = opciones[int(opcion)-1]
+                break
+            else:
+                print("[*] Ingrese una opción válida.")
+    return opcion
+
+#Funcion que permite crear una topología
+def crearTopologia(keystone,neutron,nova,glance):
+    opciones = ["Lineal","Malla","Árbol","Anillo","Bus"]
+    while True:
+        filas = []
+        filasopt = []
+        i = 0
+        for opt in opciones:
+            filasopt.append("Opción "+str(i+1)+" -> "+str(opt))
+            i = i + 1   
+        filas.append(["\n".join(filasopt)])
+        filas.append(["Opción "+str(i+1)+" -> Salir"])
+        print("\n")
+        print(tabulate(filas,headers=[],tablefmt='fancy_grid',stralign='center'))
+        opcion = input("| Ingrese una opción: ")
+        if int(opcion) == (len(opciones)+1):
+            opcion = "Salir"
+            break
+        else:
+            if int(opcion) <= len(opciones):
+                opcion = opciones[int(opcion)-1]
+                break
+            else:
+                print("[*] Ingrese una opción válida.")
+    if opcion == "Lineal" or opcion == "Anillo" or opcion == "Bus":
+        while True:
+            cantidadNodos = input("| Ingrese la cantidad de nodos: ")
+            if cantidadNodos == "":
+                print("[*] Ingrese una cantidad válida\n")
+                continue  
+            else:
+                cantidadNodos = int(cantidadNodos)
+                break 
+    elif opcion == "Malla":
+        while True:
+            numeroFilasColumnas = input("| Ingrese el número de filas y columnas con el formato A-B: ")
+            if numeroFilasColumnas == "":
+                print("[*] Ingrese un formato válido\n")
+                continue
+            else:
+                filas = numeroFilasColumnas.split("-")[0]
+                columnas = numeroFilasColumnas.split("-")[1]
+                cantidadNodos = int(filas) * int(columnas)
+                break
+    elif opcion == "Árbol":
+        while True:
+            numeroNiveles = input("| Ingrese el número de niveles: ")
+            if numeroNiveles == "":
+                print("[*] Ingrese un número válido\n")
+                continue
+            else:
+                cantidadNodos = (2**(int(numeroNiveles)))-1
+                break
+    elif opcion == "Salir":
+        return "Salir"
+    while True:
+        decision = input("| Desea configurar cada VM?[1] o Desea configurar todas de una vez?[2]: ")
+        if int(decision) == 1 or int(decision) == 2:
+            break
+        else:
+            print("[*] Ingrese una opción válida\n")
+            continue    
+    if int(decision) == 1:
+        i = 1
+        listaVMs = []
+        while i <= cantidadNodos:
+            print("|\n---Virtual Machine "+str(i) + "---")
+            nombre = input("| Ingrese un nombre de VirtualMachine: ")
+            if(nombre != ''):
+                flavorID = getFlavorsID(nova)
+                imagenID = getImagenesID(glance)
+                listaVMs.append(VM(nombre,flavorID,imagenID))
+                i = i + 1
+            else:
+                print("[*] Ingrese un nombre de VirtualMachine válido\n")
+                continue
+    if int(decision) == 2:
+        flavorID = getFlavorsID(nova)
+        imagenID = getImagenesID(glance)
+        i = 1
+        listaVMs = []
+        while i <= cantidadNodos:
+            print("|\n---Virtual Machine "+str(i) + "---")
+            nombre = input("| Ingrese un nombre de VirtualMachine: ")
+            if(nombre != ''):
+                listaVMs.append(VM(nombre,flavorID,imagenID))
+                i = i + 1
+            else:
+                print("[*] Ingrese un nombre de VirtualMachine válido\n")
+                continue
+    while True:
+        CIDR = input("| Ingrese el CIDR de la red: ")
+        if CIDR != "":
+            break
+        else:
+            print("[*] Ingrese un CIDR válido\n")
+            continue           
+    if opcion == "Lineal":
+        TopoConstructor().lineConstructor(listaVMs,CIDR, neutron, nova)      
+    elif opcion == "Anillo":
+        TopoConstructor().ringConstructor(listaVMs,CIDR, neutron, nova)   
+    elif opcion == "Bus":
+        TopoConstructor().busConstructor(listaVMs,CIDR, neutron, nova)   
+    elif opcion == "Malla":
+        TopoConstructor().meshConstructor(listaVMs,CIDR, neutron, nova)   
+    elif opcion == "Árbol":
+        TopoConstructor().meshConstructorV2(listaVMs,CIDR, neutron, nova)
+    return "Salir"
+    
+#Funcion que permite editar un slice
+def editarSlice(keystone,neutron,nova):
+    opciones = ["Unir VMs","Unir VM a Red"]
+    while True:
+        filas = []
+        filasopt = []
+        i = 0
+        for opt in opciones:
+            filasopt.append("Opción "+str(i+1)+" -> "+str(opt))
+            i = i + 1   
+        filas.append(["\n".join(filasopt)])
+        filas.append(["Opción "+str(i+1)+" -> Salir"])
+        print("\n")
+        print(tabulate(filas,headers=[],tablefmt='fancy_grid',stralign='center'))
+        opcion = input("| Ingrese una opción: ")
+        if int(opcion) == (len(opciones)+1):
+            opcion = "Salir"
+            break
+        else:
+            if int(opcion) <= len(opciones):
+                opcion = opciones[int(opcion)-1]
+                break
+            else:
+                print("[*] Ingrese una opción válida.")
+    if opcion == "Unir VMs":            
+        print("**Escriba ESC para poder salir de esta opción**")
+        while True:
+            nombre = input("| Ingrese el nombre de la primera VM: ")
+            if(nombre != ''):
+                if(nombre == "ESC"):
+                    print("[*] Ha salido de la opción de -Editar Slice- \n")
+                    return "Salir"
+                while True:
+                    nombre2 = input("| Ingrese el nombre de la segunda VM: ")
+                    if(nombre2 != ''):
+                        if(nombre2 == "ESC"):
+                            print("[*] Ha salido de la opción de -Editar Slice- \n")
+                            return "Salir"
+                        #FUNCION UNIR VM1 - VM2
+                        return "Salir"
+                    else:
+                        print("[*] Ingrese un nombre válido\n")
+                        continue
+            else:
+                print("[*] Ingrese un nombre válido\n")
+                continue
+    if opcion == "Unir VM a Red":
+        print("**Escriba ESC para poder salir de esta opción**")
+        while True:
+            nombre = input("| Ingrese el nombre de la VM: ")
+            if(nombre != ''):
+                if(nombre == "ESC"):
+                    print("[*] Ha salido de la opción de -Editar Slice- \n")
+                    return "Salir"
+                while True:
+                    red = input("| Ingrese el nombre de la red provider: ")
+                    if(red != ''):
+                        if(red == "ESC"):
+                            print("[*] Ha salido de la opción de -Editar Slice- \n")
+                            return "Salir"
+                        #FUNCION UNIR VM1 - RED PROVIDER
+                        return "Salir"
+                    else:
+                        print("[*] Ingrese un nombre de red válido\n")
+                        continue
+            else:
+                print("[*] Ingrese un nombre válido\n")
+                continue
+    return "Salir"
+
 #Funcion SubMenú
 def menu2(opcion,nivel,keystone,nova,glance,neutron):
     if opcion == "Usuario":
@@ -1046,6 +1200,21 @@ def menu2(opcion,nivel,keystone,nova,glance,neutron):
             infoRed(keystone,neutron)   
         elif(nivel == "Borrar red"):
             borrarRed(keystone, neutron)      
+        elif(nivel == "Salir"):        
+            return False
+        return True
+    
+    elif opcion == "Topología":
+        if(nivel == "Menú"):
+            while True:
+                seleccion = menuTopologia()
+                resultado = menu2(opcion,seleccion,keystone,nova,glance,neutron)  
+                if not (resultado):
+                    break
+        elif(nivel == "Añadir Topología"):
+            crearTopologia(keystone,neutron,nova,glance)
+        elif(nivel == "Editar Slice"):
+            editarSlice(keystone,neutron,nova)    
         elif(nivel == "Salir"):        
             return False
         return True
