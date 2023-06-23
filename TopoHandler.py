@@ -54,6 +54,20 @@ class TopoConstructor:
             VMConstructor.createVM(VMs[i],[networks[0]],neutron,nova)
         return 1
 
+    def linkConstructor(VMs, network,neutron, nova, CIDR):
+        #Crear enlace entre dos vms
+        if len(network) == 0 and len(VMs) == 2:
+            networkC = networkConstructor(CIDR=CIDR,neutron=neutron,nova=nova)
+            for vm in VMs:
+                VMConstructor.editVM(VM=vm,networks=[networkC],neutron=neutron,nova=nova)
+            return 1
+        elif len(network) == 1 and len(VMs) == 1:
+            VMConstructor.editVM(VM=vm,networks=network,neutron=neutron,nova=nova)
+            return 1
+        else:
+            return 1
+        
+
 
     def meshConstructor(self,VMs,CIDR,neutron,nova):
         n = len(VMs)
