@@ -71,10 +71,13 @@ class NeutronClient(object):
             if response.status_code == 201:
                 self.NetworkID = network_id
                 print("[*] Red Provider creada exitosamente\n")
+                return True
             else:
                 print("[*] Ha ocurrido un error al crear la redProvider\n")
+                return False
         else:
             print("[*] Ha ocurrido un error al crear la redProvider\n")
+            return False
 
 
     def get_network(self, network_id):

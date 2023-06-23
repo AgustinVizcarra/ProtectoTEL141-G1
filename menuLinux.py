@@ -1,12 +1,13 @@
 import random
 from AutheticationDriver import AuthenticationManager
 from NetworkingDriver import NetworkingManager
+from PlacementDriver import PlacementManager
+from ProvisionInstancesDriver import ProvisionInstancesManager
 from tabulate import tabulate
 class Usuario:
     def __init__(self,id):
         self.id = id
     def menuUsuario(self,id):
-        print("Esto es el menú de Usuario...")
         opcionesUsuario = ["Topologias","VM's","Salir"]
         while True:
             print("|----------------Menú principal------------------|")
@@ -27,9 +28,10 @@ class Usuario:
                 if int(opcion) <= len(opcionesUsuario):
                     match int(opcion):
                         case 1:
-                            opcionesTopologia = ["Listar VM's por Topologia","Modificar Topologia","Listar Usuarios asignados a la Topologia","Salir"]
+                            opcionesTopologia = ["Listar VM's por Topologia","Modificar Topologia","Listar Usuarios x Topologia","Salir"]
                             while True:
                                 print("|----------------Menú Topologias------------------|")
+                                i = 0
                                 for opt in opcionesTopologia:
                                     longitud_print = 50
                                     chain = "|- Opción "+str(i+1)+" -> "+opt
@@ -38,16 +40,15 @@ class Usuario:
                                     print(chain)
                                     i += 1
                                 print("|------------------------------------------------|")     
-                                proyecto = input("| Ingrese el ID del proyecto: ")
                                 opcion = input("| Ingrese una opción: ")
-                                if opcion.isdigit() and proyecto.isdigit():
+                                if opcion.isdigit():
                                     match int(opcion):
                                         case 1:
-                                            listarTopologiasXProyecto(proyecto)
+                                            listarTopologiasXProyecto(id)
                                         case 2:
-                                            modificarTopologiaXUsuario(proyecto)
+                                            modificarTopologiaXUsuario(id)
                                         case 3:
-                                            listarUsuarioXTopologiaXProyecto(proyecto)
+                                            listarUserXRolXTopologia(id)
                                         case 4:
                                             print("[*] Regresando al menú principal")
                                             break
@@ -58,7 +59,8 @@ class Usuario:
                         case 2:
                             opcionesVMs = ["Listar Imagenes","Agregar una imagen","Eliminar una imagen","Listar flavors","Agregar un flavor","Editar un Flavor","Eliminar un flavor","Salir"]
                             while True:
-                                 print("|----------------Menú VM's------------------|")
+                                 print("|----------------Menú VM's-----------------------|")
+                                 i=0
                                  for opt in opcionesVMs:
                                         longitud_print = 50
                                         chain = "|- Opción "+str(i+1)+" -> "+opt
@@ -67,24 +69,23 @@ class Usuario:
                                         print(chain)
                                         i += 1
                                  print("|------------------------------------------------|")
-                                 proyecto = input("| Ingrese el ID del proyecto: ")
                                  opcion = input("| Ingrese una opción: ")
-                                 if opcion.isdigit() and proyecto.isdigit():
+                                 if opcion.isdigit():
                                      match int(opcion):
                                          case 1:
-                                             listarImagenesXVMXTopologiaXUsuario(id,proyecto)
+                                             listarImagenesXVMXTopologiaXUsuario(id)
                                          case 2:
-                                             agregarImagenXTopologiaXProyecto(id,proyecto)
+                                             agregarImagenXTopologiaXProyecto(id)
                                          case 3:
-                                             eliminarImagenXTopologiaXProyecto(id,proyecto)
+                                             eliminarImagenXTopologiaXProyecto(id)
                                          case 4:
-                                             listarImagenesXVMXTopologiaXUsuario(id,proyecto)
+                                             listarFlavorsXTopologiaXProyecto(id)
                                          case 5:
-                                             agregarFlavorXTopologiaXProyecto(id,proyecto)
+                                             agregarFlavorXTopologiaXProyecto(id)
                                          case 6:
-                                             editarFlavorXTopologiaXProyecto(id,proyecto)
+                                             editarFlavorXTopologiaXProyecto(id)
                                          case 7:
-                                             eliminarFlavorXTopologiaXProyecto(id,proyecto)
+                                             eliminarFlavorXTopologiaXProyecto(id)
                                          case 8:
                                              print("[*] Regresando al menú principal")
                                              break
@@ -143,7 +144,7 @@ class Administrador:
                                             print("[*] Ingresando al menú de proyectos")
                                             while True:
                                                 print("|----------------Menú de Proyectos------------------|")
-                                                opcionesProyectos = ["Listar proyectos","Listar proyectos por usuario","Salir"]
+                                                opcionesProyectos = ["Listar proyectos","Listar Proyecto por usuario","Salir"]
                                                 i = 0
                                                 for opt in opcionesProyectos:
                                                     longitud_print = 50
@@ -285,6 +286,29 @@ def listarUsuarios():
     else:
         print("[*] Existió un error de conexión!")
     return ids
+## variante
+def listarUsuariosSinPrint():
+    UserManagerLinux = AuthenticationManager()
+    response = UserManagerLinux.listar_usuarios()
+    ids = []
+    if response['mensaje'] == "Lista de usuarios":
+        cabeceras = ["Id","Nombre","Correo","Rol"]
+        filas = []
+        for value in response['usuarios']:
+            columnas= []
+            for data in value:
+                if data != 'pwd' and data != 'permisos':
+                    columnas.append(str(value[data]))
+                if data == 'permisos':
+                    columnas.append("admin" if value[data] == 1 else "user")
+                if data == 'id':
+                    ids.append(str(value[data]))                 
+            filas.append(columnas)
+        # print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+    else:
+        print("[*] Existió un error de conexión!")
+    return ids
+##
 def listarDetallesProyecto():
     #    def listar_links_topo_proyectos(self):
     ProjectManagerLinux = NetworkingManager()
@@ -422,7 +446,6 @@ def proyectoXUsuario():
             print("[*] "+response['mensaje'])
     else:
         print("[*] Digitó un ID inválido para la consulta")
-    ##Defina Aquí la lógica para el proyecto x usuario
 def creandoProyecto():
     UserManagerLinux = AuthenticationManager()
     ProjectManagerLinux = NetworkingManager()
@@ -702,28 +725,701 @@ def getInfoTopo():
     return 0
 #################################### 
 def listarProyectosxUsuario(id):
-    print("[*] Listando proyestos")
+    ProjectManagerLinux = NetworkingManager()
+    response = ProjectManagerLinux.get_user_topo_rol(id)
+    filas = []
+    cabeceras = ["Proyecto", "Rol","Tipo de Topología","Worker"]
+    if response['mensaje'] == 'Lista de vinculos':
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                columnas.append(str(value[data]))
+            filas.append(columnas)   
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+    else:
+        print("[*] "+response['mensaje'])
     ##Defina Aquí la lógica para el listado del proyecto
+## Variante sin input
+def proyectoXUsuarioSinInput(id):
+    UserManagerLinux = AuthenticationManager()
+    ids = listarUsuariosSinPrint()
+    idProyectos = []
+    if str(id) in ids:
+        filas = []
+        cabeceras=["ID", "Nombre", "Rol"]
+        response = UserManagerLinux.get_role_project_por_user(id)
+        if response['mensaje'] == 'Lista de vinculos':
+            for value in response["vinculos"]:
+                columnas = []
+                for data in value:
+                    columnas.append(str(value[data]))
+                    if data == 'id_proyecto':
+                        idProyectos.append(str(value['id_proyecto']))
+                filas.append(columnas)  
+            print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+        else:
+            print("[*] "+response['mensaje'])
+    else:
+        print("[*] Digitó un ID inválido para la consulta")
+    return idProyectos
 def listarTopologiasXProyecto(id):
-    print("[*] Listando la topología en el proyecto")
-    ##Defina Aquí la lógica
+    ## Muestro los proyectos en los que se encuentra el usuario
+    ProjectManagerLinux = NetworkingManager()
+    VmManagerLinux = PlacementManager()
+    idProyectos = proyectoXUsuarioSinInput(id)
+    if len(idProyectos) == 0:
+        print("[*] No tiene proyectos asignados, por favor contacte con el administrador")
+    else:
+        idProyecto=input("| Ingrese el ID de proyecto que desea consultar: ")
+        if idProyecto in idProyectos:
+            response = ProjectManagerLinux.get_link_topo_proyecto(idProyecto)
+            if response['mensaje'] == 'Vinculo encontrado exitosamente':
+                print("[*] Listando la VM's relacionadas a la topología ...")
+                response = VmManagerLinux.get_vms_por_topologia(response['vinculo']['topologia'])
+                if response['mensaje'] == "No se encontró VM's asociadas a esta topologia":
+                    print("[*] No se encontró VM's asociadas a esta topología")
+                else:
+                    filas = []
+                    cabeceras=["ID", "PID", "Imagen","Flavor","VNC Port","Nombre VM"]
+                    for value in response["vinculos"]:
+                        columnas = []
+                        for data in value:
+                            columnas.append(str(value[data]))
+                        filas.append(columnas)  
+                    print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))         
+            else:
+                print("[*] La topología aún no cuenta con una topología asociada")
+        else:
+            print("[*] Ha ingresado un ID de proyecto incorrecto")
+    
 def modificarTopologiaXUsuario(id):
-    print("[*] Ingresando al menú de modificación de topologia")
-    ##Defina Aquí la lógica
-def listarUsuarioXTopologiaXProyecto(id,proyecto):
-    print("[*] Ingresando al menú de listado de usuarios por topologia")
-    ##Defina Aquí la lógica
-def listarImagenesXVMXTopologiaXUsuario(id,proyecto):
-    print("[*] Listando imagenes de la topologia")
-def agregarImagenXTopologiaXProyecto(id,proyecto):
-    print("[*] Ingresando al menú para añadir imagen")
-def eliminarImagenXTopologiaXProyecto(id,proyecto):
-    print("[*] Ingresando al menú para eliminar imagen")
-def listarFlavorsXTopologiaXProyecto(id,proyecto):
-    print("[*] Listando flavors de la topologia")
-def agregarFlavorXTopologiaXProyecto(id,proyecto):
-    print("[*] Ingresando al menú para añadir un flavor")
-def editarFlavorXTopologiaXProyecto(id,proyecto):
-    print("[*] Ingresando al menú para editar un flavor")
-def eliminarFlavorXTopologiaXProyecto(id,proyecto):
-    print("[*] Ingresando al menú para eliminar un flavor")
+    ## CRUD para añadir editar o eliminar VM's a una topología
+    ## Primero debo listar las topologias vinculadas al usuario definido por su ID
+    ProjectManagerLinux = NetworkingManager()
+    UserManagerLinux = AuthenticationManager()
+    response = ProjectManagerLinux.get_detalle_user_topo(id)
+    if response['mensaje'] == "Lista de vinculos":
+        filas = []
+        ids_topo = {}
+        cabeceras=["ID de Topologia", "Proyecto", "Worker","Rol"]
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                if data == 'id':
+                    ids_topo[str(value[data]['topologia'])] = str(value[data]['proyecto'])
+                    columnas.append(str(value[data]['topologia']))    
+                else:
+                    columnas.append(str(value[data]))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+        id_topo = input("| Ingrese el ID de la topología que desea modificar: ")
+        if id_topo in ids_topo.keys():
+            ## Quiere decir que puede modificar
+            ## Verificamos si es que tiene permisos o no
+            response = UserManagerLinux.get_rol_topo(ids_topo[id_topo],id,id_topo)
+            if response['mensaje'] == 'Rol encontrado' and response['rol'] == 'admin':
+                ## Crear, Editar y Eliminar Topologías
+                cabeceras=["Opción", "Descripción"]
+                filas = [["1","Crear VM"],["2","Editar VM"],["3","Eliminar VM"],["4","Salir"]]
+                print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+                opciones = [fila[0] for fila in filas]
+                opcion = input("| Ingrese la opcion que desea realizar: ")
+                if opcion in opciones:
+                    match opcion:
+                        case "1":
+                            crearVMxTopologia(id_topo,ids_topo[id_topo])
+                        case "2":
+                            editarVMxTopologia(id_topo,ids_topo[id_topo])
+                        case "3":
+                            eliminarVMxTopologia(id_topo,ids_topo[id_topo])
+                        case "4":
+                            print("[*] Regresando al menú de topologias")
+                        case _:
+                            print("[*] Ingresó una opción inválida (no debería pasar)")
+                else:
+                    print("[*] Ingreso una alternativa incorrecta")
+            else:
+                print("[*] No cuenta con los permisos necesarios para ejecutar esta acción")
+        else:
+            print("[*] Ha digitado una opción inválida")
+    else:
+        print("[*] No tiene topologias asociadas")
+
+def listFlavorsXProyecto(idproyecto):
+    FlavorImageManager = ProvisionInstancesManager()
+    filas = []
+    cabeceras=["ID", "Nombre", "CPU (cores)", "Memoria (MB)", "Disco (GB)"]
+    response = FlavorImageManager.listar_flavor_project(idproyecto)
+    ids = []
+    if response['mensaje'] == 'Lista de flavors':
+        for value in response["flavors"]:
+            columnas = []
+            for data in value:
+                columnas.append(str(value[data]))
+                if data == 'id':
+                    ids.append(str(value['id']))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+    return ids
+def listImagenesXProyecto(idproyecto):
+    FlavorImageManager = ProvisionInstancesManager()
+    filas = []
+    cabeceras=["ID", "Imagen"]
+    response = FlavorImageManager.listar_imagenes_project(idproyecto)
+    ids = []
+    if response['mensaje'] == 'Lista de imagenes':
+        for value in response["imagenes"]:
+            columnas = []
+            for data in value:
+                columnas.append(str(value[data]))
+                if data == 'id':
+                    ids.append(str(value['id']))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+    return ids
+def crearVMxTopologia(idtopo,idproyecto):
+    FlavorImageManager = ProvisionInstancesManager()
+    VmManagerLinux = PlacementManager()
+    print("--------Bienvenido al formulario de creacion de VM-----")
+    nombre = input("| Ingrese el nombre de la VM: ") 
+    ## Listar Imagenes
+    ids_imagenes = listImagenesXProyecto(idproyecto)
+    id_imagen = input("| Ingrese el ID de la imagen a usar: ")
+    ## Listar Flavors
+    ids_flavor = listFlavorsXProyecto(idproyecto)
+    id_flavor = input("| Ingrese el ID del flavor a usar: ")
+    # Si no se tienen o flavors o imagenes no se podrá crear
+    if len(ids_flavor) == 0 or len(ids_imagenes) == 0:
+        print("[*] No tiene imagenes o flavors que pueda utilizar en este proyecto por lo que no podrá efectuar la creación de una VM")
+    else:
+        if id_flavor in ids_flavor and id_imagen in ids_imagenes:
+            ## Proceso con la creacion
+            #  add_vm(self, imagen_id, flavor_id,nombre):
+            print("[*] Instanciando la VM ...")
+            response = FlavorImageManager.add_vm(id_imagen, id_flavor, nombre)
+            if response['mensaje'] == "se añadio la VM con los parámetros especificados":
+                print("[*]" + response['mensaje'])
+                idVM = response['id']
+                print("[*] Creando el enlace entre la VM y la topología ...")
+                # add_vm_topology(self, topology_id, vm_id):
+                response = VmManagerLinux.add_vm_topology(idtopo,idVM)
+                print("[*]"+ response['mensaje'])
+            else:
+                print("[*] "+response['mensaje'])
+        else:
+            print("[*] Digito una opción inválida de ID ya sea de Flavor o de Imagen en el proceso de la creacion")
+def editarVMxTopologia(idtopo,idproyecto):
+    FlavorImageManager = ProvisionInstancesManager()
+    VmManagerLinux = PlacementManager()
+    print("--------Bienvenido al formulario de creacion de VM-----")
+    response = VmManagerLinux.get_vms_por_topologia(idtopo)
+    if response['mensaje'] == "No se encontró VM's asociadas a esta topologia":
+        print("[*] No se encontró VM's asociadas a esta topología")
+    else:
+        filas = []
+        cabeceras=["ID", "PID", "Imagen","Flavor","VNC Port","Nombre VM"]
+        idsVMs = []
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                columnas.append(str(value[data]))
+                if data == 'id':
+                   idsVMs.append(str(value[data])) 
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))         
+        vm_id = input("| Ingrese el ID de la VM que desea editar: ")
+        if vm_id in idsVMs:
+            nombre = input("| Desea editar el nombre de la VM [S/n]?: ")
+            imagen = input("| Desea editar la imagen de la VM [S/n]?: ")
+            flavor = input("| Desea editar el flavor de la VM [S/n]?: ")
+            edicionNombre = nombre == "S" or nombre == "s" 
+            edicionImagen = imagen == "S" or imagen == "s"
+            edicionflavor = flavor == "S" or flavor == "s"
+            response = FlavorImageManager.get_vm_basic(vm_id)
+            if response['mensaje'] == "Se encontró la vm exitosamente":
+                if edicionNombre:
+                    response['vm']['nombre']=input("| Ingrese el nuevo nombre de la vm: ")
+                if edicionImagen:
+                    ids_imagenes = listImagenesXProyecto(idproyecto)
+                    new_imagen=input("| Ingrese el ID de la nueva imagen: ")
+                    if new_imagen in ids_imagenes:
+                        response['vm']['imagen'] = new_imagen
+                    else:
+                        print("[*] Ingresó el ID de forma incorrecta, los cambios no se guardarán")
+                if edicionflavor:
+                    ids_flavor = listFlavorsXProyecto(idproyecto)
+                    new_flavor=input("| Ingrese el ID del nuevo flavor: ")
+                    if new_flavor in ids_flavor:
+                        response['vm']['flavor'] = new_flavor
+                    else:
+                        print("[*] Ingresó el ID de forma incorrecta, los cambios no se guardarán")
+                if  edicionNombre or edicionImagen or edicionflavor:
+                    print("[*] Procesando información ...")
+                    # def edit_vm(self, vm_id, imagen_id,flavor_id,nombre):
+                    response = FlavorImageManager.edit_vm(vm_id,response['vm']['imagen'],response['vm']['flavor'],response['vm']['nombre'])
+                    if response['mensaje'] == "Se editó correctamente la vm":
+                        print("[*] "+response['mensaje'])
+                    else:
+                        print("[*] "+response['mensaje'])        
+                        return 1            
+                else:
+                    print("[*] Usted no ingreso información a modificar")
+                    return 1
+        else:
+            print("[*] Debe ingresar un ID de VM válido")
+            return 1
+        return 0
+def eliminarVMxTopologia(idtopo,idproyecto):
+    FlavorImageManager = ProvisionInstancesManager()
+    VmManagerLinux = PlacementManager()
+    response = VmManagerLinux.get_vms_por_topologia(idtopo)
+    if response['mensaje'] == "No se encontró VM's asociadas a esta topologia":
+        print("[*] No se encontró VM's asociadas a esta topología")
+    else:
+        filas = []
+        cabeceras=["ID", "PID", "Imagen","Flavor","VNC Port","Nombre VM"]
+        idsVMs = []
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                columnas.append(str(value[data]))
+                if data == 'id':
+                   idsVMs.append(str(value[data])) 
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))         
+        vm_id = input("| Ingrese el ID de la VM que desea eliminar: ")
+        if vm_id in idsVMs:
+            confirmacion = input("| Desea editar el nombre de la VM [S/n]?: ")
+            eliminacionconfirmacion = confirmacion == "S" or confirmacion == "s" 
+            if  eliminacionconfirmacion:
+                # def delete_vm(self, vm_id):
+                print("[*] Eliminando Vm ...")
+                response = FlavorImageManager.delete_vm(vm_id)
+                if response['mensaje'] != "No se pudo eliminar la vm":
+                    print("[*] "+response['mensaje'])
+                else:
+                    print("[*] "+response['mensaje'])        
+                    return 1            
+        else:
+            print("[*] Debe ingresar un ID de VM válido")
+            return 1
+        return 0
+def listarUserXRolXTopologia(id):
+    ProjectManagerLinux = NetworkingManager()
+    UserManagerLinux = AuthenticationManager()
+    filas = []
+    response = ProjectManagerLinux.get_detalle_user_topo(id)
+    if response['mensaje'] == "Lista de vinculos":
+        filas = []
+        ids_topo = {}
+        cabeceras=["ID de Topologia", "Proyecto", "Worker","Rol"]
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                if data == 'id':
+                    ids_topo[str(value[data]['topologia'])] = str(value[data]['proyecto'])
+                    columnas.append(str(value[data]['topologia']))    
+                else:
+                    columnas.append(str(value[data]))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+        id_topo = input("| Ingrese el ID de la topología que desea consultar: ")
+        if id_topo in ids_topo.keys():
+            filas = []
+            cabeceras=["Proyecto", "Nombre", "Correo","Rol"]
+            # get_rol_topoxuser(self,topo_id,project_id):
+            response = UserManagerLinux.get_rol_topoxuser(id_topo,ids_topo[id_topo])
+            if response['mensaje'] == 'Lista de vinculos':
+                for value in response["vinculos"]:
+                    columnas = []
+                    for data in value:
+                        columnas.append(str(value[data]))
+                    filas.append(columnas)  
+                print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+        else:
+            print("[*] Digito una opcion de ID incorrecta")
+    else:
+        print("[*] No tiene topologias asociadas")
+##Defina Aquí la lógica
+def listarImagenesXVMXTopologiaXUsuario(id):
+    ## Debo listar ahora preguntando a que proyecto o topologia desea consultar el usuario 
+    ProjectManagerLinux = NetworkingManager()
+    FlavorImageManager = ProvisionInstancesManager()
+    filas = []
+    response = ProjectManagerLinux.get_detalle_user_topo(id)
+    if response['mensaje'] == "Lista de vinculos":
+        filas = []
+        ids_topo = {}
+        cabeceras=["ID de Topologia", "Proyecto", "Worker","Rol"]
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                if data == 'id':
+                    ids_topo[str(value[data]['topologia'])] = str(value[data]['proyecto'])
+                    columnas.append(str(value[data]['topologia']))    
+                else:
+                    columnas.append(str(value[data]))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+        id_topo = input("| Ingrese el ID de la topología que desea consultar: ")
+        if id_topo in ids_topo.keys():
+            filas = []
+            cabeceras=["ID", "Imagen"]
+            # listar_imagenes_project(self,project_id):/ids_topo[id_topo]=project_id
+            response = FlavorImageManager.listar_imagenes_project(ids_topo[id_topo])
+            if response['mensaje'] == 'Lista de imagenes':
+                for value in response["imagenes"]:
+                    columnas = []
+                    for data in value:
+                        columnas.append(str(value[data]))
+                    filas.append(columnas)  
+                print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+        else:
+            print("[*] Digito una opcion de ID incorrecta")
+    else:
+        print("[*] No tiene topologias asociadas")    
+def agregarImagenXTopologiaXProyecto(id):
+    ## Debo listar ahora preguntando a que proyecto o topologia desea consultar el usuario 
+    ProjectManagerLinux = NetworkingManager()
+    FlavorImageManager = ProvisionInstancesManager()
+    UserManagerLinux = AuthenticationManager()
+    filas = []
+    response = ProjectManagerLinux.get_detalle_user_topo(id)
+    if response['mensaje'] == "Lista de vinculos":
+        filas = []
+        ids_topo = {}
+        cabeceras=["ID de Topologia", "Proyecto", "Worker","Rol"]
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                if data == 'id':
+                    ids_topo[str(value[data]['topologia'])] = str(value[data]['proyecto'])
+                    columnas.append(str(value[data]['topologia']))    
+                else:
+                    columnas.append(str(value[data]))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+        id_topo = input("| Ingrese el ID de la topología en la que desea añadir una nueva imagen: ")
+        response = UserManagerLinux.get_rol_topo(ids_topo[id_topo],id,id_topo)
+        if response['mensaje'] == 'Rol encontrado' and response['rol'] == 'admin':
+            if id_topo in ids_topo.keys():
+            ## Aqui comienza la creación
+                imagen = input("| Ingrese el valor de la imagen incluyendo el formato a considerar (.img,.qcow2,.vhd): ")
+                try:
+                    terminacion = imagen.split('.')[2]
+                    if terminacion == 'img' or terminacion == 'vhd' or terminacion == 'qcow2':
+                        ## Quiere decir que todo esta bien
+                        print("[*] Añadiendo la imagen...")
+                        # add_imagen(self, user_id, project_id,imagen):
+                        response = FlavorImageManager.add_imagen(id,ids_topo[id_topo],imagen)
+                        print("[*] "+response["mensaje"])
+                    else:
+                        print("[*] Ingreso un formato no soportado por el sistema")
+                except ValueError as e:
+                    print("[*] Ingreso un formato de imagen que no contiene un formato correcto")
+            else:
+                print("[*] Digito una opcion de ID incorrecta")
+        else:
+            print("[*] Usted no cuenta con los permisos suficientes para añadir imagenes en este proyecto")
+    else:
+        print("[*] No tiene topologias asociadas") 
+def eliminarImagenXTopologiaXProyecto(id):
+    ProjectManagerLinux = NetworkingManager()
+    FlavorImageManager = ProvisionInstancesManager()
+    UserManagerLinux = AuthenticationManager()
+    filas = []
+    response = ProjectManagerLinux.get_detalle_user_topo(id)
+    if response['mensaje'] == "Lista de vinculos":
+        filas = []
+        ids_topo = {}
+        cabeceras=["ID de Topologia", "Proyecto", "Worker","Rol"]
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                if data == 'id':
+                    ids_topo[str(value[data]['topologia'])] = str(value[data]['proyecto'])
+                    columnas.append(str(value[data]['topologia']))    
+                else:
+                    columnas.append(str(value[data]))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+        id_topo = input("| Ingrese el ID de la topología en la que desea añadir una nueva imagen: ")
+        response = UserManagerLinux.get_rol_topo(ids_topo[id_topo],id,id_topo)
+        if response['mensaje'] == 'Rol encontrado' and response['rol'] == 'admin':
+            if id_topo in ids_topo.keys():
+            ## Aqui comienza la eliminación
+                filas = []
+                cabeceras=["ID", "Imagen"]
+                # listar_imagenes_project(self,project_id):/ids_topo[id_topo]=project_id
+                ids = []
+                response = FlavorImageManager.listar_imagenes_project(ids_topo[id_topo])
+                if response['mensaje'] == 'Lista de imagenes':
+                    for value in response["imagenes"]:
+                        columnas = []
+                        for data in value:
+                            columnas.append(str(value[data]))
+                            if data == 'id':
+                                ids.append(str(value[data]))       
+                        filas.append(columnas)  
+                    print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+                    idImagenEliminar = input("| Ingrese el ID de la imagen que desea eliminar: ")
+                    if idImagenEliminar in ids:
+                        # delete_imagen(self, imagen_id):
+                        response = FlavorImageManager.delete_imagen(idImagenEliminar)
+                        print("[*] "+response['mensaje'])
+                    else:
+                        print("[*] Ingreso un ID inválido para la eliminación")
+                else:
+                    print("[*] Ocurrio un problema obteniendo las imagenes ...")
+            else:
+                print("[*] Digito una opcion de ID incorrecta")
+        else:
+            print("[*] Usted no cuenta con los permisos suficientes para añadir imagenes en este proyecto")
+    else:
+        print("[*] No tiene topologias asociadas") 
+def listarFlavorsXTopologiaXProyecto(id):
+    ## Debo listar ahora preguntando a que proyecto o topologia desea consultar el usuario 
+    ProjectManagerLinux = NetworkingManager()
+    FlavorImageManager = ProvisionInstancesManager()
+    filas = []
+    response = ProjectManagerLinux.get_detalle_user_topo(id)
+    if response['mensaje'] == "Lista de vinculos":
+        filas = []
+        ids_topo = {}
+        cabeceras=["ID de Topologia", "Proyecto", "Worker","Rol"]
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                if data == 'id':
+                    ids_topo[str(value[data]['topologia'])] = str(value[data]['proyecto'])
+                    columnas.append(str(value[data]['topologia']))    
+                else:
+                    columnas.append(str(value[data]))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+        id_topo = input("| Ingrese el ID de la topología que desea consultar: ")
+        if id_topo in ids_topo.keys():
+            filas = []
+            cabeceras=["ID", "descripcion","CPU cores","Memoria (MB)","Disco (GB)"]
+            # listar_flavor_project(self,project_id):
+            response = FlavorImageManager.listar_flavor_project(ids_topo[id_topo])
+            if response['mensaje'] == 'Lista de flavors':
+                for value in response["flavors"]:
+                    columnas = []
+                    for data in value:
+                        columnas.append(str(value[data]))
+                    filas.append(columnas)  
+                print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+        else:
+            print("[*] Digito una opcion de ID incorrecta")
+    else:
+        print("[*] No tiene topologias asociadas")
+def agregarFlavorXTopologiaXProyecto(id):
+     ## Debo listar ahora preguntando a que proyecto o topologia desea consultar el usuario 
+    ProjectManagerLinux = NetworkingManager()
+    FlavorImageManager = ProvisionInstancesManager()
+    UserManagerLinux = AuthenticationManager()
+    filas = []
+    response = ProjectManagerLinux.get_detalle_user_topo(id)
+    if response['mensaje'] == "Lista de vinculos":
+        filas = []
+        ids_topo = {}
+        cabeceras=["ID de Topologia", "Proyecto", "Worker","Rol"]
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                if data == 'id':
+                    ids_topo[str(value[data]['topologia'])] = str(value[data]['proyecto'])
+                    columnas.append(str(value[data]['topologia']))    
+                else:
+                    columnas.append(str(value[data]))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+        id_topo = input("| Ingrese el ID de la topología en la que desea añadir el nuevo flavor: ")
+        response = UserManagerLinux.get_rol_topo(ids_topo[id_topo],id,id_topo)
+        if response['mensaje'] == 'Rol encontrado' and response['rol'] == 'admin':
+            if id_topo in ids_topo.keys():
+            ## Aqui comienza la creación
+                descripcion = input("| Ingrese una descripción del flavor: ")
+                if descripcion == "":
+                    print("[*] La descripción del flavor no puede ir vacía")
+                else:
+                    cpus = input("| Ingrese la cantidad de CPUs: ")
+                    if cpus.isdigit():
+                        memoria = input("| Ingrese la cantidad de memoria (en MB): ")
+                        if memoria.isdigit():
+                            disco = input("| Ingrese la cantidad de almacenamiento (en GB): ")
+                            if disco.isdigit():
+                                ## Todo bien hasta aquí
+                                # add_flavor(self, user_id, project_id,descripcion, cpu,memoria,disco):
+                                print("[*] Creando el flavor ...")
+                                response = FlavorImageManager.add_flavor(id,ids_topo[id_topo],descripcion,cpus,memoria,disco)
+                                print("[*] "+response['mensaje'])
+                            else:
+                                print("[*] La cantidad de almacenamiento debe ser un número")
+                        else:
+                            print("[*] La cantidad de memoria debe ser un número")
+                    else:
+                        print("[*] La cantidad de CPUS debe ser un número")
+            else:
+                print("[*] Digito una opcion de ID incorrecta")
+        else:
+            print("[*] Usted no cuenta con los permisos suficientes para añadir flavors en este proyecto")
+    else:
+        print("[*] No tiene topologias asociadas")
+def editarFlavorXTopologiaXProyecto(id):
+    ProjectManagerLinux = NetworkingManager()
+    FlavorImageManager = ProvisionInstancesManager()
+    UserManagerLinux = AuthenticationManager()
+    filas = []
+    response = ProjectManagerLinux.get_detalle_user_topo(id)
+    if response['mensaje'] == "Lista de vinculos":
+        filas = []
+        ids_topo = {}
+        cabeceras=["ID de Topologia", "Proyecto", "Worker","Rol"]
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                if data == 'id':
+                    ids_topo[str(value[data]['topologia'])] = str(value[data]['proyecto'])
+                    columnas.append(str(value[data]['topologia']))    
+                else:
+                    columnas.append(str(value[data]))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+        id_topo = input("| Ingrese el ID de la topología en la que desea añadir el nuevo flavor: ")
+        response = UserManagerLinux.get_rol_topo(ids_topo[id_topo],id,id_topo)
+        if response['mensaje'] == 'Rol encontrado' and response['rol'] == 'admin':
+            if id_topo in ids_topo.keys():
+            ## Aqui comienza la edicion
+                ## Primero debo de listar las imagenes en cuestion 
+                filas = []
+                cabeceras=["ID", "descripcion","CPU cores","Memoria (MB)","Disco (GB)"]
+                # listar_flavor_project(self,project_id):
+                response = FlavorImageManager.listar_flavor_project(ids_topo[id_topo])
+                ids = []
+                if response['mensaje'] == 'Lista de flavors':
+                    for value in response["flavors"]:
+                        columnas = []
+                        for data in value:
+                            columnas.append(str(value[data]))
+                            if data == 'id':
+                                ids.append(str(value[data]))         
+                        filas.append(columnas)  
+                    print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+                    idFlavorEditar = input ("| Ingrese el ID del flavor que desea editar: ")
+                    if idFlavorEditar in ids:
+                        response = FlavorImageManager.get_flavor(idFlavorEditar)
+                        if response['mensaje']=='Se encontró el flavor exitosamente':
+                            descripcion = input("| Desea editar la descripcion del flavor [S/n]?: ")
+                            cpu = input("| Desea los cores del flavor [S/n]?: ")
+                            memoria = input("| Desea la memoria del flavor [S/n]?: ")
+                            disco = input("| Desea el almacenamiento del flavor [S/n]?: ")
+                            edicionDescripcion = descripcion == "S" or descripcion == "s" 
+                            edicionCPU = cpu == "S" or cpu == "s"
+                            edicionMemoria = memoria == "S" or memoria == "s"
+                            edicionAlmacenamiento = disco == "S" or disco == "s"
+                            if edicionDescripcion or edicionCPU or edicionMemoria or edicionAlmacenamiento:
+                                if edicionDescripcion:
+                                    editDescripcion = input("| Ingrese la nueva descripción: ")
+                                    if editDescripcion  != "":
+                                        response['vm']['descripcion'] = editDescripcion
+                                    else:
+                                        print("[*] La descripcion no puede estar vacía")
+                                if edicionCPU:
+                                    editCpu = input("| Ingrese la nueva cantidad de cores de CPU del flavor: ")
+                                    if editCpu.isdigit():
+                                        response['vm']['cpu'] = editCpu
+                                    else:
+                                        print("[*] La cantidad de cores de CPU debe ser un número")
+                                if edicionMemoria:
+                                    editMem = input("| Ingrese la nueva cantidad de memoria del flavor (en MB): ")
+                                    if editMem.isdigit():
+                                        response['vm']['memoria'] = editMem
+                                    else:
+                                        print("[*] La cantidad de memoria debe ser un número")
+                                if edicionAlmacenamiento:
+                                    editSto = input("| Ingrese la nueva cantidad de almacenamiento del flavor (en GB): ")
+                                    if editSto.isdigit():
+                                        response['vm']['disco'] = editSto
+                                    else:
+                                        print("[*] La cantidad de almacenamiento debe ser un número")
+                                ## Proceso a editar propiamente
+                                print("[*] Editando el flavor ...")
+                                ## edit_flavor(self, flavor_id,descripcion,cpu,memoria,disco):
+                                response = FlavorImageManager.edit_flavor(idFlavorEditar,response['vm']['descripcion'],response['vm']['cpu'],response['vm']['memoria'],response['vm']['disco'])
+                                print("[*] "+response['mensaje'])
+                            else:
+                                print("[*] Usted no ha seleccionado nada para editar en el flavor")
+                        else:
+                            print("[*] No se encontró información del Flavor digitado")
+                    else:
+                        print("[*] Ingreso un ID inválido para la edición")
+                else:
+                    print("[*] No se encontró flavors asociados al proyecto")
+            else:
+                print("[*] Digito una opcion de ID incorrecta")
+        else:
+            print("[*] Usted no cuenta con los permisos suficientes para añadir flavors en este proyecto")
+    else:
+        print("[*] No tiene topologias asociadas")
+def eliminarFlavorXTopologiaXProyecto(id):
+    ProjectManagerLinux = NetworkingManager()
+    FlavorImageManager = ProvisionInstancesManager()
+    UserManagerLinux = AuthenticationManager()
+    filas = []
+    response = ProjectManagerLinux.get_detalle_user_topo(id)
+    if response['mensaje'] == "Lista de vinculos":
+        filas = []
+        ids_topo = {}
+        cabeceras=["ID de Topologia", "Proyecto", "Worker","Rol"]
+        for value in response["vinculos"]:
+            columnas = []
+            for data in value:
+                if data == 'id':
+                    ids_topo[str(value[data]['topologia'])] = str(value[data]['proyecto'])
+                    columnas.append(str(value[data]['topologia']))    
+                else:
+                    columnas.append(str(value[data]))
+            filas.append(columnas)  
+        print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center')) 
+        id_topo = input("| Ingrese el ID de la topología en la que desea añadir eliminar el flavor: ")
+        response = UserManagerLinux.get_rol_topo(ids_topo[id_topo],id,id_topo)
+        if response['mensaje'] == 'Rol encontrado' and response['rol'] == 'admin':
+            if id_topo in ids_topo.keys():
+            ## Aqui comienza la edicion
+                ## Primero debo de listar las imagenes en cuestion 
+                filas = []
+                cabeceras=["ID", "descripcion","CPU cores","Memoria (MB)","Disco (GB)"]
+                # listar_flavor_project(self,project_id):
+                response = FlavorImageManager.listar_flavor_project(ids_topo[id_topo])
+                ids = []
+                if response['mensaje'] == 'Lista de flavors':
+                    for value in response["flavors"]:
+                        columnas = []
+                        for data in value:
+                            columnas.append(str(value[data]))
+                            if data == 'id':
+                                ids.append(str(value[data]))         
+                        filas.append(columnas)  
+                    print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))
+                    idFlavorEliminar = input ("| Ingrese el ID del flavor que desea eliminar: ")
+                    if idFlavorEliminar in ids:
+                        confirmacion = input ("| Está seguro que desea eliminar el flavor seleccionado [S/n]?: ")
+                        if confirmacion == "S" or confirmacion == "s":
+                            print("[*] Eliminando el flavor ...")
+                            # delete_flavor(self, flavor_id):
+                            response = FlavorImageManager.delete_flavor(idFlavorEliminar)
+                            print("[*] "+response['mensaje'])
+                        else:
+                            print("[*] Regresando al menú anterior")
+                    else:
+                        print("[*] Ingreso un ID inválido para la edición")
+                else:
+                    print("[*] No se encontró flavors asociados al proyecto")
+            else:
+                print("[*] Digito una opcion de ID incorrecta")
+        else:
+            print("[*] Usted no cuenta con los permisos suficientes para añadir flavors en este proyecto")
+    else:
+        print("[*] No tiene topologias asociadas")
