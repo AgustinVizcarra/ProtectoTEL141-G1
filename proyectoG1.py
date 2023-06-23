@@ -1056,7 +1056,9 @@ def crearTopologia(keystone,neutron,nova,glance):
             if(nombre != ''):
                 flavorID = getFlavorsID(nova)
                 imagenID = getImagenesID(glance)
-                listaVMs.append(VM(nombre,flavorID,imagenID))
+                keypairID = getKeyPairID(nova,keystone)
+                securityID = getSecurityGroupID(nova)
+                listaVMs.append(VM(nombre,flavorID,imagenID,keypairID,securityID))
                 i = i + 1
             else:
                 print("[*] Ingrese un nombre de VirtualMachine válido\n")
@@ -1070,7 +1072,9 @@ def crearTopologia(keystone,neutron,nova,glance):
             print("|\n---Virtual Machine "+str(i) + "---")
             nombre = input("| Ingrese un nombre de VirtualMachine: ")
             if(nombre != ''):
-                listaVMs.append(VM(nombre,flavorID,imagenID))
+                keypairID = getKeyPairID(nova,keystone)
+                securityID = getSecurityGroupID(nova)
+                listaVMs.append(VM(nombre,flavorID,imagenID,keypairID,securityID))
                 i = i + 1
             else:
                 print("[*] Ingrese un nombre de VirtualMachine válido\n")
