@@ -41,11 +41,11 @@ class TopoConstructor:
 
     def busConstructor(self,VMs,CIDR,neutron,nova):
         numberNetworks = 1
-        networks = []
+        networks = [] 
         #Create Networks
         for i in range(numberNetworks):
             nameNetwork = str(uuid.uuid4)
-            networks.append(nameNetwork)
+            networks.append(nameNetwork) # network = ["asxcsda","asdqoi","foiwenfweip"]
             nameSubnet = str(uuid.uuid4)
             network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
             NetworkConstructor.createNetwork(network,neutron,nova)
