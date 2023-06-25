@@ -6,9 +6,9 @@ from fastapi import FastAPI
 import threading
 
 collection={
-    "192.168.200.201":"worker1",
-    "192.168.200.202":"worker2",
-    "192.168.200.203":"worker3"
+    "10.0.1.10":"worker1",
+    "10.0.1.20":"worker2",
+    "10.0.1.30":"worker3"
 }
 
 app = FastAPI(title = "Servidor de monitoreo",
@@ -22,7 +22,7 @@ def socket_listener():
     myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     mydb = myclient["Estadisticas"]
     #Direccionamos con la direccion IP correspondiente a la red interna
-    server_add = ('192.168.200.200',9898)
+    server_add = ('10.0.1.1',9898)
     #Indicamos por donde quiere que escuche
     server_socket.bind(server_add)
     print("Escuchando...")
@@ -34,17 +34,15 @@ def socket_listener():
         #Recibiendo con buffer 1024 bytes
         data = client_socket.recv(1024).decode('utf-8')
         print(json.loads(data))
-
         #Almacenamiento de datos en mongo
         mycol = mydb[collection[client_add[0]]]
         x = mycol.insert_one(json.loads(data))
-
-
         #Responde
         response = 'Data Received'
         client_socket.sendall(response.encode('utf-8'))
         #Cerramos la conexion
         client_socket.close()
+        
 @app.on_event('startup')
 async def startup():
     print("Iniciando el API de Monitoreo")
