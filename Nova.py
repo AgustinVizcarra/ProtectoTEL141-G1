@@ -469,7 +469,11 @@ class NovaClient(object):
                 'flavorRef': flavor_id,
                 'imageRef': image_id,
                 'networks': [
-                    {'uuid': network_id}
+                    {
+                        'uuid': network_id
+                        #'uuid': network_id1
+                        #'uuid': network_id2
+                        }
                 ]
             }
         }
