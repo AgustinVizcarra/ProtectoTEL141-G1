@@ -114,8 +114,8 @@ def listarUsuariosProyecto(keystone):
     
 #Funcion que muestra el Menú redesprovider
 def menuRedes(keystone):
-    opcionesAdmin = ["Crear red","Info red","Borrar red"]
-    opcionesUsuario = ["Info red"]
+    opcionesAdmin = ["Crear red","Listar redes","Borrar red"]
+    opcionesUsuario = ["Listar redes"]
     if keystone.getRolName() == "admin":
         opciones = opcionesAdmin
     else:
@@ -1200,7 +1200,7 @@ def menu2(opcion,nivel,keystone,nova,glance,neutron):
                     break
         elif(nivel == "Crear red"):
             crearRed(keystone,neutron,nova,glance)
-        elif(nivel == "Info red"):
+        elif(nivel == "Listar redes"):
             infoRed(keystone,neutron)   
         elif(nivel == "Borrar red"):
             borrarRed(keystone, neutron)      
