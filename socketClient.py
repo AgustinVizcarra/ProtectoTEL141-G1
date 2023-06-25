@@ -116,9 +116,9 @@ if __name__ == "__main__":
         for i in range(len(utilizacionCPU)):
             overallInfo["Core"+str(i)+"(%)"] = round(utilizacionCPU[i],1)
         #Memoria 
-        overallInfo["MemoriaUsada"]=float(infoMemoria[3])
-        overallInfo["MemoriaDisponible"]=float(infoMemoria[6])
-        overallInfo["MemoriaTotal"]=float(infoMemoria[0])
+        overallInfo["MemoriaUsada(Gb)"]=float(infoMemoria[3])
+        overallInfo["MemoriaDisponible(Mb)"]=float(infoMemoria[6])
+        overallInfo["MemoriaTotal(Gb)"]=float(infoMemoria[0])
         #Almacenamiento
         overallInfo["AlmacenamientoUsado(Gb)"]=float(infoStorage[1].strip("G"))
         overallInfo["AlmacenamientoUsado(%)"]=int(infoStorage[3].strip("%"))
