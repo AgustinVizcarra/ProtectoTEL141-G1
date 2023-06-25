@@ -3,6 +3,7 @@ import time
 import subprocess
 import threading
 import json 
+from datetime import datetime  
 
 utilizacionCPU = []
 infoMemoria = []
@@ -14,7 +15,7 @@ def envioInformacion(informacion):
     #Defino la conexión con un servidor por medio de socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #me conecto al servidor
-    s.connect(('192.168.200.200',9898))
+    s.connect(('10.0.1.1',9898))
     data = informacion
     #Envio la data
     s.sendall(data.encode('utf-8'))
@@ -56,13 +57,24 @@ def findMemory() :
 
 def findStorage():
     global infoStorage
-    command_Storage = "lsblk -o FSSIZE,FSUSED,FSUSE% | sed -n '9p'"
+    numbers = ["9","10","11"]
+    for number in numbers:
+        try:
+            output = findLineStorage(number)
+            aux = output.replace("\n"," ").replace("   "," ").strip(" ").split(" ")
+            if 'G' in aux[0]:
+                infoStorage=aux
+        except:
+            pass
+    print("Informacion del almacenamiento recolectada correctamente")
+
+def findLineStorage(lineNumber):
+    command_Storage = "lsblk -o FSSIZE,FSUSED,FSUSE% | sed -n '"+lineNumber+"p'"
     process_Storage = subprocess.Popen(command_Storage, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process_Storage.communicate()
     output = output.decode('utf-8')
-    infoStorage = output.replace("\n"," ").replace("   "," ").strip(" ").split(" ")
-    print("Informacion del almacenamiento recolectada correctamente")
-    
+    return output
+
 def findBandWith():
     global velocidadRX
     global velocidadTX
@@ -104,18 +116,21 @@ if __name__ == "__main__":
         for i in range(len(utilizacionCPU)):
             overallInfo["Core"+str(i)+"(%)"] = str(round(utilizacionCPU[i],1))
         #Memoria 
-        overallInfo["MemoriaUsada"]=infoMemoria[0]+infoMemoria[1]
-        overallInfo["MemoriaDisponible"]=infoMemoria[3]+infoMemoria[4]
-        overallInfo["MemoriaTotal"]=infoMemoria[6]+infoMemoria[7]
+        overallInfo["MemoriaUsada"]=infoMemoria[3]+infoMemoria[4]
+        overallInfo["MemoriaDisponible"]=infoMemoria[6]+infoMemoria[7]
+        overallInfo["MemoriaTotal"]=infoMemoria[0]+infoMemoria[1]
         #Almacenamiento
-        overallInfo["AlmacenamientoUsado"]=infoStorage[3]+"b"
-        overallInfo["AlmacenamientoUsado"]=infoStorage[5]
+        overallInfo["AlmacenamientoUsado"]=infoStorage[1]+"b"
+        overallInfo["AlmacenamientoUsado(%)"]=infoStorage[3]
         overallInfo["AlmacenamientoTotal"]=infoStorage[0]+"b"
         #Red
         overallInfo["ens3(RX)bps"]=velocidadRX[0]
         overallInfo["ens3(TX)bps"]=velocidadTX[0]
         overallInfo["ens4(RX)bps"]=velocidadRX[1]
         overallInfo["ens4(TX)bps"]=velocidadTX[1]
+        #Timestamp
+        overallInfo["timestamp"]=datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+        
         print("Informacion recolectada correctamente")
         print("Enviando la información al servidor")
         envioInformacion(json.dumps(overallInfo))
