@@ -15,7 +15,7 @@ def envioInformacion(informacion):
     #Defino la conexión con un servidor por medio de socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     #me conecto al servidor
-    s.connect(('192.168.200.200',9898))
+    s.connect(('10.0.1.1',9898))
     data = informacion
     #Envio la data
     s.sendall(data.encode('utf-8'))
