@@ -6,9 +6,9 @@ from fastapi import FastAPI
 import threading
 
 collection={
-    "192.168.200.201":"worker1",
-    "192.168.200.202":"worker2",
-    "192.168.200.203":"worker3"
+    "10.0.1.10":"worker1",
+    "10.0.1.20":"worker2",
+    "10.0.1.30":"worker3"
 }
 
 app = FastAPI(title = "Servidor de monitoreo",
