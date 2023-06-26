@@ -173,7 +173,6 @@ class NovaClient(object):
                 keypair_key = keypair.get('public_key')
                 keypair_id = keypair.get('user_id')
                 print("[*] Keypair creado exitosamente") 
-                print("lalalalalalala")
                 break
             elif response.status_code==409:
                 existing_name = response.json().get('conflictingRequest', {}).get('message')
