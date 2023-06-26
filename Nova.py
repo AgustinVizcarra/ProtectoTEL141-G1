@@ -3,6 +3,7 @@ import requests
 from Glance import GlanceClient
 from Neutron import NeutronClient
 import time
+import os
 ##########FLAVOR###########
 class NovaClient(object):
     def __init__(self, auth_token,username, password):
@@ -71,7 +72,7 @@ class NovaClient(object):
 
     def update_flavor(self,new_name, new_ram, new_vcpus, new_disk):
 
-        
+        flavor_id=self.obtenerIdFlavor(new_name)
 
 
 
@@ -153,26 +154,58 @@ class NovaClient(object):
     def crearKeyPair(self, name,user_id):
         url = f"{self.nova_url}/v2/os-keypairs"
         
-        data = {
-            'keypair': {
-                'name': name,
-                'user_id': user_id
-            }
-        }
-        response = requests.post(url, json=data, headers=self.headers)
         
+        while True:
+            
+            data = {
+                'keypair': {
+                    'name': name,
+                    'user_id': user_id
+                }
+            }
 
-        if response.status_code == 200:
-            keypair = response.json().get('keypair', {})
-            keypair_name = keypair.get('name')
-            keypair_key = keypair.get('public_key')
-            keypair_id = keypair.get('user_id')
-            print("[*] Keypair creado exitosamente")
-            #print("Nombre: ", keypair_name)
-            #print("Llave pública: ", keypair_key)
-            #print("ID de usuario: ", keypair_id)
-        else:
-            print("[*] Error al crear el Keypair:", response.status_code)
+            
+            response = requests.post(url, json=data, headers=self.headers)
+            
+
+            if response.status_code == 200:
+                keypair = response.json().get('keypair', {})
+                keypair_name = keypair.get('name')
+                keypair_key = keypair.get('public_key')
+                keypair_id = keypair.get('user_id')
+                print("[*] Keypair creado exitosamente")
+                
+                llave_name=keypair_name
+                
+                # Extraer la clave pública de la respuesta JSON
+                
+                public_key = keypair_key
+                
+                # Generar el nombre del archivo
+                nombre_archivo = llave_name + "_public_key.pem"
+                
+                # Ruta completa al directorio de destino
+                carpeta_destino = "/home/labtel/Descargas" #RUTA EN ESPECIFICO QUE SE LE PUEDE PEDIR AL USUARIO
+                
+                # Ruta completa al archivo
+                ruta_archivo = os.path.join(carpeta_destino, nombre_archivo)
+
+                # Guardar la clave pública en un archivo
+                with open(ruta_archivo, "a") as file:
+                    file.write(public_key)
+                    print("Clave pública guardada correctamente.")
+                    
+                break
+            elif response.status_code==409:
+                existing_name = response.json().get('conflictingRequest', {}).get('message')
+                print("La llave que está intentando crear ya existe:", existing_name)
+                name = input("Escoja otro nombre: ")
+                if not name:
+                    print("Nombre inválido. Saliendo del programa.")
+                    break
+            
+            else:
+                print("[*] Error al crear el Keypair:", response.status_code)
 
 #Importar keypair
     def importarKeyPair(self,nombre, llave_publica):
@@ -758,6 +791,7 @@ class NovaClient(object):
 
     #Agregar una interfaz    
     def agregar_interfaz_to_VM(self, vm_id, network_id):
+        
         url = f"{self.nova_url}/v2.1/servers/{vm_id}/os-interface"
         data = {
             "interfaceAttachment": {
@@ -765,6 +799,7 @@ class NovaClient(object):
             }
         }
         response = requests.post(url, headers=self.headers, json=data)
+        print(response.json())
 
         if response.status_code == 200:
             print("Interfaz añadida correctamente.")
