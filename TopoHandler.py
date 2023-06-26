@@ -59,10 +59,10 @@ class TopoConstructor:
         if len(network) == 0 and len(VMs) == 2:
             networkC = networkConstructor(CIDR=CIDR,neutron=neutron,nova=nova)
             for vm in VMs:
-                VMConstructor.editVM(VM=vm,networks=[networkC],neutron=neutron,nova=nova)
+                VMConstructor.editVM(VM=vm,networks=networkC.nameNetwork,neutron=neutron,nova=nova)
             return 1
         elif len(network) == 1 and len(VMs) == 1:
-            VMConstructor.editVM(VM=vm,networks=network,neutron=neutron,nova=nova)
+            VMConstructor.editVM(VM=VMs[0],network=network[0],neutron=neutron,nova=nova)
             return 1
         else:
             return 1
