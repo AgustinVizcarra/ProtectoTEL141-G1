@@ -249,7 +249,7 @@ def crearKeyPair(keystone,nova):
             if(nombre == "ESC"):
                 print("[*] Ha salido de la opción de -Crear KeyPair-\n")
                 return
-            nova.crearKeyPair(nombre)
+            nova.crearKeyPair(nombre,keystone.getUserID())
             break
         else:
             print("[*] Ingrese un nombre de keypair válido\n")
@@ -546,7 +546,7 @@ def crearVirtualMachine(nova,neutron,glance,keystone):
             nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID)
             break
         else:
-            pritn("[*] Ingrese un nombre de VirtualMachine válido\n")
+            print("[*] Ingrese un nombre de VirtualMachine válido\n")
             continue
     
 #Funcion que permite listar las VirtualMachine
@@ -613,7 +613,7 @@ def borrarVirtualMachine(nova,projectID):
             if(nombre == "ESC"):
                 print("[*] Ha salido de la opción de -Borrar VirtualMachine- \n")
                 return
-            nova.delete_instance(nombre,projectID)
+            nova.delete_instance(nombre)
             break
         else:
             print("[*] Ingrese un nombre válido\n")
@@ -675,7 +675,7 @@ def getImagenesID(glance):
 #Funcion que permite obtener el ID de una red
 def getNetworkID(neutron,keystone):
     idRed = None
-    listado = neutron.listar_redes(keystone.getProjectID())
+    listado = neutron.list_networks(keystone.getProjectID())
     if len(listado) != 0:
         while True:
             Cabecera = ["#","NOMBRE RED PROVIDER","CIDR","GATEWAY IP"]
@@ -684,9 +684,9 @@ def getNetworkID(neutron,keystone):
             for red in listado:
                 filasopt = []
                 filasopt.append(str(i+1))
+                filasopt.append(str(red[0]))
                 filasopt.append(str(red[1]))
                 filasopt.append(str(red[2]))
-                filasopt.append(str(red[3]))
                 filas.append(filasopt)
                 i = i + 1
             print("\n")
@@ -695,7 +695,7 @@ def getNetworkID(neutron,keystone):
             if int(opcionRed) > len(listado):
                 print("[*] Ingrese el # de una red válida\n")
             else:
-                idRed = listado[int(opcionRed)-1][0]
+                idRed = listado[int(opcionRed)-1][3]
                 break
     return idRed
 
@@ -719,7 +719,7 @@ def getKeyPairID(nova,keystone):
             if int(opcionKeyPair) > len(listado):
                 print("[*] Ingrese el # de una keypair válida\n")
             else:
-                keypair = listado[int(opcionKeyPair)-1][0]
+                keypair = listado[int(opcionKeyPair)-1]
                 break
         return nova.obtenerIDKeyPair(keypair,keystone.getUserID())
     else:
@@ -748,7 +748,7 @@ def getSecurityGroupID(nova):
             else:
                 securitygroup = listado[int(opcionSecurityGroup)-1][0]
                 break
-        return nova.obtenerIDSecurityGroup(securitygroup)
+        return nova.obtenerIDSecurityGroup(securitygroup)[0]
     else:
         return None
     
@@ -1333,13 +1333,16 @@ while(int(privilegios)<0):
     password = getpass("| Ingrese su contraseña: ")
     keystone = KeystoneAuth(username, password)
     tokensito = keystone.get_token()
+    print(tokensito)
     #Si tiene cuenta de Openstack 
     if tokensito != None:
         tokensito = keystone.updateToken()
+        print(tokensito)
         while True:
             result,keystone = MenuListaProyectos(keystone)
             project_id=keystone.getProjectID()
             tokensito=keystone.get_token_project(project_id)
+            print(tokensito)
             if not (result): #No esta asignado a ningun proyecto
                 print("[*] Gracias por usar nuestro sistema!\n")
                 privilegios = 0
@@ -1353,7 +1356,8 @@ while(int(privilegios)<0):
                     resultado = menu2(opcion,"Menú",keystone,nova,glance,neutron)
                     if not (resultado):
                         break  
-            tokensito = keystone.updateToken()        
+            tokensito = keystone.updateToken()  
+            print(tokensito)      
                     
     #Si tiene cuenta de Linux
     else:
