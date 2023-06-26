@@ -19,6 +19,20 @@ class NeutronClient(object):
     def getNetworkID(self):
         return self.NetworkID
     
+    def getNetworkIDbyName(self, name_red):
+        url = f"{self.neutron_url}/networks"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            networks = response.json().get('networks', [])
+            for network in networks:
+                if network['name'] == name_red:
+                    return network['id']
+            return None
+        else:
+            print("Error al obtener la red:", response.status_code)
+            return None
+    
     def setNetworkID(self,NetworkID):
         self.NetworkID = NetworkID
         
@@ -293,5 +307,5 @@ class NeutronClient(object):
                     return network['id']
             return None
         else:
-            print("Error al obtener las redes:", response.status_code)
+            print("Error al obtener la red:", response.status_code)
             return None

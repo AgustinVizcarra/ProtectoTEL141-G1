@@ -62,7 +62,7 @@ class TopoConstructor:
                 VMConstructor.editVM(VM=vm,networks=networkC,neutron=neutron,nova=nova)
             return 1
         elif len(network) == 1 and len(VMs) == 1:
-            VMConstructor.editVM(VM=vm,networks=network,neutron=neutron,nova=nova)
+            VMConstructor.editVM(VM=VMs[0],network=network[0],neutron=neutron,nova=nova)
             return 1
         else:
             return 1

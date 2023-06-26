@@ -558,10 +558,10 @@ class NovaClient(object):
 
         if response.status_code == 202:
             instance = response.json()['server']
-            time.sleep(5)
-            Id_instance=self.get_instance_id(name)
-            neutron=NeutronClient(self.auth_token)
-            neutron.obtener_puerto_por_instancia(Id_instance)
+            #time.sleep(5)
+            #Id_instance=self.get_instance_id(name)
+            #neutron=NeutronClient(self.auth_token)
+            #neutron.obtener_puerto_por_instancia(Id_instance)
             print("Instancia creada de manera exitosa")
             return instance
         else:
