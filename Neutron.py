@@ -281,3 +281,17 @@ class NeutronClient(object):
                 print("No se encontró ningún puerto asociado a la instancia.")
         else:
             print("Error al obtener los puertos:", response.status_code, response.text)
+
+    def getNetworkIDbyName(self, name_red):
+        url = f"{self.neutron_url}/networks"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            networks = response.json().get('networks', [])
+            for network in networks:
+                if network['name'] == name_red:
+                    return network['id']
+            return None
+        else:
+            print("Error al obtener las redes:", response.status_code)
+            return None
