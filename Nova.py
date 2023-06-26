@@ -71,7 +71,7 @@ class NovaClient(object):
 
     def update_flavor(self,new_name, new_ram, new_vcpus, new_disk):
 
-        
+        flavor_id=self.obtenerIdFlavor(new_name)
 
 
 
@@ -153,26 +153,38 @@ class NovaClient(object):
     def crearKeyPair(self, name,user_id):
         url = f"{self.nova_url}/v2/os-keypairs"
         
-        data = {
-            'keypair': {
-                'name': name,
-                'user_id': user_id
-            }
-        }
-        response = requests.post(url, json=data, headers=self.headers)
         
+        while True:
+            
+            data = {
+                'keypair': {
+                    'name': name,
+                    'user_id': user_id
+                }
+            }
 
-        if response.status_code == 200:
-            keypair = response.json().get('keypair', {})
-            keypair_name = keypair.get('name')
-            keypair_key = keypair.get('public_key')
-            keypair_id = keypair.get('user_id')
-            print("[*] Keypair creado exitosamente")
-            #print("Nombre: ", keypair_name)
-            #print("Llave pública: ", keypair_key)
-            #print("ID de usuario: ", keypair_id)
-        else:
-            print("[*] Error al crear el Keypair:", response.status_code)
+            
+            response = requests.post(url, json=data, headers=self.headers)
+            
+
+            if response.status_code == 200:
+                keypair = response.json().get('keypair', {})
+                keypair_name = keypair.get('name')
+                keypair_key = keypair.get('public_key')
+                keypair_id = keypair.get('user_id')
+                print("[*] Keypair creado exitosamente") 
+                print("lalalalalalala")
+                break
+            elif response.status_code==409:
+                existing_name = response.json().get('conflictingRequest', {}).get('message')
+                print("La llave que está intentando crear ya existe:", existing_name)
+                name = input("Escoja otro nombre: ")
+                if not name:
+                    print("Nombre inválido. Saliendo del programa.")
+                    break
+            
+            else:
+                print("[*] Error al crear el Keypair:", response.status_code)
 
 #Importar keypair
     def importarKeyPair(self,nombre, llave_publica):
