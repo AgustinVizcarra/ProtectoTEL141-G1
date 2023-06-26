@@ -10,9 +10,9 @@ ready = False
 worker_estimacion = {}
 worker_info = {}
 collection={
-    "worker1":"192.168.200.201",
-    "worker2":"192.168.200.202",
-    "worker3":"192.168.200.203"
+    "worker1":"10.0.0.30",
+    "worker2":"10.0.0.40",
+    "worker3":"10.0.0.50"
 }
 
 app = FastAPI(title = "Servidor de Estimación",
@@ -22,7 +22,6 @@ app = FastAPI(title = "Servidor de Estimación",
 def socket_listener():
     #Instancia TCP-IP
     print("Servicio de estimacion inicializado en el puerto 6767")
-    client_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     myclient = pymongo.MongoClient("mongodb://10.20.12.188:27017/")
     mydb = myclient["Estadisticas"]
     while True:
@@ -37,11 +36,13 @@ def socket_listener():
             hilo.join()
         hilos = []
         for worker in worker_info:
-            hilos.append(threading.Thread(target=sendDataToCompute,args=(collection[worker],worker_info[worker],worker,client_socket)))
+            hilos.append(threading.Thread(target=sendDataToCompute,args=(worker_info[worker],worker,collection[worker])))
         for hilo in hilos:
             hilo.start()
+        i = 0
         for hilo in hilos:
             hilo.join()
+            i+=1
         ## Dejo que espere otros 5 segundos
         time.sleep(5)
 
@@ -86,17 +87,19 @@ def getInfoPorWorker(worker,connection):
     info['AlmacenamientoUsado(%)'] = almacenamientoUsadoPercent
     worker_info[worker] = info
 
-def sendDataToCompute(IPCompute,dataSegment,worker,socket):
+def sendDataToCompute(dataSegment,worker,IP):
     ## Referencia de la variable global
     global worker_estimacion
-    socket.connect((IPCompute,6767))
-    informacion=dataSegment[worker]
+    client_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    client_socket.connect((IP,6767))
+    informacion=dataSegment
     ## Envío la información al nodo de computo
-    socket.sendall(json.dumps(informacion).encode('utf-8'))
+    data = json.dumps(informacion)
+    client_socket.sendall(data.encode('utf-8'))
     ## Recibo la respuesta
-    response = socket.recv(1024)
-    data = json.loads(response.decode('utf-8'))
-    ## Auxiliar
+    response = client_socket.recv(1024)
+    data = json.loads(response.decode('utf-8'))         
+    client_socket.close()
     aux = {}
     ## CPU
     aux['Est_Core0(%)'] = data[worker]['Core0(%)']
@@ -104,11 +107,11 @@ def sendDataToCompute(IPCompute,dataSegment,worker,socket):
     aux['Est_Core2(%)'] = data[worker]['Core2(%)']
     aux['Est_Core3(%)'] = data[worker]['Core3(%)']
     ## Memoria
-    aux['Est_MemoriaUsada(Gb)'] = data['worker']['MemoriaUsada(Gb)'] 
-    aux['Est_MemoriaDisponible(Mb)'] = data['worker']['MemoriaDisponible(Mb)'] 
+    aux['Est_MemoriaUsada(Gb)'] = data[worker]['MemoriaUsada(Gb)'] 
+    aux['Est_MemoriaDisponible(Mb)'] = data[worker]['MemoriaDisponible(Mb)'] 
     ## Disco
-    aux['Est_AlmacenamientoUsado(Gb)'] = data['worker']['AlmacenamientoUsado(Gb)'] 
-    aux['Est_AlmacenamientoUsado(%)'] = data['worker']['AlmacenamientoUsado(%)'] 
+    aux['Est_AlmacenamientoUsado(Gb)'] = data[worker]['AlmacenamientoUsado(Gb)'] 
+    aux['Est_AlmacenamientoUsado(%)'] = data[worker]['AlmacenamientoUsado(%)'] 
     ## Aqui proceso la informacion y la guardo en base de datos
     worker_estimacion[worker] = aux
     ## Proximamente
