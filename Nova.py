@@ -578,14 +578,14 @@ class NovaClient(object):
                 'networks': [
                     {
                         'uuid': network_id
-                        #'uuid': network_id1
-                        #'uuid': network_id2
+                        
                         }
                 ]
             }
         }
         
         response = requests.post(self.nova_url + '/v2.1/servers', json=instance_data, headers=self.headers)
+        print(response.json())
 
         
 
@@ -742,13 +742,18 @@ class NovaClient(object):
             network_interfaces.append(interface_data)
 
         instance_data = {
-            'name': nombre,
-            'flavorRef': flavor_id,
-            'imageRef': imagen_id,
-            'key_name': keypair_id,
-            'security_groups': [{'name': security_group_id}],
-            'networks': network_interfaces
+            'server':{
+                
+            
+                'name': nombre,
+                'flavorRef': flavor_id,
+                'imageRef': imagen_id,
+                'key_name': keypair_id,
+                'security_groups': [{'name': security_group_id}],
+                'networks': network_interfaces
+            }
         }
+            
 
         url = f"{self.nova_url}/v2.1/servers"
         response = requests.post(url, headers=self.headers, json=instance_data)
@@ -770,16 +775,20 @@ class NovaClient(object):
             network_interfaces.append(interface)
 
         instance_data = {
-            'name': nombre,
-            'flavorRef': flavor_id,
-            'imageRef': imagen_id,
-            'key_name': keypair_id,
-            'security_groups': [{'name': security_group_id}],
-            'networks': network_interfaces
+            'server':{
+                
+                'name': nombre,
+                'flavorRef': flavor_id,
+                'imageRef': imagen_id,
+                'key_name': keypair_id,
+                'security_groups': [{'name': security_group_id}],
+                'networks': network_interfaces
+            }
         }
 
         url = f"{self.nova_url}/v2.1/servers"
         response = requests.post(url, headers=self.headers, json=instance_data)
+        print(response.json())
 
         if response.status_code == 202:
             instance_id = response.json()['server']['id']
