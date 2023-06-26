@@ -1,6 +1,6 @@
 from Neutron import NeutronClient
-
+from Classes.Network import Network 
 class NetworkConstructor:
-    def createNetwork(Network,neutron,nova):
-        pass
+    def createNetwork(network: Network,neutron: NeutronClient,nova):
+        neutron.create_network(cidr=network.CIDR,red=network.nameNetwork,subred=network.nameSubnet)
     

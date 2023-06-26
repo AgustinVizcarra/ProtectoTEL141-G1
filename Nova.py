@@ -543,7 +543,11 @@ class NovaClient(object):
                     }
                 ],
                 'networks': [
-                    {'uuid': network_id}
+                    {
+                        'uuid': network_id
+                        #'uuid': network_id1
+                        #'uuid': network_id2
+                        }
                 ]
             }
         }

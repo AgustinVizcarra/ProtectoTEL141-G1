@@ -41,11 +41,11 @@ class TopoConstructor:
 
     def busConstructor(self,VMs,CIDR,neutron,nova):
         numberNetworks = 1
-        networks = []
+        networks = [] 
         #Create Networks
         for i in range(numberNetworks):
             nameNetwork = str(uuid.uuid4)
-            networks.append(nameNetwork)
+            networks.append(nameNetwork) # network = ["asxcsda","asdqoi","foiwenfweip"]
             nameSubnet = str(uuid.uuid4)
             network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
             NetworkConstructor.createNetwork(network,neutron,nova)
@@ -53,6 +53,23 @@ class TopoConstructor:
         for i in range(len(VMs)):
             VMConstructor.createVM(VMs[i],[networks[0]],neutron,nova)
         return 1
+
+    def linkConstructor(VMs, network,neutron, nova, CIDR):
+        #Crear enlace entre dos vms
+        if len(network) == 0 and len(VMs) == 2:
+            networkC = networkConstructor(CIDR=CIDR,neutron=neutron,nova=nova)
+            for vm in VMs:
+                VMConstructor.editVM(VM=vm,networks=[networkC],neutron=neutron,nova=nova)
+            return 1
+        elif len(network) == 1 and len(VMs) == 1:
+            VMConstructor.editVM(VM=vm,networks=network,neutron=neutron,nova=nova)
+            return 1
+        else:
+            return 1
+        
+    def linkDestructor(VM, network, neutron, nova):
+        pass
+        
 
 
     def meshConstructor(self,VMs,CIDR,neutron,nova):
