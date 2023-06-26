@@ -3,7 +3,7 @@ from AutheticationDriver import AuthenticationManager
 from NetworkingDriver import NetworkingManager
 from PlacementDriver import PlacementManager
 from ProvisionInstancesDriver import ProvisionInstancesManager
-from tabulate import tabulate
+#from tabulate import tabulate
 class Usuario:
     def __init__(self,id):
         self.id = id

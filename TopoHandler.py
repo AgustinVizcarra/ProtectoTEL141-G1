@@ -67,6 +67,9 @@ class TopoConstructor:
         else:
             return 1
         
+    def linkDestructor(VM, network, neutron, nova):
+        pass
+        
 
 
     def meshConstructor(self,VMs,CIDR,neutron,nova):
