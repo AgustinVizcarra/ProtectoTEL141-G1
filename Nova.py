@@ -731,6 +731,7 @@ class NovaClient(object):
 
     # Crear una instancia con múltiples interfaces de red
     def create_instance_with_multiple_interfaces(self, nombre, flavor_id, imagen_id, keypair_id, security_group_id, interfaces):
+        
         network_interfaces = []
         for interface in interfaces:
             network_id = interface['network_id']
@@ -788,7 +789,6 @@ class NovaClient(object):
 
         url = f"{self.nova_url}/v2.1/servers"
         response = requests.post(url, headers=self.headers, json=instance_data)
-        print(response.json())
 
         if response.status_code == 202:
             instance_id = response.json()['server']['id']
@@ -808,7 +808,7 @@ class NovaClient(object):
             }
         }
         response = requests.post(url, headers=self.headers, json=data)
-        print(response.json())
+        
 
         if response.status_code == 200:
             print("Interfaz añadida correctamente.")
