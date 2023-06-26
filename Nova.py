@@ -696,9 +696,6 @@ class NovaClient(object):
         else:
             print("Error al obtener el ID de la VM:", response.status_code)
 
-#MIGRAR
-
-
     # Crear una instancia con múltiples interfaces de red
     def create_instance_with_multiple_interfaces(self, nombre, flavor_id, imagen_id, keypair_id, security_group_id, interfaces):
         network_interfaces = []
@@ -736,7 +733,7 @@ class NovaClient(object):
     def create_instance_with_multiple_networks(self, nombre, flavor_id, imagen_id, keypair_id, security_group_id, networks):
         network_interfaces = []
         for network_id in networks:
-            interface = {'net-id': network_id}
+            interface = {'uuid': network_id}
             network_interfaces.append(interface)
 
         instance_data = {
@@ -757,3 +754,21 @@ class NovaClient(object):
         else:
             print("Error al crear la instancia:", response.status_code)
             return None
+        
+
+    #Agregar una interfaz    
+    def agregar_interfaz_to_VM(self, vm_id, network_id):
+        url = f"{self.nova_url}/v2.1/servers/{vm_id}/os-interface"
+        data = {
+            "interfaceAttachment": {
+                "net_id": network_id
+            }
+        }
+        response = requests.post(url, headers=self.headers, json=data)
+
+        if response.status_code == 200:
+            print("Interfaz añadida correctamente.")
+        else:
+            print("Error al añadir la interfaz:", response.status_code)
+
+#MIGRAR

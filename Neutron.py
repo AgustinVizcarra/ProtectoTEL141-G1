@@ -257,15 +257,17 @@ class NeutronClient(object):
             return True
         else:
             raise Exception('Failed to delete subnet. Status code: {}'.format(response.status_code))
+        
+    
 
 ###################PUERTOS - TEMA A TRATAR ###################################
 
     def obtener_puerto_por_instancia(self,instancia_id):
 
         url = f"{self.neutron_url}/ports?device_id={instancia_id}"
-        print(url)
+        
         response = requests.get(url, headers=self.headers)
-        print(response.json())
+        
 
         if response.status_code == 200:
             puertos = response.json()['ports']
