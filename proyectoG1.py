@@ -1136,9 +1136,18 @@ def editarSlice(keystone,neutron,nova):
                         if(nombre2 == "ESC"):
                             print("[*] Ha salido de la opción de -Editar Slice- \n")
                             return "Salir"
-                        #FUNCION UNIR VM1 - VM2
-                        TopoConstructor.linkConstructor(neutron=neutron,nova=nova,VMs=[VM(name=nombre,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None),VM(name=nombre2,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None)],network=[],CIDR=CIDR)
-                        return "Salir"
+                        while True:
+                            cidrRed = input("| Ingrese el CIDR de la red: ")
+                            if (cidrRed != ''):
+                                if(cidrRed == "ESC"):
+                                    print("[*] Ha salido de la opción de -Editar Slice- \n")
+                                    return "Salir"
+                                #FUNCION UNIR VM1 - VM2
+                                TopoConstructor.linkConstructor(neutron=neutron,nova=nova,VMs=[VM(name=nombre,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None),VM(name=nombre2,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None)],network=[],CIDR=cidrRed)
+                                return "Salir"
+                            else:
+                                print("[*] Ingrese un CIDR válido\n")
+                                continue
                     else:
                         print("[*] Ingrese un nombre válido\n")
                         continue
