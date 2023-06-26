@@ -1,0 +1,4 @@
+Ingrese la dirección IP de este nodo de la red de management (x.x.x.x):Traceback (most recent call last):
+  File "ComputeEstimator.py", line 151, in <module>
+    IP = input("Ingrese la dirección IP de este nodo de la red de management (x.x.x.x):")
+OSError: [Errno 9] Bad file descriptor
