@@ -26,13 +26,38 @@ class GlanceClient(object):
     
     def cargar_imagen(self, nombre, ruta_archivo):
 
+        extension = ruta_archivo.split('.')[-1]
+        
+
+        formatos_compatibles = {
+            'qcow2': ['qcow2'],
+            'vmdk': ['vmdk'],
+            'raw': ['img', 'bin', 'raw'],
+            'ami': ['ami'],
+            'vdi': ['vdi'],
+            'vhd': ['vhd'],
+            'iso': ['iso']
+            # Agrega aquí otros formatos compatibles y sus correspondientes extensiones
+        }
+
+        formato = None
+        for fmt, extensiones in formatos_compatibles.items():
+            if extension in extensiones:
+                formato = fmt
+                break
+
+        if formato is None:
+            print("Formato de imagen no compatible.")
+            return
+
         url = f"{self.glance_url}/images"
 
         data = {
             'name': nombre,
-            'visibility': 'public',  # Cambiar según sea necesario
-            'disk_format': 'qcow2',  # Cambiar según el formato del archivo
+            'visibility': 'public',
+            'disk_format': formato,
             'container_format': 'bare',
+            #'container_format': 'bare',
         }
 
         #DISK-FORMAT
@@ -44,6 +69,7 @@ class GlanceClient(object):
 
         # Crear la imagen
         response = requests.post(url, headers=self.headers, json=data)
+        print(response.json)
 
         if response.status_code == 201:
             print("Imagen creada exitosamente.")
