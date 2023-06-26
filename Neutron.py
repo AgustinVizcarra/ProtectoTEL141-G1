@@ -19,6 +19,20 @@ class NeutronClient(object):
     def getNetworkID(self):
         return self.NetworkID
     
+    def getNetworkIDbyName(self, name_red):
+        url = f"{self.neutron_url}/networks"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            networks = response.json().get('networks', [])
+            for network in networks:
+                if network['name'] == name_red:
+                    return network['id']
+            return None
+        else:
+            print("Error al obtener la red:", response.status_code)
+            return None
+    
     def setNetworkID(self,NetworkID):
         self.NetworkID = NetworkID
         
@@ -257,15 +271,17 @@ class NeutronClient(object):
             return True
         else:
             raise Exception('Failed to delete subnet. Status code: {}'.format(response.status_code))
+        
+    
 
 ###################PUERTOS - TEMA A TRATAR ###################################
 
     def obtener_puerto_por_instancia(self,instancia_id):
 
         url = f"{self.neutron_url}/ports?device_id={instancia_id}"
-        print(url)
+        
         response = requests.get(url, headers=self.headers)
-        print(response.json())
+        
 
         if response.status_code == 200:
             puertos = response.json()['ports']
@@ -279,3 +295,17 @@ class NeutronClient(object):
                 print("No se encontró ningún puerto asociado a la instancia.")
         else:
             print("Error al obtener los puertos:", response.status_code, response.text)
+
+    def getNetworkIDbyName(self, name_red):
+        url = f"{self.neutron_url}/networks"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            networks = response.json().get('networks', [])
+            for network in networks:
+                if network['name'] == name_red:
+                    return network['id']
+            return None
+        else:
+            print("Error al obtener la red:", response.status_code)
+            return None
