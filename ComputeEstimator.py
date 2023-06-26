@@ -148,5 +148,5 @@ def estimarAlmacenamiento(input_almacenamiento_usado_GB,input_almacenamiento_usa
     estimacion_disco_usado_percent = model_fit.forecast()[0]
 
 if __name__ == "__main__":
-    IP = input("Ingrese la dirección IP de este nodo de la red de management (x.x.x.x):")
+    IP = "10.0.0.30"
     socket_listener(IP)
