@@ -189,7 +189,7 @@ def crearRed(keystone,neutron,nova,glance):
 def infoRed(keystone,neutron):
     informacion = neutron.infoRedProvider(keystone.getProjectID())
     if len(informacion) != 0:
-        cabeceras = ["NOMBRE RED PRODOVIDER","DESCRIPCION","FECHA CREACIÓN","CIDR","GATEWAY IP"]
+        cabeceras = ["NOMBRE RED PROVIDER","DESCRIPCION","FECHA CREACIÓN","CIDR","GATEWAY IP"]
         print("\n")
         print(tabulate(informacion,headers=cabeceras,tablefmt='grid',stralign='center'))    
     
