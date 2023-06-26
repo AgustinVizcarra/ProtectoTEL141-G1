@@ -170,7 +170,8 @@ def crearRed(keystone,neutron,nova,glance):
                                     if(gatewayIP == "ESC"):
                                         print("[*] Ha salido de la opción de -Crear RedProvider- \n")
                                         return
-                                    neutron.create_network(red,subred,cidr,gatewayIP,keystone.getProjectID())
+                                    neutron.create_network(red,subred,cidr)
+                                    #neutron.create_network(red,subred,cidr,gatewayIP,keystone.getProjectID())
                                     return
                                 else:
                                     print("[*] Ingrese una IP válido\n")
@@ -1344,16 +1345,16 @@ while(int(privilegios)<0):
     password = getpass("| Ingrese su contraseña: ")
     keystone = KeystoneAuth(username, password)
     tokensito = keystone.get_token()
-    print(tokensito)
+    #print(tokensito)
     #Si tiene cuenta de Openstack 
     if tokensito != None:
         tokensito = keystone.updateToken()
-        print(tokensito)
+        #print(tokensito)
         while True:
             result,keystone = MenuListaProyectos(keystone)
             project_id=keystone.getProjectID()
             tokensito=keystone.get_token_project(project_id)
-            print(tokensito)
+            #print(tokensito)
             if not (result): #No esta asignado a ningun proyecto
                 print("[*] Gracias por usar nuestro sistema!\n")
                 privilegios = 0
@@ -1368,7 +1369,7 @@ while(int(privilegios)<0):
                     if not (resultado):
                         break  
             tokensito = keystone.updateToken()  
-            print(tokensito)      
+            #print(tokensito)      
                     
     #Si tiene cuenta de Linux
     else:
