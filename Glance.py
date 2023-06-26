@@ -27,12 +27,6 @@ class GlanceClient(object):
     def cargar_imagen(self, nombre, ruta_archivo):
 
         url = f"{self.glance_url}/images"
-        headers = {
-            'X-Auth-Token': self.auth_token
-        }
-        archivo = open(ruta_archivo, 'rb')
-        archivo_data = archivo.read()
-        archivo.close()
 
         data = {
             'name': nombre,
@@ -48,14 +42,26 @@ class GlanceClient(object):
         #vmdk: Formato de disco utilizado por VMware.
         #raw: Imagen sin formato, que puede ser utilizada por varios hipervisores.
 
-        files = {'file': (nombre, archivo_data)}
-
-        response = requests.post(url, headers=headers, data=data, files=files)
+        # Crear la imagen
+        response = requests.post(url, headers=self.headers, json=data)
 
         if response.status_code == 201:
-            print("Imagen cargada exitosamente.")
+            print("Imagen creada exitosamente.")
+            image_id = response.json()['id']
+
+            # Subir los datos de la imagen
+            url = f"{self.glance_url}/images/{image_id}/file"
+
+            self.headers['Content-Type'] = 'application/octet-stream'
+            with open(ruta_archivo, 'rb') as f:
+                response = requests.put(url, headers=self.headers, data=f)
+
+            if response.status_code == 204:
+                print("Datos de la imagen cargados exitosamente.")
+            else:
+                print("Error al cargar los datos de la imagen:", response.status_code)
         else:
-            print("Error al cargar la imagen:", response.status_code)
+            print("Error al crear la imagen:", response.status_code)
 
     def obtener_informacion_imagen(self, imagen_id):
 
@@ -88,15 +94,20 @@ class GlanceClient(object):
             print("Error al actualizar información de la imagen:", response.status_code)
 
     
-    def eliminar_imagen(self, imagen_id):
+    def eliminar_imagen(self, imagen_name):
+        imagen_id=self.obtenerIdImagen(imagen_name)
 
-        url = f"{self.glance_url}/images/{imagen_id}"
-        response = requests.delete(url, headers=self.headers)
+        if imagen_id is not None:
+            url = f"{self.glance_url}/images/{imagen_id}"
+            response = requests.delete(url, headers=self.headers)
+        
 
-        if response.status_code == 204:
-            print("Imagen eliminada exitosamente.")
+            if response.status_code == 204:
+                print("Imagen eliminada exitosamente.")
+            else:
+                print("Error al eliminar la imagen:", response.status_code)
         else:
-            print("Error al eliminar la imagen:", response.status_code)
+            print("La imagen no existe")
 
     def compartir_imagen(self, imagen_id, proyectos):
         
@@ -126,3 +137,20 @@ class GlanceClient(object):
             print("Imagen descargada exitosamente.")
         else:
             print("Error al descargar la imagen:", response.status_code)
+
+
+    def obtenerIdImagen(self, image_name):
+        url = f"{self.glance_url}/images"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            images = response.json().get('images', [])
+            # Buscar la imagen por nombre
+            for image in images:
+                if image['name'] == image_name:
+                    image_id = image['id']
+                    return image_id
+            return None
+        else:
+            print("Error al obtener las imágenes:", response.status_code)
+            return None
