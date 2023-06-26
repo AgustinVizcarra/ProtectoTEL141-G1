@@ -1137,6 +1137,7 @@ def editarSlice(keystone,neutron,nova):
                             print("[*] Ha salido de la opción de -Editar Slice- \n")
                             return "Salir"
                         #FUNCION UNIR VM1 - VM2
+                        TopoConstructor.linkConstructor(neutron=neutron,nova=nova,VMs=[VM(name=nombre,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None),VM(name=nombre2,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None)],network=[],CIDR=CIDR)
                         return "Salir"
                     else:
                         print("[*] Ingrese un nombre válido\n")
