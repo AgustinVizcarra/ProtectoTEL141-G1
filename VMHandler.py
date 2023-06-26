@@ -10,7 +10,7 @@ class VMConstructor:
 
     def editVM(VM: VM,network: Network,neutron: NeutronClient,nova: NovaClient):
         vm_id = nova.get_instance_id(vm_name=VM.name)
-        network_id = neutron.getNetworkID(network.nameNetwork)
+        network_id = neutron.getNetworkIDbyName(network.nameNetwork)
         nova.agregar_interfaz_to_VM(network_id=network_id,vm_id=vm_id)
 
 
