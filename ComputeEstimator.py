@@ -1,7 +1,7 @@
 import socket
 import json
 import threading
-from statsmodels.tsa.arima_model import ARIMA
+from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 
 # Instaciacion Variables globales
@@ -18,8 +18,8 @@ estimacion_disco_usado_gb=0
 estimacion_disco_usado_percent=0
 
 collection={
-    "10.0.0.30":"worker1"
-    "10.0.0.40":"worker2"
+    "10.0.0.30":"worker1",
+    "10.0.0.40":"worker2",
     "10.0.0.50":"worker3"
 }
 
@@ -72,19 +72,21 @@ def socket_listener(IP):
         # Una vez obtenido todos los datos se arma el body
         body={}
         # CPU
-        body['Core0(%)'] = estimacion_core_0_percent
-        body['Core1(%)'] = estimacion_core_1_percent
-        body['Core2(%)'] = estimacion_core_2_percent
-        body['Core3(%)'] = estimacion_core_3_percent
+        body['Core0(%)'] = round(estimacion_core_0_percent,2)
+        body['Core1(%)'] = round(estimacion_core_1_percent,2)
+        body['Core2(%)'] = round(estimacion_core_2_percent,2)
+        body['Core3(%)'] = round(estimacion_core_3_percent,2)
         # Memoria
         body['MemoriaUsada(Gb)'] = estimacion_memoria_usada_gb
-        body['MemoriaDisponible(Mb)'] = estimacion_memoria_disponible_mb
+        body['MemoriaDisponible(Mb)'] = round(estimacion_memoria_disponible_mb,2)
         # Disco
         body['AlmacenamientoUsado(Gb)'] = estimacion_disco_usado_gb
         body['AlmacenamientoUsado(%)'] = estimacion_disco_usado_percent
         # Formulacion
-        data = {collection[IP],body}
+        data = {}
+        data[collection[IP]]=body
         response = json.dumps(data)
+        print(response)
         client_socket.sendall(response.encode('utf-8'))
         #Cerramos la conexion
         client_socket.close()
@@ -94,25 +96,25 @@ def estimarCPU(input_core_0_percent,input_core_1_percent,input_core_2_percent,in
     global estimacion_core_0_percent,estimacion_core_1_percent,estimacion_core_2_percent,estimacion_core_3_percent
     ## Para el core 0 (%)
     train = input_core_0_percent
-    # Se entrena el modelo ARIMA fraccionario
-    model = ARIMA(train, order=(1, 0.5, 1))
-    model_fit = model.fit(disp=0)
+    # Se entrena el según la siguiente variante de ARIMA: CPU Workload forecasting of Machines in Data Centers using LSTM Recurrent Neural Networks and ARIMA Models
+    model = ARIMA(train, order=(3, 1, 2))
+    model_fit = model.fit()
     # Se realiza la predicción del valor siguiente a las listas de entrada
     estimacion_core_0_percent = model_fit.forecast()[0]
     ## Para el core 1 (%)
     train = input_core_1_percent
-    model = ARIMA(train, order=(1, 0.5, 1))
-    model_fit = model.fit(disp=0)
+    model = ARIMA(train, order=(3, 1, 2))
+    model_fit = model.fit()
     estimacion_core_1_percent = model_fit.forecast()[0]
     ## Para el core 2 (%)
     train = input_core_2_percent
-    model = ARIMA(train, order=(1, 0.5, 1))
-    model_fit = model.fit(disp=0)
+    model = ARIMA(train, order=(3, 1, 2))
+    model_fit = model.fit()
     estimacion_core_2_percent = model_fit.forecast()[0]
     ## Para el core 3 (%)
     train = input_core_3_percent
-    model = ARIMA(train, order=(1, 0.5, 1))
-    model_fit = model.fit(disp=0)
+    model = ARIMA(train, order=(3, 1, 2))
+    model_fit = model.fit()
     estimacion_core_3_percent = model_fit.forecast()[0]
     
 def estimarMemoria(input_memoria_usada_GB,input_memoria_diponible_MB):
@@ -122,12 +124,12 @@ def estimarMemoria(input_memoria_usada_GB,input_memoria_diponible_MB):
     train = input_memoria_usada_GB
     # Se entrena el modelo ARIMA simple
     model = ARIMA(train, order=(1, 1, 1))
-    model_fit = model.fit(disp=0)
+    model_fit = model.fit()
     estimacion_memoria_usada_gb = model_fit.forecast()[0]
     # Para la memoria disponle en MB
-    train = input_memoria_disponible_MB
+    train = input_memoria_diponible_MB
     model = ARIMA(train, order=(1, 1, 1))
-    model_fit = model.fit(disp=0)
+    model_fit = model.fit()
     estimacion_memoria_disponible_mb = model_fit.forecast()[0]
     
 def estimarAlmacenamiento(input_almacenamiento_usado_GB,input_almacenamiento_usado_percent):
@@ -137,12 +139,12 @@ def estimarAlmacenamiento(input_almacenamiento_usado_GB,input_almacenamiento_usa
     train = input_almacenamiento_usado_GB
     # Se utiliza el método de suavizado exponencial
     model = ExponentialSmoothing(train)
-    model_fit = model.fit(disp=0)
+    model_fit = model.fit()
     estimacion_disco_usado_gb = model_fit.forecast()[0]
     # Para el almacenamiento usado en %
     train = input_almacenamiento_usado_percent
     model = ExponentialSmoothing(train)
-    model_fit = model.fit(disp=0)
+    model_fit = model.fit()
     estimacion_disco_usado_percent = model_fit.forecast()[0]
 
 if __name__ == "__main__":

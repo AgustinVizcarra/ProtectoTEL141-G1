@@ -98,8 +98,7 @@ def sendDataToCompute(dataSegment,worker,IP):
     client_socket.sendall(data.encode('utf-8'))
     ## Recibo la respuesta
     response = client_socket.recv(1024)
-    data = json.loads(response.decode('utf-8'))
-    print(data)             
+    data = json.loads(response.decode('utf-8'))         
     client_socket.close()
     aux = {}
     ## CPU
@@ -108,11 +107,11 @@ def sendDataToCompute(dataSegment,worker,IP):
     aux['Est_Core2(%)'] = data[worker]['Core2(%)']
     aux['Est_Core3(%)'] = data[worker]['Core3(%)']
     ## Memoria
-    aux['Est_MemoriaUsada(Gb)'] = data['worker']['MemoriaUsada(Gb)'] 
-    aux['Est_MemoriaDisponible(Mb)'] = data['worker']['MemoriaDisponible(Mb)'] 
+    aux['Est_MemoriaUsada(Gb)'] = data[worker]['MemoriaUsada(Gb)'] 
+    aux['Est_MemoriaDisponible(Mb)'] = data[worker]['MemoriaDisponible(Mb)'] 
     ## Disco
-    aux['Est_AlmacenamientoUsado(Gb)'] = data['worker']['AlmacenamientoUsado(Gb)'] 
-    aux['Est_AlmacenamientoUsado(%)'] = data['worker']['AlmacenamientoUsado(%)'] 
+    aux['Est_AlmacenamientoUsado(Gb)'] = data[worker]['AlmacenamientoUsado(Gb)'] 
+    aux['Est_AlmacenamientoUsado(%)'] = data[worker]['AlmacenamientoUsado(%)'] 
     ## Aqui proceso la informacion y la guardo en base de datos
     worker_estimacion[worker] = aux
     ## Proximamente

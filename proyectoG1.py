@@ -189,7 +189,7 @@ def crearRed(keystone,neutron,nova,glance):
 def infoRed(keystone,neutron):
     informacion = neutron.infoRedProvider(keystone.getProjectID())
     if len(informacion) != 0:
-        cabeceras = ["NOMBRE RED PRODOVIDER","DESCRIPCION","FECHA CREACIÓN","CIDR","GATEWAY IP"]
+        cabeceras = ["NOMBRE RED PROVIDER","DESCRIPCION","FECHA CREACIÓN","CIDR","GATEWAY IP"]
         print("\n")
         print(tabulate(informacion,headers=cabeceras,tablefmt='grid',stralign='center'))    
     
@@ -1136,8 +1136,18 @@ def editarSlice(keystone,neutron,nova):
                         if(nombre2 == "ESC"):
                             print("[*] Ha salido de la opción de -Editar Slice- \n")
                             return "Salir"
-                        #FUNCION UNIR VM1 - VM2
-                        return "Salir"
+                        while True:
+                            cidrRed = input("| Ingrese el CIDR de la red: ")
+                            if (cidrRed != ''):
+                                if(cidrRed == "ESC"):
+                                    print("[*] Ha salido de la opción de -Editar Slice- \n")
+                                    return "Salir"
+                                #FUNCION UNIR VM1 - VM2
+                                TopoConstructor.linkConstructor(neutron=neutron,nova=nova,VMs=[VM(name=nombre,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None),VM(name=nombre2,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None)],network=[],CIDR=cidrRed)
+                                return "Salir"
+                            else:
+                                print("[*] Ingrese un CIDR válido\n")
+                                continue
                     else:
                         print("[*] Ingrese un nombre válido\n")
                         continue
