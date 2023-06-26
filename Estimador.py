@@ -11,8 +11,8 @@ worker_estimacion = {}
 worker_info = {}
 collection={
     "worker1":"10.0.0.30",
-    "worker2":"192.168.200.202",
-    "worker3":"192.168.200.203"
+    "worker2":"10.0.0.40",
+    "worker3":"10.0.0.50"
 }
 
 app = FastAPI(title = "Servidor de Estimación",
@@ -101,7 +101,6 @@ def sendDataToCompute(dataSegment,worker,IP):
     data = json.loads(response.decode('utf-8'))
     print(data)             
     client_socket.close()
-    ## Proximamente
     aux = {}
     ## CPU
     aux['Est_Core0(%)'] = data[worker]['Core0(%)']
@@ -116,6 +115,7 @@ def sendDataToCompute(dataSegment,worker,IP):
     aux['Est_AlmacenamientoUsado(%)'] = data['worker']['AlmacenamientoUsado(%)'] 
     ## Aqui proceso la informacion y la guardo en base de datos
     worker_estimacion[worker] = aux
+    ## Proximamente
     
 @app.on_event('startup')
 async def startup():
