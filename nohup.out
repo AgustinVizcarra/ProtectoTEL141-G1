@@ -1,0 +1,211 @@
+INFO:     Started server process [1240104]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://10.0.0.10:8888 (Press CTRL+C to quit)
+Exception in thread Thread-3:
+Traceback (most recent call last):
+  File "/usr/lib/python3.8/threading.py", line 932, in _bootstrap_inner
+Exception in thread Thread-2:
+Traceback (most recent call last):
+  File "/usr/lib/python3.8/threading.py", line 932, in _bootstrap_inner
+Exception in thread Thread-4:
+Traceback (most recent call last):
+  File "/usr/lib/python3.8/threading.py", line 932, in _bootstrap_inner
+    self.run()
+  File "/usr/lib/python3.8/threading.py", line 870, in run
+    self._target(*self._args, **self._kwargs)
+  File "Estimador.py", line 73, in getInfoPorWorker
+    for value in data:
+  File "/usr/lib/python3/dist-packages/pymongo/cursor.py", line 1156, in next
+    if len(self.__data) or self._refresh():
+  File "/usr/lib/python3/dist-packages/pymongo/cursor.py", line 1050, in _refresh
+    self.__session = self.__collection.database.client._ensure_session()
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1810, in _ensure_session
+    return self.__start_session(True, causal_consistency=False)
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1763, in __start_session
+    server_session = self._get_server_session()
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1796, in _get_server_session
+    return self._topology.get_server_session()
+  File "/usr/lib/python3/dist-packages/pymongo/topology.py", line 482, in get_server_session
+    self.run()
+  File "/usr/lib/python3.8/threading.py", line 870, in run
+    self.run()
+  File "/usr/lib/python3.8/threading.py", line 870, in run
+    self._target(*self._args, **self._kwargs)
+  File "Estimador.py", line 73, in getInfoPorWorker
+    self._select_servers_loop(
+  File "/usr/lib/python3/dist-packages/pymongo/topology.py", line 208, in _select_servers_loop
+    self._target(*self._args, **self._kwargs)
+  File "Estimador.py", line 73, in getInfoPorWorker
+    for value in data:
+  File "/usr/lib/python3/dist-packages/pymongo/cursor.py", line 1156, in next
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: 10.20.12.188:27017: timed out
+    for value in data:
+  File "/usr/lib/python3/dist-packages/pymongo/cursor.py", line 1156, in next
+    if len(self.__data) or self._refresh():
+  File "/usr/lib/python3/dist-packages/pymongo/cursor.py", line 1050, in _refresh
+    if len(self.__data) or self._refresh():
+  File "/usr/lib/python3/dist-packages/pymongo/cursor.py", line 1050, in _refresh
+    self.__session = self.__collection.database.client._ensure_session()
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1810, in _ensure_session
+    self.__session = self.__collection.database.client._ensure_session()
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1810, in _ensure_session
+    return self.__start_session(True, causal_consistency=False)
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1763, in __start_session
+    return self.__start_session(True, causal_consistency=False)
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1763, in __start_session
+    server_session = self._get_server_session()
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1796, in _get_server_session
+    server_session = self._get_server_session()
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1796, in _get_server_session
+    return self._topology.get_server_session()
+  File "/usr/lib/python3/dist-packages/pymongo/topology.py", line 482, in get_server_session
+    self._select_servers_loop(
+  File "/usr/lib/python3/dist-packages/pymongo/topology.py", line 208, in _select_servers_loop
+    return self._topology.get_server_session()
+  File "/usr/lib/python3/dist-packages/pymongo/topology.py", line 482, in get_server_session
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: 10.20.12.188:27017: timed out
+    self._select_servers_loop(
+  File "/usr/lib/python3/dist-packages/pymongo/topology.py", line 208, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: 10.20.12.188:27017: timed out
+Exception in thread Thread-5:
+Traceback (most recent call last):
+  File "/usr/lib/python3.8/threading.py", line 932, in _bootstrap_inner
+Exception in thread Thread-6:
+Traceback (most recent call last):
+  File "/usr/lib/python3.8/threading.py", line 932, in _bootstrap_inner
+Exception in thread Thread-7:
+Traceback (most recent call last):
+  File "/usr/lib/python3.8/threading.py", line 932, in _bootstrap_inner
+    self.run()
+  File "/usr/lib/python3.8/threading.py", line 870, in run
+    self.run()
+  File "/usr/lib/python3.8/threading.py", line 870, in run
+    self._target(*self._args, **self._kwargs)
+  File "Estimador.py", line 73, in getInfoPorWorker
+    for value in data:
+  File "/usr/lib/python3/dist-packages/pymongo/cursor.py", line 1156, in next
+    if len(self.__data) or self._refresh():
+  File "/usr/lib/python3/dist-packages/pymongo/cursor.py", line 1050, in _refresh
+    self.run()
+  File "/usr/lib/python3.8/threading.py", line 870, in run
+    self._target(*self._args, **self._kwargs)
+  File "Estimador.py", line 73, in getInfoPorWorker
+    self._target(*self._args, **self._kwargs)
+  File "Estimador.py", line 73, in getInfoPorWorker
+    for value in data:
+  File "/usr/lib/python3/dist-packages/pymongo/cursor.py", line 1156, in next
+    if len(self.__data) or self._refresh():
+  File "/usr/lib/python3/dist-packages/pymongo/cursor.py", line 1050, in _refresh
+    self.__session = self.__collection.database.client._ensure_session()
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1810, in _ensure_session
+    self.__session = self.__collection.database.client._ensure_session()
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1810, in _ensure_session
+    return self.__start_session(True, causal_consistency=False)
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1763, in __start_session
+    for value in data:
+  File "/usr/lib/python3/dist-packages/pymongo/cursor.py", line 1156, in next
+    return self.__start_session(True, causal_consistency=False)
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1763, in __start_session
+    if len(self.__data) or self._refresh():
+  File "/usr/lib/python3/dist-packages/pymongo/cursor.py", line 1050, in _refresh
+    server_session = self._get_server_session()
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1796, in _get_server_session
+    self.__session = self.__collection.database.client._ensure_session()
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1810, in _ensure_session
+    server_session = self._get_server_session()
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1796, in _get_server_session
+    return self._topology.get_server_session()
+  File "/usr/lib/python3/dist-packages/pymongo/topology.py", line 482, in get_server_session
+    self._select_servers_loop(
+  File "/usr/lib/python3/dist-packages/pymongo/topology.py", line 208, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: 10.20.12.188:27017: timed out
+    return self._topology.get_server_session()
+  File "/usr/lib/python3/dist-packages/pymongo/topology.py", line 482, in get_server_session
+    self._select_servers_loop(
+  File "/usr/lib/python3/dist-packages/pymongo/topology.py", line 208, in _select_servers_loop
+    return self.__start_session(True, causal_consistency=False)
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1763, in __start_session
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: 10.20.12.188:27017: timed out
+    server_session = self._get_server_session()
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1796, in _get_server_session
+    return self._topology.get_server_session()
+  File "/usr/lib/python3/dist-packages/pymongo/topology.py", line 482, in get_server_session
+    self._select_servers_loop(
+  File "/usr/lib/python3/dist-packages/pymongo/topology.py", line 208, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: 10.20.12.188:27017: timed out
+Exception in thread Thread-10:
+Traceback (most recent call last):
+  File "/usr/lib/python3.8/threading.py", line 932, in _bootstrap_inner
+Exception in thread Thread-8:
+Traceback (most recent call last):
+  File "/usr/lib/python3.8/threading.py", line 932, in _bootstrap_inner
+    self.run()
+  File "/usr/lib/python3.8/threading.py", line 870, in run
+    self._target(*self._args, **self._kwargs)
+  File "Estimador.py", line 73, in getInfoPorWorker
+Exception in thread Thread-9:
+Traceback (most recent call last):
+  File "/usr/lib/python3.8/threading.py", line 932, in _bootstrap_inner
+    self.run()
+  File "/usr/lib/python3.8/threading.py", line 870, in run
+    self.run()
+  File "/usr/lib/python3.8/threading.py", line 870, in run
+    for value in data:
+  File "/usr/lib/python3/dist-packages/pymongo/cursor.py", line 1156, in next
+    self._target(*self._args, **self._kwargs)
+  File "Estimador.py", line 73, in getInfoPorWorker
+    for value in data:
+  File "/usr/lib/python3/dist-packages/pymongo/cursor.py", line 1156, in next
+    if len(self.__data) or self._refresh():
+  File "/usr/lib/python3/dist-packages/pymongo/cursor.py", line 1050, in _refresh
+    self.__session = self.__collection.database.client._ensure_session()
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1810, in _ensure_session
+    self._target(*self._args, **self._kwargs)
+  File "Estimador.py", line 73, in getInfoPorWorker
+    if len(self.__data) or self._refresh():
+  File "/usr/lib/python3/dist-packages/pymongo/cursor.py", line 1050, in _refresh
+    for value in data:
+  File "/usr/lib/python3/dist-packages/pymongo/cursor.py", line 1156, in next
+    self.__session = self.__collection.database.client._ensure_session()
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1810, in _ensure_session
+    return self.__start_session(True, causal_consistency=False)
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1763, in __start_session
+    return self.__start_session(True, causal_consistency=False)
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1763, in __start_session
+    server_session = self._get_server_session()
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1796, in _get_server_session
+    server_session = self._get_server_session()
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1796, in _get_server_session
+    if len(self.__data) or self._refresh():
+  File "/usr/lib/python3/dist-packages/pymongo/cursor.py", line 1050, in _refresh
+    self.__session = self.__collection.database.client._ensure_session()
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1810, in _ensure_session
+    return self._topology.get_server_session()
+  File "/usr/lib/python3/dist-packages/pymongo/topology.py", line 482, in get_server_session
+    return self._topology.get_server_session()
+  File "/usr/lib/python3/dist-packages/pymongo/topology.py", line 482, in get_server_session
+    return self.__start_session(True, causal_consistency=False)
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1763, in __start_session
+    self._select_servers_loop(
+  File "/usr/lib/python3/dist-packages/pymongo/topology.py", line 208, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: 10.20.12.188:27017: timed out
+    self._select_servers_loop(
+  File "/usr/lib/python3/dist-packages/pymongo/topology.py", line 208, in _select_servers_loop
+    server_session = self._get_server_session()
+  File "/usr/lib/python3/dist-packages/pymongo/mongo_client.py", line 1796, in _get_server_session
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: 10.20.12.188:27017: timed out
+    return self._topology.get_server_session()
+  File "/usr/lib/python3/dist-packages/pymongo/topology.py", line 482, in get_server_session
+    self._select_servers_loop(
+  File "/usr/lib/python3/dist-packages/pymongo/topology.py", line 208, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: 10.20.12.188:27017: timed out
