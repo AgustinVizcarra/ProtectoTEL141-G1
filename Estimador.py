@@ -1,6 +1,5 @@
 import pymongo
 import time
-import requests
 import socket
 import json
 from fastapi import FastAPI
@@ -14,9 +13,7 @@ worker_estimacion = {}
 worker_info = {}
 tiempo_espera = 0
 collection={
-    "worker1":"10.0.0.30",
-    "worker2":"10.0.0.40",
-    "worker3":"10.0.0.50"
+    "worker1":"10.0.0.30"
 }
 
 app = FastAPI(title = "Servidor de Estimación",
@@ -26,6 +23,7 @@ app = FastAPI(title = "Servidor de Estimación",
 def socket_listener():
     #Instancia TCP-IP
     global tiempo_espera
+    global ready
     print("Servicio de estimacion inicializado en el puerto 6767")
     myclient = pymongo.MongoClient("mongodb://10.20.12.188:27017/")
     mydb = myclient["Estadisticas"]
@@ -70,6 +68,7 @@ def getInfoPorWorker(worker,connection):
     memoriaDisponibleMB =[]
     almacenamientoUsadoGB =[]
     almacenamientoUsadoPercent=[]
+    ## Acá se encuentra el error
     for value in data:
         value.pop("_id")
         ## Segmentamos la data que es de utilidad para nosotros
@@ -97,6 +96,7 @@ def getInfoPorWorker(worker,connection):
     info['AlmacenamientoUsado(Gb)'] = almacenamientoUsadoGB
     info['AlmacenamientoUsado(%)'] = almacenamientoUsadoPercent
     worker_info[worker] = info
+    print(worker_info)
 
 def sendDataToCompute(dataSegment,worker,IP):
     ## Referencia de la variable global
