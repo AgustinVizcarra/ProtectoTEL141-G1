@@ -1,18 +1,19 @@
 import pymongo
 import time
-import requests
 import socket
 import json
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+import time
+import datetime
 import threading
 
 ready = False
 worker_estimacion = {}
 worker_info = {}
+tiempo_espera = 0
 collection={
-    "worker1":"10.0.0.30",
-    "worker2":"10.0.0.40",
-    "worker3":"10.0.0.50"
+    "worker1":"10.0.0.30"
 }
 
 app = FastAPI(title = "Servidor de Estimación",
@@ -21,12 +22,16 @@ app = FastAPI(title = "Servidor de Estimación",
 
 def socket_listener():
     #Instancia TCP-IP
+    global tiempo_espera
+    global ready
     print("Servicio de estimacion inicializado en el puerto 6767")
     myclient = pymongo.MongoClient("mongodb://10.20.12.188:27017/")
     mydb = myclient["Estadisticas"]
     while True:
         ## Ejecuto de manera continua el get de la base de datos para luego enviarlo a cada worker
         hilos = []
+        ready = False
+        inicio = time.perf_counter()
         for worker in collection:
             instancia = mydb[worker]    
             hilos.append(threading.Thread(target=getInfoPorWorker,args=(worker,instancia)))
@@ -43,6 +48,10 @@ def socket_listener():
         for hilo in hilos:
             hilo.join()
             i+=1
+        final = time.perf_counter()
+        ## Aqui ya se debe tener todas las colecciones como para poder guardarla en base de datos
+        tiempo_espera = final - inicio
+        ready = True
         ## Dejo que espere otros 5 segundos
         time.sleep(5)
 
@@ -59,6 +68,7 @@ def getInfoPorWorker(worker,connection):
     memoriaDisponibleMB =[]
     almacenamientoUsadoGB =[]
     almacenamientoUsadoPercent=[]
+    ## Acá se encuentra el error
     for value in data:
         value.pop("_id")
         ## Segmentamos la data que es de utilidad para nosotros
@@ -86,6 +96,7 @@ def getInfoPorWorker(worker,connection):
     info['AlmacenamientoUsado(Gb)'] = almacenamientoUsadoGB
     info['AlmacenamientoUsado(%)'] = almacenamientoUsadoPercent
     worker_info[worker] = info
+    print(worker_info)
 
 def sendDataToCompute(dataSegment,worker,IP):
     ## Referencia de la variable global
@@ -113,8 +124,9 @@ def sendDataToCompute(dataSegment,worker,IP):
     aux['Est_AlmacenamientoUsado(Gb)'] = data[worker]['AlmacenamientoUsado(Gb)'] 
     aux['Est_AlmacenamientoUsado(%)'] = data[worker]['AlmacenamientoUsado(%)'] 
     ## Aqui proceso la informacion y la guardo en base de datos
+    aux['timestamp'] = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
     worker_estimacion[worker] = aux
-    ## Proximamente
+    
     
 @app.on_event('startup')
 async def startup():
@@ -125,20 +137,26 @@ async def startup():
 def get_recursos():
     #Obtener los ultimos recursos de cada worker
     ## Proximamente
-    myclient = pymongo.MongoClient("mongodb://10.20.12.188:27017/")
-    mydb = myclient["Estadisticas"]
-    info = {}
-    for x in collection:
-        mycol = mydb[collection[x]]
-        data = mycol.find().limit(1).sort("$natural",-1)
-        print(collection[x])
-        print(data[0])
-        infoW = data[0]
-        infoW.pop("_id")
-        print(infoW)
-        info[collection[x]] = infoW
-    return info
-
+    global ready
+    body_response = {}
+    if ready:
+        # Quiere decir que la informacion se encuentra lista para ser enviada
+        body_response["mensaje"] = "Estimacion ejecutada exitosamente"
+        body_response["estimacion"] = worker_estimacion
+        body_response["tiempo_respuesta"] = tiempo_espera
+        return JSONResponse(content=body_response,status_code=200)
+    else:
+        # La informacion no se encuentra lista para enviarse por lo que debe esperar
+        while True:
+            if ready:
+                # Quiere decir que la info se encuentra lista para enviarse
+                # Al dar un return es como si diera un break
+                body_response["mensaje"] = "Estimacion ejecutada exitosamente"
+                body_response["estimacion"] = worker_estimacion
+                body_response["tiempo_respuesta"] = tiempo_espera
+                return JSONResponse(content=body_response,status_code=200)
+                break
+            
 if __name__ == "__main__":
     import uvicorn
     #Inicializando servicio de socket
