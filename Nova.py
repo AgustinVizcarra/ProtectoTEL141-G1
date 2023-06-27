@@ -387,7 +387,11 @@ class NovaClient(object):
         else:
             print(" [*] Error al listar los Grupos de Seguridad:", response.status_code)
             return []
-            
+    
+    #Info SecurityGroup
+    def infoSecurityGroup(self,name):
+        pass
+    
 #Editar securitygroup
     def editarSecurityGroup(self,name,nuevoname,descripcion):
         id_security,description=self.obtenerIDSecurityGroup(name)
