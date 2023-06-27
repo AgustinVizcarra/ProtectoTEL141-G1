@@ -250,8 +250,17 @@ def crearKeyPair(keystone,nova):
             if(nombre == "ESC"):
                 print("[*] Ha salido de la opción de -Crear KeyPair-\n")
                 return
-            nova.crearKeyPair(nombre,keystone.getUserID())
-            break
+            while True:
+                ruta = input("| Ingrese la ruta donde desea que se descargue la keypair: ")
+                if(ruta != ''):
+                    if(ruta == "ESC"):
+                        print("[*] Ha salido de la opción de -Crear KeyPair-\n")
+                        return
+                    nova.crearKeyPair(nombre,ruta)
+                    break
+                else:
+                    print("[*] Ingrese una ruta válida\n")
+                    continue
         else:
             print("[*] Ingrese un nombre de keypair válido\n")
             continue

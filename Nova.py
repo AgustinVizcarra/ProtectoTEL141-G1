@@ -151,7 +151,7 @@ class NovaClient(object):
 
 ##########KEYPAIR###########
 #Crear Keypair
-    def crearKeyPair(self, name,user_id):
+    def crearKeyPair(self, name,ruta):
         url = f"{self.nova_url}/v2/os-keypairs"
         
         
