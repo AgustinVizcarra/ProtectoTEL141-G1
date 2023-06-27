@@ -451,34 +451,32 @@ class NovaClient(object):
     
 #Eliminar securitygroup
     def eliminarSecurityGroup(self,name):
-        id_security=self.obtenerIDSecurityGroup(name)
+        id_security=self.obtenerIDSecurityGroupSDK(name)
+        print(id_security)
 
         if id_security==None:
             print("No existe el Grupo de seguridad especificado")
         else:
 
             url_eliminar = f"{self.nova_url}/v2.1/os-security-groups/{id_security}"
-            #response = requests.get(url, headers=self.headers)
-
-            #if response.status_code == 200:
-            #    security_groups = response.json().get('security_groups', [])
-            #    for sg in security_groups:
-            #        if sg['name'] == name:
-                        #url_eliminar = f"{url}/{sg['id']}"
-        response_eliminar = requests.delete(url_eliminar, headers=self.headers)
-        if response_eliminar.status_code == 202:
-            print("[*] Grupo de seguridad eliminado exitosamente")
-        else:
-            print("[*] Error al eliminar el Grupo de seguridad")
-        return
+           
+            response_eliminar = requests.delete(url_eliminar, headers=self.headers)
+        
+        
+            if response_eliminar.status_code == 202:
+                print("[*] Grupo de seguridad eliminado exitosamente")
+            else:
+                print("[*] Error al eliminar el Grupo de seguridad")
+            return
     
 
 
-#Obtener ID de securitygroup
+#Obtener ID de securitygroup para funcion menu
     def obtenerIDSecurityGroup(self,securitygroup):
         
         url = f"{self.nova_url}/v2.1/os-security-groups"
         response = requests.get(url, headers=self.headers)
+        print(response.json())
         
 
         if response.status_code == 200:
@@ -491,27 +489,70 @@ class NovaClient(object):
             return None
         else:
             print("Error al obtener el ID del Grupo de seguridad:", response.status_code)
-            
+
+#Obtener ID de securitygroup solo para SDK
+    def obtenerIDSecurityGroupSDK(self,securitygroup):
+        
+        url = f"{self.nova_url}/v2.1/os-security-groups"
+        response = requests.get(url, headers=self.headers)
+        
+
+        if response.status_code == 200:
+            security_groups = response.json().get('security_groups', [])
+            for sg in security_groups:
+                if sg['name'] == securitygroup:
+
+                    return sg['id']
+            #print("No se encontró el Grupo de seguridad especificado")
+            return None
+        else:
+            print("Error al obtener el ID del Grupo de seguridad:", response.status_code)
+
+#Listar Reglas
+    def infoSecurityGroup(self,nombre):
+        self.neutron_url = "http://10.20.12.188:9696"
+        url = f"{self.neutron_url}/v2.0/security-group-rules"
+        response = requests.get(url, headers=self.headers)
+        print(response.status_code)
+        if response.status_code == 200:
+            security_group_rules = response.json().get('security_group_rules', [])
+            for rule in security_group_rules:
+                if rule['security_group_id'] == id:
+                    rule_id=rule['id']
+                    print("Protocolo:", security_group_rules['ip_protocol'])
+                    print("Puerto origen:", security_group_rules['from_port'])
+                    print("Puerto destino:", security_group_rules['to_port'])
+
     
 #Agregar regla
     def agregarRegla(self,nombre,protocol_ip,from_port,dest_port,cidr):
+        description='ssh'
+        self.neutron_url = "http://10.20.12.188:9696"
        
-        id_security=self.obtenerIDSecurityGroup(nombre)
+        id_security=self.obtenerIDSecurityGroupSDK(nombre)
 
-        url = f"{self.nova_url}/v2.1/os-security-group-rules"
+        url = f"{self.nova_url}/v2/os-security-group-rules"
+
+
         data = {
             'security_group_rule': {
                 'parent_group_id': id_security,
                 'direction': 'ingress',
                 'ethertype': 'IPv4',
                 'ip_protocol': protocol_ip,
+                'description':description,
                 'from_port': from_port,
                 'to_port': dest_port,
                 'remote_ip_prefix': cidr
                 
+                
             }
         }
+
         response = requests.post(url, json=data, headers=self.headers)
+        print(response.status_code)
+        
+
         if response.status_code == 200:
             security_group_rule = response.json().get('security_group_rule', {})
             print("|-----------------------------------------------------|")
@@ -526,25 +567,33 @@ class NovaClient(object):
             print("Error al agregar la regla de seguridad:", response.status_code)
 
 #Eliminar regla
-    def eliminarRegla(self,ID):
-        self.neutron_url = "http://10.20.12.188:9696"
-        url = f"{self.neutron_url}/v2.0/security-group-rules"
-        response = requests.get(url, headers=self.headers)
+    def eliminarRegla(self,id):
 
-        if response.status_code == 200:
-            security_group_rules = response.json().get('security_group_rules', [])
-            for rule in security_group_rules:
-                if rule['id'] == ID:
-                    url_eliminar = f"{url}/{ID}"
-                    response_eliminar = requests.delete(url_eliminar, headers=self.headers)
-                    if response_eliminar.status_code == 204:
-                        print("Regla de seguridad eliminada exitosamente")
-                    else:
-                        print("Error al eliminar la regla de seguridad:", response_eliminar.status_code)
-                    return
-            print("No se encontró la regla de seguridad especificada")
+        #self.neutron_url = "http://10.20.12.188:9696"
+
+        #id=self.obtenerIDSecurityGroupSDK(id)
+
+        #url = f"{self.neutron_url}/v2.0/security-group-rules"
+        #response = requests.get(url, headers=self.headers)
+        #print(response.status_code)
+        #rule_id=''
+        #if response.status_code == 200:
+        #    security_group_rules = response.json().get('security_group_rules', [])
+        #    for rule in security_group_rules:
+        #        if rule['security_group_id'] == id:
+        #            print(rule)
+        #            rule_id=rule['id']
+                    
+        url_eliminar = f"{self.nova_url}/v2.1/os-security-group-rules/{id}"
+        response_eliminar = requests.delete(url_eliminar, headers=self.headers)
+        
+
+        if response_eliminar.status_code == 202:
+            print("Regla de seguridad eliminada exitosamente")
         else:
-            print("Error al obtener las reglas de seguridad:", response.status_code)
+            print("Error al eliminar la regla de seguridad:", response_eliminar.status_code)
+
+
 
 #################MAQUINA VM (opciones)#######################
 # Listar las instancias de VM
