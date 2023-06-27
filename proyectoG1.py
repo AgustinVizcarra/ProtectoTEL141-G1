@@ -654,7 +654,7 @@ def getFlavorsID(nova):
     listado = nova.list_flavors()
     if len(listado) != 0:
         while True:
-            Cabecera = ["#","NOMBRE FLAVOR","RAM","DISK","vCPUS"]
+            Cabecera = ["#","NOMBRE FLAVOR","RAM (MB)","DISK (GB)","vCPUS"]
             filas = []
             i = 0
             for flavor in listado:
