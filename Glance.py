@@ -36,7 +36,7 @@ class GlanceClient(object):
             'ami': ['ami'],
             'vdi': ['vdi'],
             'vhd': ['vhd'],
-            'iso': ['iso']
+            
             # Agrega aquí otros formatos compatibles y sus correspondientes extensiones
         }
 

@@ -250,8 +250,17 @@ def crearKeyPair(keystone,nova):
             if(nombre == "ESC"):
                 print("[*] Ha salido de la opción de -Crear KeyPair-\n")
                 return
-            nova.crearKeyPair(nombre,keystone.getUserID())
-            break
+            while True:
+                ruta = input("| Ingrese la ruta donde desea que se descargue la keypair: ")
+                if(ruta != ''):
+                    if(ruta == "ESC"):
+                        print("[*] Ha salido de la opción de -Crear KeyPair-\n")
+                        return
+                    nova.crearKeyPair(nombre,ruta)
+                    break
+                else:
+                    print("[*] Ingrese una ruta válida\n")
+                    continue
         else:
             print("[*] Ingrese un nombre de keypair válido\n")
             continue
@@ -303,7 +312,7 @@ def borrarKeypair(keystone,nova):
 
 #Funcion que muestra el Menú SecurityGroup
 def menuSecurityGroup():
-    opcionesAdmin = ["Crear SecurityGroup","Listar SecurityGroup","Editar SecurityGroup","Configurar SecurityGroup","Eliminar SecurityGroup"]
+    opcionesAdmin = ["Crear SecurityGroup","Listar SecurityGroup","Info SecurityGroup","Editar SecurityGroup","Configurar SecurityGroup","Eliminar SecurityGroup"]
     opcionesUsuario = ["Listar SecurityGroup"]
     if keystone.getRolName() == "admin":
         opciones = opcionesAdmin
@@ -364,6 +373,25 @@ def listarSecurityGroup(nova):
         cabeceras = ["SECURITY GROUP","DESCRIPCION"]
         print(tabulate(listado,headers=cabeceras,tablefmt='grid',stralign='center'))    
 
+#Funcion que permite mostrar la información de un security group
+def infoSecurityGroup(nova):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        nombre = input("| Ingrese el nombre del securitygroup: ")
+        if(nombre != ''):
+            if(nombre == "ESC"):
+                print("[*] Ha salido de la opción de -Crear SecurityGroup- \n")
+                return
+            break
+        else:
+            print("[*] Ingrese una descripción válida\n")
+            continue
+    listado = nova.infoSecurityGroup(nombre)
+    print("\n")
+    if len(listado) != 0:
+        cabeceras = ["ID","DIRECTION","PROTOCOL","PORT_RANGE_MAX","PORT_RANGE_MIN"]
+        print(tabulate(listado,headers=cabeceras,tablefmt='grid',stralign='center')) 
+    
 #Funcion que permite editar un security group
 def editarSecurityGroup(nova):
     print("**Escriba ESC para poder salir de esta opción**")
@@ -485,7 +513,7 @@ def configurarSecurityGroup(nova):
         elif int(opcion) == 2:
             print("**Escriba ESC para poder salir de esta opción**")
             while True:
-                id = input("| Ingrese el nombre del Security Group: ")
+                id = input("| Ingrese el ID de la regla a eliminar: ")
                 if(id != ''):
                     if(id == "ESC"):
                         print("[*] Ha salido de la opción de -Eliminar Regla-\n")
@@ -626,7 +654,7 @@ def getFlavorsID(nova):
     listado = nova.list_flavors()
     if len(listado) != 0:
         while True:
-            Cabecera = ["#","NOMBRE FLAVOR","RAM","DISK","vCPUS"]
+            Cabecera = ["#","NOMBRE FLAVOR","RAM (MB)","DISK (GB)","vCPUS"]
             filas = []
             i = 0
             for flavor in listado:
@@ -789,7 +817,7 @@ def crearFlavor(nova):
                 print("[*] Ha salido de la opción de -Crear Flavor-\n")
                 return
             while True:
-                ram = input("| Ingrese la cantidad de RAM: ")
+                ram = input("| Ingrese la cantidad de RAM (MB): ")
                 if(ram != ''):
                     if(ram == "ESC"):
                         print("[*] Ha salido de la opción de -Crear Flavor-\n")
@@ -801,7 +829,7 @@ def crearFlavor(nova):
                                 print("[*] Ha salido de la opción de -Crear Flavor-\n")
                                 return
                             while True:
-                                disk = input("| Ingrese el tamaño del DISK: ")
+                                disk = input("| Ingrese el tamaño del DISK (GB): ")
                                 if(disk != ''):
                                     if(disk == "ESC"):
                                         print("[*] Ha salido de la opción de -Crear Flavor-\n")
@@ -1265,6 +1293,8 @@ def menu2(opcion,nivel,keystone,nova,glance,neutron):
             crearSecurityGroup(nova)
         elif(nivel == "Listar SecurityGroup"):
             listarSecurityGroup(nova)
+        elif(nivel == "Info SecurityGroup"):
+            infoSecurityGroup(nova)
         elif(nivel == "Editar SecurityGroup"):
             editarSecurityGroup(nova)
         elif(nivel == "Eliminar SecurityGroup"):
