@@ -509,8 +509,11 @@ class NovaClient(object):
             print("Error al obtener el ID del Grupo de seguridad:", response.status_code)
 
 #Listar Reglas
+    def infoSecurityGroup(self,nombre):
+        self.neutron_url = "http://10.20.12.188:9696"
+        url = f"{self.neutron_url}/v2.0/security-group-rules"
+        response = requests.get(url, headers=self.headers)
 
-            
     
 #Agregar regla
     def agregarRegla(self,nombre,protocol_ip,from_port,dest_port,cidr):
