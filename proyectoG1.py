@@ -170,7 +170,8 @@ def crearRed(keystone,neutron,nova,glance):
                                     if(gatewayIP == "ESC"):
                                         print("[*] Ha salido de la opción de -Crear RedProvider- \n")
                                         return
-                                    neutron.create_network(red,subred,cidr,gatewayIP,keystone.getProjectID())
+                                    neutron.create_network(red,subred,cidr)
+                                    #neutron.create_network(red,subred,cidr,gatewayIP,keystone.getProjectID())
                                     return
                                 else:
                                     print("[*] Ingrese una IP válido\n")
@@ -189,7 +190,7 @@ def crearRed(keystone,neutron,nova,glance):
 def infoRed(keystone,neutron):
     informacion = neutron.infoRedProvider(keystone.getProjectID())
     if len(informacion) != 0:
-        cabeceras = ["NOMBRE RED PRODOVIDER","DESCRIPCION","FECHA CREACIÓN","CIDR","GATEWAY IP"]
+        cabeceras = ["NOMBRE RED PROVIDER","DESCRIPCION","FECHA CREACIÓN","CIDR","GATEWAY IP"]
         print("\n")
         print(tabulate(informacion,headers=cabeceras,tablefmt='grid',stralign='center'))    
     
@@ -249,8 +250,17 @@ def crearKeyPair(keystone,nova):
             if(nombre == "ESC"):
                 print("[*] Ha salido de la opción de -Crear KeyPair-\n")
                 return
-            nova.crearKeyPair(nombre)
-            break
+            while True:
+                ruta = input("| Ingrese la ruta donde desea que se descargue la keypair: ")
+                if(ruta != ''):
+                    if(ruta == "ESC"):
+                        print("[*] Ha salido de la opción de -Crear KeyPair-\n")
+                        return
+                    nova.crearKeyPair(nombre,ruta)
+                    break
+                else:
+                    print("[*] Ingrese una ruta válida\n")
+                    continue
         else:
             print("[*] Ingrese un nombre de keypair válido\n")
             continue
@@ -302,7 +312,7 @@ def borrarKeypair(keystone,nova):
 
 #Funcion que muestra el Menú SecurityGroup
 def menuSecurityGroup():
-    opcionesAdmin = ["Crear SecurityGroup","Listar SecurityGroup","Editar SecurityGroup","Configurar SecurityGroup","Eliminar SecurityGroup"]
+    opcionesAdmin = ["Crear SecurityGroup","Listar SecurityGroup","Info SecurityGroup","Editar SecurityGroup","Configurar SecurityGroup","Eliminar SecurityGroup"]
     opcionesUsuario = ["Listar SecurityGroup"]
     if keystone.getRolName() == "admin":
         opciones = opcionesAdmin
@@ -363,6 +373,25 @@ def listarSecurityGroup(nova):
         cabeceras = ["SECURITY GROUP","DESCRIPCION"]
         print(tabulate(listado,headers=cabeceras,tablefmt='grid',stralign='center'))    
 
+#Funcion que permite mostrar la información de un security group
+def infoSecurityGroup(nova):
+    print("**Escriba ESC para poder salir de esta opción**")
+    while True:
+        nombre = input("| Ingrese el nombre del securitygroup: ")
+        if(nombre != ''):
+            if(nombre == "ESC"):
+                print("[*] Ha salido de la opción de -Crear SecurityGroup- \n")
+                return
+            break
+        else:
+            print("[*] Ingrese una descripción válida\n")
+            continue
+    listado = nova.infoSecurityGroup(nombre)
+    print("\n")
+    if len(listado) != 0:
+        cabeceras = ["ID","DIRECTION","PROTOCOL","PORT_RANGE_MAX","PORT_RANGE_MIN"]
+        print(tabulate(listado,headers=cabeceras,tablefmt='grid',stralign='center')) 
+    
 #Funcion que permite editar un security group
 def editarSecurityGroup(nova):
     print("**Escriba ESC para poder salir de esta opción**")
@@ -484,7 +513,7 @@ def configurarSecurityGroup(nova):
         elif int(opcion) == 2:
             print("**Escriba ESC para poder salir de esta opción**")
             while True:
-                id = input("| Ingrese el nombre del Security Group: ")
+                id = input("| Ingrese el ID de la regla a eliminar: ")
                 if(id != ''):
                     if(id == "ESC"):
                         print("[*] Ha salido de la opción de -Eliminar Regla-\n")
@@ -546,7 +575,7 @@ def crearVirtualMachine(nova,neutron,glance,keystone):
             nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID)
             break
         else:
-            pritn("[*] Ingrese un nombre de VirtualMachine válido\n")
+            print("[*] Ingrese un nombre de VirtualMachine válido\n")
             continue
     
 #Funcion que permite listar las VirtualMachine
@@ -613,7 +642,7 @@ def borrarVirtualMachine(nova,projectID):
             if(nombre == "ESC"):
                 print("[*] Ha salido de la opción de -Borrar VirtualMachine- \n")
                 return
-            nova.delete_instance(nombre,projectID)
+            nova.delete_instance(nombre)
             break
         else:
             print("[*] Ingrese un nombre válido\n")
@@ -625,7 +654,7 @@ def getFlavorsID(nova):
     listado = nova.list_flavors()
     if len(listado) != 0:
         while True:
-            Cabecera = ["#","NOMBRE FLAVOR","RAM","DISK","vCPUS"]
+            Cabecera = ["#","NOMBRE FLAVOR","RAM (MB)","DISK (GB)","vCPUS"]
             filas = []
             i = 0
             for flavor in listado:
@@ -675,7 +704,7 @@ def getImagenesID(glance):
 #Funcion que permite obtener el ID de una red
 def getNetworkID(neutron,keystone):
     idRed = None
-    listado = neutron.listar_redes(keystone.getProjectID())
+    listado = neutron.list_networks(keystone.getProjectID())
     if len(listado) != 0:
         while True:
             Cabecera = ["#","NOMBRE RED PROVIDER","CIDR","GATEWAY IP"]
@@ -684,9 +713,9 @@ def getNetworkID(neutron,keystone):
             for red in listado:
                 filasopt = []
                 filasopt.append(str(i+1))
+                filasopt.append(str(red[0]))
                 filasopt.append(str(red[1]))
                 filasopt.append(str(red[2]))
-                filasopt.append(str(red[3]))
                 filas.append(filasopt)
                 i = i + 1
             print("\n")
@@ -695,7 +724,7 @@ def getNetworkID(neutron,keystone):
             if int(opcionRed) > len(listado):
                 print("[*] Ingrese el # de una red válida\n")
             else:
-                idRed = listado[int(opcionRed)-1][0]
+                idRed = listado[int(opcionRed)-1][3]
                 break
     return idRed
 
@@ -719,7 +748,7 @@ def getKeyPairID(nova,keystone):
             if int(opcionKeyPair) > len(listado):
                 print("[*] Ingrese el # de una keypair válida\n")
             else:
-                keypair = listado[int(opcionKeyPair)-1][0]
+                keypair = listado[int(opcionKeyPair)-1]
                 break
         return nova.obtenerIDKeyPair(keypair,keystone.getUserID())
     else:
@@ -748,7 +777,7 @@ def getSecurityGroupID(nova):
             else:
                 securitygroup = listado[int(opcionSecurityGroup)-1][0]
                 break
-        return nova.obtenerIDSecurityGroup(securitygroup)
+        return nova.obtenerIDSecurityGroup(securitygroup)[0]
     else:
         return None
     
@@ -788,7 +817,7 @@ def crearFlavor(nova):
                 print("[*] Ha salido de la opción de -Crear Flavor-\n")
                 return
             while True:
-                ram = input("| Ingrese la cantidad de RAM: ")
+                ram = input("| Ingrese la cantidad de RAM (MB): ")
                 if(ram != ''):
                     if(ram == "ESC"):
                         print("[*] Ha salido de la opción de -Crear Flavor-\n")
@@ -800,7 +829,7 @@ def crearFlavor(nova):
                                 print("[*] Ha salido de la opción de -Crear Flavor-\n")
                                 return
                             while True:
-                                disk = input("| Ingrese el tamaño del DISK: ")
+                                disk = input("| Ingrese el tamaño del DISK (GB): ")
                                 if(disk != ''):
                                     if(disk == "ESC"):
                                         print("[*] Ha salido de la opción de -Crear Flavor-\n")
@@ -1136,8 +1165,18 @@ def editarSlice(keystone,neutron,nova):
                         if(nombre2 == "ESC"):
                             print("[*] Ha salido de la opción de -Editar Slice- \n")
                             return "Salir"
-                        #FUNCION UNIR VM1 - VM2
-                        return "Salir"
+                        while True:
+                            cidrRed = input("| Ingrese el CIDR de la red: ")
+                            if (cidrRed != ''):
+                                if(cidrRed == "ESC"):
+                                    print("[*] Ha salido de la opción de -Editar Slice- \n")
+                                    return "Salir"
+                                #FUNCION UNIR VM1 - VM2
+                                TopoConstructor.linkConstructor(neutron=neutron,nova=nova,VMs=[VM(name=nombre,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None),VM(name=nombre2,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None)],network=[],CIDR=cidrRed)
+                                return "Salir"
+                            else:
+                                print("[*] Ingrese un CIDR válido\n")
+                                continue
                     else:
                         print("[*] Ingrese un nombre válido\n")
                         continue
@@ -1159,10 +1198,11 @@ def editarSlice(keystone,neutron,nova):
                             print("[*] Ha salido de la opción de -Editar Slice- \n")
                             return "Salir"
                         #FUNCION UNIR VM1 - RED PROVIDER
+                        TopoConstructor.linkConstructor(neutron=neutron,nova=nova,VMs=[VM(name=nombre,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None)],network=[red],CIDR=None)
                         return "Salir"
                     else:
                         print("[*] Ingrese un nombre de red válido\n")
-                        continue
+                        continue    
             else:
                 print("[*] Ingrese un nombre válido\n")
                 continue
@@ -1253,6 +1293,8 @@ def menu2(opcion,nivel,keystone,nova,glance,neutron):
             crearSecurityGroup(nova)
         elif(nivel == "Listar SecurityGroup"):
             listarSecurityGroup(nova)
+        elif(nivel == "Info SecurityGroup"):
+            infoSecurityGroup(nova)
         elif(nivel == "Editar SecurityGroup"):
             editarSecurityGroup(nova)
         elif(nivel == "Eliminar SecurityGroup"):
@@ -1333,13 +1375,16 @@ while(int(privilegios)<0):
     password = getpass("| Ingrese su contraseña: ")
     keystone = KeystoneAuth(username, password)
     tokensito = keystone.get_token()
+    #print(tokensito)
     #Si tiene cuenta de Openstack 
     if tokensito != None:
         tokensito = keystone.updateToken()
+        #print(tokensito)
         while True:
             result,keystone = MenuListaProyectos(keystone)
             project_id=keystone.getProjectID()
             tokensito=keystone.get_token_project(project_id)
+            #print(tokensito)
             if not (result): #No esta asignado a ningun proyecto
                 print("[*] Gracias por usar nuestro sistema!\n")
                 privilegios = 0
@@ -1353,7 +1398,8 @@ while(int(privilegios)<0):
                     resultado = menu2(opcion,"Menú",keystone,nova,glance,neutron)
                     if not (resultado):
                         break  
-            tokensito = keystone.updateToken()        
+            tokensito = keystone.updateToken()  
+            #print(tokensito)      
                     
     #Si tiene cuenta de Linux
     else:

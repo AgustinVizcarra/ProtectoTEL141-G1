@@ -8,9 +8,9 @@ class TopoConstructor:
         networks = []
         #Create Networks
         for i in range(numberNetworks):
-            nameNetwork = str(uuid.uuid4)
+            nameNetwork = str(uuid.uuid4())
             networks.append(nameNetwork)
-            nameSubnet = str(uuid.uuid4)
+            nameSubnet = str(uuid.uuid4())
             network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
             NetworkConstructor.createNetwork(network,neutron,nova)
         #Create VMs
@@ -28,9 +28,9 @@ class TopoConstructor:
         networks = []
         #Create Networks
         for i in range(numberNetworks):
-            nameNetwork = str(uuid.uuid4)
+            nameNetwork = str(uuid.uuid4())
             networks.append(nameNetwork)
-            nameSubnet = str(uuid.uuid4)
+            nameSubnet = str(uuid.uuid4())
             network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
             NetworkConstructor.createNetwork(network,neutron,nova)
         #Create VMs
@@ -41,12 +41,12 @@ class TopoConstructor:
 
     def busConstructor(self,VMs,CIDR,neutron,nova):
         numberNetworks = 1
-        networks = []
+        networks = [] 
         #Create Networks
         for i in range(numberNetworks):
-            nameNetwork = str(uuid.uuid4)
-            networks.append(nameNetwork)
-            nameSubnet = str(uuid.uuid4)
+            nameNetwork = str(uuid.uuid4())
+            networks.append(nameNetwork) # network = ["asxcsda","asdqoi","foiwenfweip"]
+            nameSubnet = str(uuid.uuid4())
             network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
             NetworkConstructor.createNetwork(network,neutron,nova)
         #Create VMs
@@ -59,13 +59,16 @@ class TopoConstructor:
         if len(network) == 0 and len(VMs) == 2:
             networkC = networkConstructor(CIDR=CIDR,neutron=neutron,nova=nova)
             for vm in VMs:
-                VMConstructor.editVM(VM=vm,networks=[networkC],neutron=neutron,nova=nova)
+                VMConstructor.editVM(VM=vm,network=networkC.nameNetwork,neutron=neutron,nova=nova)
             return 1
         elif len(network) == 1 and len(VMs) == 1:
-            VMConstructor.editVM(VM=vm,networks=network,neutron=neutron,nova=nova)
+            VMConstructor.editVM(VM=VMs[0],network=network[0],neutron=neutron,nova=nova)
             return 1
         else:
             return 1
+        
+    def linkDestructor(VM, network, neutron, nova):
+        pass
         
 
 
@@ -78,15 +81,15 @@ class TopoConstructor:
         Ndiagonales = []
         #Create Networks
         for i in range(numberNetworksPerimetrales):
-            nameNetwork = str(uuid.uuid4)
+            nameNetwork = str(uuid.uuid4())
             networks.append(nameNetwork)
-            nameSubnet = str(uuid.uuid4)
+            nameSubnet = str(uuid.uuid4())
             network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
             NetworkConstructor.createNetwork(network,neutron,nova)
         for i in range(diagonales):
-            nameNetwork = str(uuid.uuid4)
+            nameNetwork = str(uuid.uuid4())
             Ndiagonales.append(nameNetwork)
-            nameSubnet = str(uuid.uuid4)
+            nameSubnet = str(uuid.uuid4())
             network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
             NetworkConstructor.createNetwork(network,neutron,nova)
         #Create VMs
@@ -166,8 +169,8 @@ class TopoConstructor:
             VMConstructor.createVM(mapVMVertice[i],aux,neutron,nova)
             
 def networkConstructor(CIDR,neutron,nova):
-        nameNetwork = str(uuid.uuid4)
-        nameSubnet = str(uuid.uuid4)
+        nameNetwork = str(uuid.uuid4())
+        nameSubnet = str(uuid.uuid4())
         network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
         NetworkConstructor.createNetwork(network,neutron,nova)
         return network            

@@ -114,15 +114,15 @@ if __name__ == "__main__":
         overallInfo = {}
         #CPU
         for i in range(len(utilizacionCPU)):
-            overallInfo["Core"+str(i)+"(%)"] = str(round(utilizacionCPU[i],1))
+            overallInfo["Core"+str(i)+"(%)"] = round(utilizacionCPU[i],1)
         #Memoria 
-        overallInfo["MemoriaUsada"]=infoMemoria[3]+infoMemoria[4]
-        overallInfo["MemoriaDisponible"]=infoMemoria[6]+infoMemoria[7]
-        overallInfo["MemoriaTotal"]=infoMemoria[0]+infoMemoria[1]
+        overallInfo["MemoriaUsada(Gb)"]= float(infoMemoria[6]) if float(infoMemoria[3])>float(infoMemoria[6]) else   float(infoMemoria[3])
+        overallInfo["MemoriaDisponible(Mb)"]= float(infoMemoria[3]) if float(infoMemoria[3])>float(infoMemoria[6]) else   float(infoMemoria[6])
+        overallInfo["MemoriaTotal(Gb)"]=float(infoMemoria[0])
         #Almacenamiento
-        overallInfo["AlmacenamientoUsado"]=infoStorage[1]+"b"
-        overallInfo["AlmacenamientoUsado(%)"]=infoStorage[3]
-        overallInfo["AlmacenamientoTotal"]=infoStorage[0]+"b"
+        overallInfo["AlmacenamientoUsado(Gb)"]=float(infoStorage[1].strip("G"))
+        overallInfo["AlmacenamientoUsado(%)"]=int(infoStorage[3].strip("%"))
+        overallInfo["AlmacenamientoTotal(Gb)"]=float(infoStorage[0].strip("G"))
         #Red
         overallInfo["ens3(RX)bps"]=velocidadRX[0]
         overallInfo["ens3(TX)bps"]=velocidadTX[0]
