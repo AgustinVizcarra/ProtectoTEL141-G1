@@ -5,7 +5,7 @@ import json
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 import time
-import datetime
+from datetime import datetime  
 import threading
 
 ready = False
@@ -13,9 +13,9 @@ worker_estimacion = {}
 worker_info = {}
 tiempo_espera = 0
 collection={
-    "worker1":"6701",
-    "worker2":"6702",
-    "worker3":"6703"
+    "worker1":6701,
+    "worker2":6702,
+    "worker3":6703
 }
 
 app = FastAPI(title = "Servidor de Estimación",
@@ -70,7 +70,6 @@ def getInfoPorWorker(worker,connection):
     memoriaDisponibleMB =[]
     almacenamientoUsadoGB =[]
     almacenamientoUsadoPercent=[]
-    ## Acá se encuentra el error
     for value in data:
         value.pop("_id")
         ## Segmentamos la data que es de utilidad para nosotros
@@ -103,7 +102,7 @@ def sendDataToCompute(dataSegment,worker,port):
     ## Referencia de la variable global
     global worker_estimacion
     client_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    client_socket.connect(('10.20.12.48',6767))
+    client_socket.connect(('10.20.12.48',port))
     informacion=dataSegment
     ## Envío la información al nodo de computo
     data = json.dumps(informacion)
@@ -156,7 +155,6 @@ def get_recursos():
                 body_response["estimacion"] = worker_estimacion
                 body_response["tiempo_respuesta"] = tiempo_espera
                 return JSONResponse(content=body_response,status_code=200)
-                break
             
 if __name__ == "__main__":
     import uvicorn

@@ -1,0 +1,36 @@
+INFO:     Started server process [851385]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://10.0.0.10:9090 (Press CTRL+C to quit)
+Servicio de escucha inicializado en el puerto 9898
+Escuchando...
+Iniciando el API de Monitoreo
+Esperando solicitudes
+worker1
+{'_id': ObjectId('649926e683c187f729bbe05b'), 'Core0(%)': 6.7, 'Core1(%)': 9.7, 'Core2(%)': 3.7, 'Core3(%)': 7.0, 'MemoriaUsada(Gb)': 2.7, 'MemoriaDisponible(Mb)': 1141.7, 'MemoriaTotal(Gb)': 4.1, 'AlmacenamientoUsado(Gb)': 3.2, 'AlmacenamientoUsado(%)': 33, 'AlmacenamientoTotal(Gb)': 9.5, 'ens3(RX)bps': 0.0, 'ens3(TX)bps': 0.0, 'ens4(RX)bps': 7651.3, 'ens4(TX)bps': 7651.3, 'timestamp': '26-06-2023 05:49:26'}
+{'Core0(%)': 6.7, 'Core1(%)': 9.7, 'Core2(%)': 3.7, 'Core3(%)': 7.0, 'MemoriaUsada(Gb)': 2.7, 'MemoriaDisponible(Mb)': 1141.7, 'MemoriaTotal(Gb)': 4.1, 'AlmacenamientoUsado(Gb)': 3.2, 'AlmacenamientoUsado(%)': 33, 'AlmacenamientoTotal(Gb)': 9.5, 'ens3(RX)bps': 0.0, 'ens3(TX)bps': 0.0, 'ens4(RX)bps': 7651.3, 'ens4(TX)bps': 7651.3, 'timestamp': '26-06-2023 05:49:26'}
+worker2
+{'_id': ObjectId('649926e783c187f729bbe05d'), 'Core0(%)': 1.0, 'Core1(%)': 3.7, 'Core2(%)': 1.3, 'Core3(%)': 4.7, 'MemoriaUsada(Gb)': 2.7, 'MemoriaDisponible(Mb)': 1097.7, 'MemoriaTotal(Gb)': 4.1, 'AlmacenamientoUsado(Gb)': 3.2, 'AlmacenamientoUsado(%)': 33, 'AlmacenamientoTotal(Gb)': 9.5, 'ens3(RX)bps': 0.0, 'ens3(TX)bps': 0.0, 'ens4(RX)bps': 40.0, 'ens4(TX)bps': 40.0, 'timestamp': '26-06-2023 05:49:27'}
+{'Core0(%)': 1.0, 'Core1(%)': 3.7, 'Core2(%)': 1.3, 'Core3(%)': 4.7, 'MemoriaUsada(Gb)': 2.7, 'MemoriaDisponible(Mb)': 1097.7, 'MemoriaTotal(Gb)': 4.1, 'AlmacenamientoUsado(Gb)': 3.2, 'AlmacenamientoUsado(%)': 33, 'AlmacenamientoTotal(Gb)': 9.5, 'ens3(RX)bps': 0.0, 'ens3(TX)bps': 0.0, 'ens4(RX)bps': 40.0, 'ens4(TX)bps': 40.0, 'timestamp': '26-06-2023 05:49:27'}
+worker3
+{'_id': ObjectId('649926e783c187f729bbe05c'), 'Core0(%)': 1.7, 'Core1(%)': 100.0, 'Core2(%)': 1.0, 'Core3(%)': 0.7, 'MemoriaUsada(Gb)': 2.8, 'MemoriaDisponible(Mb)': 1004.4, 'MemoriaTotal(Gb)': 4.1, 'AlmacenamientoUsado(Gb)': 3.2, 'AlmacenamientoUsado(%)': 33, 'AlmacenamientoTotal(Gb)': 9.5, 'ens3(RX)bps': 0.0, 'ens3(TX)bps': 0.0, 'ens4(RX)bps': 64.7, 'ens4(TX)bps': 64.7, 'timestamp': '26-06-2023 05:49:27'}
+{'Core0(%)': 1.7, 'Core1(%)': 100.0, 'Core2(%)': 1.0, 'Core3(%)': 0.7, 'MemoriaUsada(Gb)': 2.8, 'MemoriaDisponible(Mb)': 1004.4, 'MemoriaTotal(Gb)': 4.1, 'AlmacenamientoUsado(Gb)': 3.2, 'AlmacenamientoUsado(%)': 33, 'AlmacenamientoTotal(Gb)': 9.5, 'ens3(RX)bps': 0.0, 'ens3(TX)bps': 0.0, 'ens4(RX)bps': 64.7, 'ens4(TX)bps': 64.7, 'timestamp': '26-06-2023 05:49:27'}
+INFO:     10.8.0.66:50476 - "GET /recursos HTTP/1.1" 200 OK
+INFO:     Started server process [854492]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://10.0.0.10:8888 (Press CTRL+C to quit)
+Servicio de estimacion inicializado en el puerto 6767
+Iniciando el API de Estimación
+Esperando solicitudes...
+INFO:     10.8.0.66:51700 - "GET /estimacion HTTP/1.1" 200 OK
+worker1
+{'_id': ObjectId('649926e683c187f729bbe05b'), 'Core0(%)': 6.7, 'Core1(%)': 9.7, 'Core2(%)': 3.7, 'Core3(%)': 7.0, 'MemoriaUsada(Gb)': 2.7, 'MemoriaDisponible(Mb)': 1141.7, 'MemoriaTotal(Gb)': 4.1, 'AlmacenamientoUsado(Gb)': 3.2, 'AlmacenamientoUsado(%)': 33, 'AlmacenamientoTotal(Gb)': 9.5, 'ens3(RX)bps': 0.0, 'ens3(TX)bps': 0.0, 'ens4(RX)bps': 7651.3, 'ens4(TX)bps': 7651.3, 'timestamp': '26-06-2023 05:49:26'}
+{'Core0(%)': 6.7, 'Core1(%)': 9.7, 'Core2(%)': 3.7, 'Core3(%)': 7.0, 'MemoriaUsada(Gb)': 2.7, 'MemoriaDisponible(Mb)': 1141.7, 'MemoriaTotal(Gb)': 4.1, 'AlmacenamientoUsado(Gb)': 3.2, 'AlmacenamientoUsado(%)': 33, 'AlmacenamientoTotal(Gb)': 9.5, 'ens3(RX)bps': 0.0, 'ens3(TX)bps': 0.0, 'ens4(RX)bps': 7651.3, 'ens4(TX)bps': 7651.3, 'timestamp': '26-06-2023 05:49:26'}
+worker2
+{'_id': ObjectId('649926e783c187f729bbe05d'), 'Core0(%)': 1.0, 'Core1(%)': 3.7, 'Core2(%)': 1.3, 'Core3(%)': 4.7, 'MemoriaUsada(Gb)': 2.7, 'MemoriaDisponible(Mb)': 1097.7, 'MemoriaTotal(Gb)': 4.1, 'AlmacenamientoUsado(Gb)': 3.2, 'AlmacenamientoUsado(%)': 33, 'AlmacenamientoTotal(Gb)': 9.5, 'ens3(RX)bps': 0.0, 'ens3(TX)bps': 0.0, 'ens4(RX)bps': 40.0, 'ens4(TX)bps': 40.0, 'timestamp': '26-06-2023 05:49:27'}
+{'Core0(%)': 1.0, 'Core1(%)': 3.7, 'Core2(%)': 1.3, 'Core3(%)': 4.7, 'MemoriaUsada(Gb)': 2.7, 'MemoriaDisponible(Mb)': 1097.7, 'MemoriaTotal(Gb)': 4.1, 'AlmacenamientoUsado(Gb)': 3.2, 'AlmacenamientoUsado(%)': 33, 'AlmacenamientoTotal(Gb)': 9.5, 'ens3(RX)bps': 0.0, 'ens3(TX)bps': 0.0, 'ens4(RX)bps': 40.0, 'ens4(TX)bps': 40.0, 'timestamp': '26-06-2023 05:49:27'}
+worker3
+{'_id': ObjectId('649926e783c187f729bbe05c'), 'Core0(%)': 1.7, 'Core1(%)': 100.0, 'Core2(%)': 1.0, 'Core3(%)': 0.7, 'MemoriaUsada(Gb)': 2.8, 'MemoriaDisponible(Mb)': 1004.4, 'MemoriaTotal(Gb)': 4.1, 'AlmacenamientoUsado(Gb)': 3.2, 'AlmacenamientoUsado(%)': 33, 'AlmacenamientoTotal(Gb)': 9.5, 'ens3(RX)bps': 0.0, 'ens3(TX)bps': 0.0, 'ens4(RX)bps': 64.7, 'ens4(TX)bps': 64.7, 'timestamp': '26-06-2023 05:49:27'}
+{'Core0(%)': 1.7, 'Core1(%)': 100.0, 'Core2(%)': 1.0, 'Core3(%)': 0.7, 'MemoriaUsada(Gb)': 2.8, 'MemoriaDisponible(Mb)': 1004.4, 'MemoriaTotal(Gb)': 4.1, 'AlmacenamientoUsado(Gb)': 3.2, 'AlmacenamientoUsado(%)': 33, 'AlmacenamientoTotal(Gb)': 9.5, 'ens3(RX)bps': 0.0, 'ens3(TX)bps': 0.0, 'ens4(RX)bps': 64.7, 'ens4(TX)bps': 64.7, 'timestamp': '26-06-2023 05:49:27'}
+INFO:     10.8.0.66:51701 - "GET /recursos HTTP/1.1" 200 OK
