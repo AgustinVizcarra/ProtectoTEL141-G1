@@ -13,7 +13,9 @@ worker_estimacion = {}
 worker_info = {}
 tiempo_espera = 0
 collection={
-    "worker1":"10.0.0.30"
+    "worker1":"6701",
+    "worker2":"6702",
+    "worker3":"6703"
 }
 
 app = FastAPI(title = "Servidor de Estimación",
@@ -25,7 +27,7 @@ def socket_listener():
     global tiempo_espera
     global ready
     print("Servicio de estimacion inicializado en el puerto 6767")
-    myclient = pymongo.MongoClient("mongodb://10.20.12.188:27017/")
+    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     mydb = myclient["Estadisticas"]
     while True:
         ## Ejecuto de manera continua el get de la base de datos para luego enviarlo a cada worker
@@ -96,13 +98,12 @@ def getInfoPorWorker(worker,connection):
     info['AlmacenamientoUsado(Gb)'] = almacenamientoUsadoGB
     info['AlmacenamientoUsado(%)'] = almacenamientoUsadoPercent
     worker_info[worker] = info
-    print(worker_info)
 
-def sendDataToCompute(dataSegment,worker,IP):
+def sendDataToCompute(dataSegment,worker,port):
     ## Referencia de la variable global
     global worker_estimacion
     client_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    client_socket.connect((IP,6767))
+    client_socket.connect(('10.20.12.48',6767))
     informacion=dataSegment
     ## Envío la información al nodo de computo
     data = json.dumps(informacion)
