@@ -798,7 +798,7 @@ def crearFlavor(nova):
                 print("[*] Ha salido de la opción de -Crear Flavor-\n")
                 return
             while True:
-                ram = input("| Ingrese la cantidad de RAM: ")
+                ram = input("| Ingrese la cantidad de RAM (MB): ")
                 if(ram != ''):
                     if(ram == "ESC"):
                         print("[*] Ha salido de la opción de -Crear Flavor-\n")
@@ -810,7 +810,7 @@ def crearFlavor(nova):
                                 print("[*] Ha salido de la opción de -Crear Flavor-\n")
                                 return
                             while True:
-                                disk = input("| Ingrese el tamaño del DISK: ")
+                                disk = input("| Ingrese el tamaño del DISK (GB): ")
                                 if(disk != ''):
                                     if(disk == "ESC"):
                                         print("[*] Ha salido de la opción de -Crear Flavor-\n")
