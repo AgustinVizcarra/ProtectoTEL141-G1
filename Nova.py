@@ -513,6 +513,15 @@ class NovaClient(object):
         self.neutron_url = "http://10.20.12.188:9696"
         url = f"{self.neutron_url}/v2.0/security-group-rules"
         response = requests.get(url, headers=self.headers)
+        print(response.status_code)
+        if response.status_code == 200:
+            security_group_rules = response.json().get('security_group_rules', [])
+            for rule in security_group_rules:
+                if rule['security_group_id'] == id:
+                    rule_id=rule['id']
+                    print("Protocolo:", security_group_rules['ip_protocol'])
+                    print("Puerto origen:", security_group_rules['from_port'])
+                    print("Puerto destino:", security_group_rules['to_port'])
 
     
 #Agregar regla
@@ -560,22 +569,22 @@ class NovaClient(object):
 #Eliminar regla
     def eliminarRegla(self,id):
 
-        self.neutron_url = "http://10.20.12.188:9696"
+        #self.neutron_url = "http://10.20.12.188:9696"
 
-        id=self.obtenerIDSecurityGroupSDK(id)
+        #id=self.obtenerIDSecurityGroupSDK(id)
 
-        url = f"{self.neutron_url}/v2.0/security-group-rules"
-        response = requests.get(url, headers=self.headers)
-        print(response.status_code)
-        rule_id=''
-        if response.status_code == 200:
-            security_group_rules = response.json().get('security_group_rules', [])
-            for rule in security_group_rules:
-                if rule['security_group_id'] == id:
-                    print(rule)
-                    rule_id=rule['id']
+        #url = f"{self.neutron_url}/v2.0/security-group-rules"
+        #response = requests.get(url, headers=self.headers)
+        #print(response.status_code)
+        #rule_id=''
+        #if response.status_code == 200:
+        #    security_group_rules = response.json().get('security_group_rules', [])
+        #    for rule in security_group_rules:
+        #        if rule['security_group_id'] == id:
+        #            print(rule)
+        #            rule_id=rule['id']
                     
-        url_eliminar = f"{self.nova_url}/v2.1/os-security-group-rules/{rule_id}"
+        url_eliminar = f"{self.nova_url}/v2.1/os-security-group-rules/{id}"
         response_eliminar = requests.delete(url_eliminar, headers=self.headers)
         
 
