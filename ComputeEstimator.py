@@ -97,25 +97,25 @@ def estimarCPU(input_core_0_percent,input_core_1_percent,input_core_2_percent,in
     ## Para el core 0 (%)
     train = input_core_0_percent
     # Se entrena el según la siguiente variante de ARIMA: CPU Workload forecasting of Machines in Data Centers using LSTM Recurrent Neural Networks and ARIMA Models
-    model = ARIMA(train, order=(3, 1, 2))
+    model = ARIMA(train, order=(2, 1, 1))
     model_fit = model.fit()
     # Se realiza la predicción del valor siguiente a las listas de entrada
-    estimacion_core_0_percent = model_fit.forecast()[0]
+    estimacion_core_0_percent = model_fit.forecast()[0] if model_fit.forecast()[0] > 0 else 0.5
     ## Para el core 1 (%)
     train = input_core_1_percent
-    model = ARIMA(train, order=(3, 1, 2))
+    model = ARIMA(train, order=(2, 1, 1))
     model_fit = model.fit()
-    estimacion_core_1_percent = model_fit.forecast()[0]
+    estimacion_core_1_percent = model_fit.forecast()[0] if model_fit.forecast()[0] > 0 else 0.5
     ## Para el core 2 (%)
     train = input_core_2_percent
-    model = ARIMA(train, order=(3, 1, 2))
+    model = ARIMA(train, order=(2,1,1))
     model_fit = model.fit()
-    estimacion_core_2_percent = model_fit.forecast()[0]
+    estimacion_core_2_percent = model_fit.forecast()[0] if model_fit.forecast()[0] > 0 else 0.5
     ## Para el core 3 (%)
     train = input_core_3_percent
-    model = ARIMA(train, order=(3, 1, 2))
+    model = ARIMA(train, order=(2,1,1))
     model_fit = model.fit()
-    estimacion_core_3_percent = model_fit.forecast()[0]
+    estimacion_core_3_percent = model_fit.forecast()[0] if model_fit.forecast()[0] > 0 else 0.5
     
 def estimarMemoria(input_memoria_usada_GB,input_memoria_diponible_MB):
     ## ARIMA

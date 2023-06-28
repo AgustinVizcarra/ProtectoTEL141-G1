@@ -386,7 +386,7 @@ def infoSecurityGroup(nova):
         else:
             print("[*] Ingrese una descripción válida\n")
             continue
-    listado = nova.infoSecurityGroup(nombre)
+    listado = nova.infoSecurityGroupRules(nombre)
     print("\n")
     if len(listado) != 0:
         cabeceras = ["ID","DIRECTION","PROTOCOL","PORT_RANGE_MAX","PORT_RANGE_MIN"]
