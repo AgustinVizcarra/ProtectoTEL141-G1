@@ -98,7 +98,7 @@ class TopoConstructor:
         return 1
         pass
 
-    def meshConstructorV2(VMs,CIDR,neutron,nova):
+    def meshConstructorV2(self,VMs,CIDR,neutron,nova):
         ### Primero debemos mapear la relación entre VM's y el número de vertices de una red MESH
         ## para eso se realiza lo siguiente:
         mapVMVertice = {}
