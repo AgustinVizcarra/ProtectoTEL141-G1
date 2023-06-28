@@ -2,7 +2,7 @@
 import requests
 from Glance import GlanceClient
 from Neutron import NeutronClient
-import time
+import json
 import os
 ##########FLAVOR###########
 class NovaClient(object):
@@ -160,7 +160,7 @@ class NovaClient(object):
             data = {
                 'keypair': {
                     'name': name,
-                    'user_id': user_id
+                    #'user_id': user_id
                 }
             }
 
@@ -185,7 +185,7 @@ class NovaClient(object):
                 nombre_archivo = llave_name + "_public_key.pem"
                 
                 # Ruta completa al directorio de destino
-                carpeta_destino = "/home/labtel/Descargas" #RUTA EN ESPECIFICO QUE SE LE PUEDE PEDIR AL USUARIO
+                carpeta_destino = ruta #RUTA EN ESPECIFICO QUE SE LE PUEDE PEDIR AL USUARIO
                 
                 # Ruta completa al archivo
                 ruta_archivo = os.path.join(carpeta_destino, nombre_archivo)
@@ -195,7 +195,7 @@ class NovaClient(object):
                     file.write(public_key)
                     print("Clave pública guardada correctamente.")
                     
-                break
+                    break
             elif response.status_code==409:
                 existing_name = response.json().get('conflictingRequest', {}).get('message')
                 print("La llave que está intentando crear ya existe:", existing_name)
@@ -518,6 +518,7 @@ class NovaClient(object):
             security_group_rules = response.json().get('security_group_rules', [])
             for rule in security_group_rules:
                 if rule['security_group_id'] == id:
+                    print(rule)
                     rules.append([rule['id'],rule['direction'],rule['protocol'],rule['port_range_max'],rule['port_range_min']])
             return rules
 
@@ -548,7 +549,6 @@ class NovaClient(object):
         }
 
         response = requests.post(url, json=data, headers=self.headers)
-        print(response.status_code)
         
 
         if response.status_code == 200:
@@ -615,6 +615,7 @@ class NovaClient(object):
         
     # Crear una instancia de VM
     def create_instance(self, name, flavor_id, image_id, network_id,keypairID,securitygroupID):
+        
         instance_data = {
             'server': {
                 'name': name,
@@ -636,7 +637,7 @@ class NovaClient(object):
         }
         
         response = requests.post(self.nova_url + '/v2.1/servers', json=instance_data, headers=self.headers)
-        print(response.json())
+        
 
         
 
