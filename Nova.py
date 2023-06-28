@@ -2,7 +2,7 @@
 import requests
 from Glance import GlanceClient
 from Neutron import NeutronClient
-import time
+import json
 import os
 ##########FLAVOR###########
 class NovaClient(object):
@@ -160,7 +160,7 @@ class NovaClient(object):
             data = {
                 'keypair': {
                     'name': name,
-                    'user_id': user_id
+                    #'user_id': user_id
                 }
             }
 
@@ -185,7 +185,7 @@ class NovaClient(object):
                 nombre_archivo = llave_name + "_public_key.pem"
                 
                 # Ruta completa al directorio de destino
-                carpeta_destino = "/home/labtel/Descargas" #RUTA EN ESPECIFICO QUE SE LE PUEDE PEDIR AL USUARIO
+                carpeta_destino = ruta #RUTA EN ESPECIFICO QUE SE LE PUEDE PEDIR AL USUARIO
                 
                 # Ruta completa al archivo
                 ruta_archivo = os.path.join(carpeta_destino, nombre_archivo)
@@ -195,7 +195,7 @@ class NovaClient(object):
                     file.write(public_key)
                     print("Clave pública guardada correctamente.")
                     
-                break
+                    break
             elif response.status_code==409:
                 existing_name = response.json().get('conflictingRequest', {}).get('message')
                 print("La llave que está intentando crear ya existe:", existing_name)
@@ -387,8 +387,12 @@ class NovaClient(object):
         else:
             print(" [*] Error al listar los Grupos de Seguridad:", response.status_code)
             return []
+<<<<<<< HEAD
     
    
+=======
+
+>>>>>>> aedd90d84b664c60cb6b0fd09796ad89690f1cb3
     
 #Editar securitygroup
     def editarSecurityGroup(self,name,nuevoname,descripcion):
@@ -474,7 +478,6 @@ class NovaClient(object):
         
         url = f"{self.nova_url}/v2.1/os-security-groups"
         response = requests.get(url, headers=self.headers)
-        print(response.json())
         
 
         if response.status_code == 200:
@@ -507,19 +510,18 @@ class NovaClient(object):
             print("Error al obtener el ID del Grupo de seguridad:", response.status_code)
 
 #Listar Reglas
-    def infoSecurityGroup(self,nombre):
+    def infoSecurityGroupRules(self,nombre):
         self.neutron_url = "http://10.20.12.188:9696"
         url = f"{self.neutron_url}/v2.0/security-group-rules"
         response = requests.get(url, headers=self.headers)
-        print(response.status_code)
+        id=self.obtenerIDSecurityGroupSDK(nombre)
+        rules=[]
         if response.status_code == 200:
             security_group_rules = response.json().get('security_group_rules', [])
             for rule in security_group_rules:
                 if rule['security_group_id'] == id:
-                    rule_id=rule['id']
-                    print("Protocolo:", security_group_rules['ip_protocol'])
-                    print("Puerto origen:", security_group_rules['from_port'])
-                    print("Puerto destino:", security_group_rules['to_port'])
+                    rules.append([rule['id'],rule['direction'],rule['protocol'],rule['port_range_max'],rule['port_range_min']])
+            return rules
 
     
 #Agregar regla
@@ -548,7 +550,6 @@ class NovaClient(object):
         }
 
         response = requests.post(url, json=data, headers=self.headers)
-        print(response.status_code)
         
 
         if response.status_code == 200:
@@ -615,6 +616,7 @@ class NovaClient(object):
         
     # Crear una instancia de VM
     def create_instance(self, name, flavor_id, image_id, network_id,keypairID,securitygroupID):
+        
         instance_data = {
             'server': {
                 'name': name,
@@ -636,7 +638,7 @@ class NovaClient(object):
         }
         
         response = requests.post(self.nova_url + '/v2.1/servers', json=instance_data, headers=self.headers)
-        print(response.json())
+        
 
         
 
@@ -867,3 +869,43 @@ class NovaClient(object):
             print("Error al añadir la interfaz:", response.status_code)
 
 #MIGRAR
+
+    #Migracion en Frio    
+    def cold_migrate_instance(self, name, target_host):
+        
+        instance_id=self.get_instance_id(name)
+        url = f"{self.nova_url}/servers/{instance_id}/action"
+
+        data = {
+            "os-migrateLive": {
+                "host": target_host,
+                "block_migration": False,
+                "disk_over_commit": False
+            }
+        }
+        response = requests.post(url, headers=self.headers, json=data)
+
+        if response.status_code == 202:
+            print("Migración en frío iniciada correctamente.")
+        else:
+            print("Error al iniciar la migración en frío:", response.status_code)
+
+
+    #Migracion en Caliente
+    def live_migrate_instance(self, name, target_host):
+        instance_id=self.get_instance_id(name)
+        url = f"{self.nova_url}/servers/{instance_id}/action"
+        data = {
+            "os-migrateLive": {
+                "host": target_host,
+                "block_migration": True,
+                "disk_over_commit": False
+            }
+        }
+        response = requests.post(url, headers=self.headers, json=data)
+
+        if response.status_code == 202:
+            print("Migración en caliente iniciada correctamente.")
+        else:
+            print("Error al iniciar la migración en caliente:", response.status_code)
+

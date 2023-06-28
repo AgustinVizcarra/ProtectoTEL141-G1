@@ -5,16 +5,15 @@ import json
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 import time
-import datetime
+from datetime import datetime  
 import threading
 
 ready = False
 worker_estimacion = {}
 worker_info = {}
 tiempo_espera = 0
-collection={
-    "worker1":"10.0.0.30"
-}
+collection={"worker1":6701,"worker2":6702, "worker3":6703}
+
 
 app = FastAPI(title = "Servidor de Estimación",
               description = "Corriendo servidor!",
@@ -25,7 +24,7 @@ def socket_listener():
     global tiempo_espera
     global ready
     print("Servicio de estimacion inicializado en el puerto 6767")
-    myclient = pymongo.MongoClient("mongodb://10.20.12.188:27017/")
+    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
     mydb = myclient["Estadisticas"]
     while True:
         ## Ejecuto de manera continua el get de la base de datos para luego enviarlo a cada worker
@@ -57,7 +56,7 @@ def socket_listener():
 
 def getInfoPorWorker(worker,connection):
     global worker_info
-    data = connection.find().limit(100).sort("$natural",-1)
+    data = connection.find().limit(100).sort("$natural",+1)
     info = {}
     ##Creamos los arreglos de listas
     cpu_0_percent =[]
@@ -68,7 +67,6 @@ def getInfoPorWorker(worker,connection):
     memoriaDisponibleMB =[]
     almacenamientoUsadoGB =[]
     almacenamientoUsadoPercent=[]
-    ## Acá se encuentra el error
     for value in data:
         value.pop("_id")
         ## Segmentamos la data que es de utilidad para nosotros
@@ -96,13 +94,12 @@ def getInfoPorWorker(worker,connection):
     info['AlmacenamientoUsado(Gb)'] = almacenamientoUsadoGB
     info['AlmacenamientoUsado(%)'] = almacenamientoUsadoPercent
     worker_info[worker] = info
-    print(worker_info)
 
-def sendDataToCompute(dataSegment,worker,IP):
+def sendDataToCompute(dataSegment,worker,port):
     ## Referencia de la variable global
     global worker_estimacion
     client_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-    client_socket.connect((IP,6767))
+    client_socket.connect(('10.20.12.48',port))
     informacion=dataSegment
     ## Envío la información al nodo de computo
     data = json.dumps(informacion)
@@ -155,7 +152,6 @@ def get_recursos():
                 body_response["estimacion"] = worker_estimacion
                 body_response["tiempo_respuesta"] = tiempo_espera
                 return JSONResponse(content=body_response,status_code=200)
-                break
             
 if __name__ == "__main__":
     import uvicorn
