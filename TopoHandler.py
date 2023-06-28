@@ -12,7 +12,7 @@ class TopoConstructor:
             networks.append(nameNetwork)
             nameSubnet = str(uuid.uuid4())
             network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-            NetworkConstructor.createNetwork(network,neutron,nova)
+            NetworkConstructor.createNetwork(network,neutron,nova) 
         #Create VMs
         for i in range(len(VMs)):
             if i == 0:
