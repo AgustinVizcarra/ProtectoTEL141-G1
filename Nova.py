@@ -387,10 +387,7 @@ class NovaClient(object):
         else:
             print(" [*] Error al listar los Grupos de Seguridad:", response.status_code)
             return []
-    
-    #Info SecurityGroup
-    def infoSecurityGroup(self,name):
-        pass
+
     
 #Editar securitygroup
     def editarSecurityGroup(self,name,nuevoname,descripcion):
@@ -518,7 +515,6 @@ class NovaClient(object):
             security_group_rules = response.json().get('security_group_rules', [])
             for rule in security_group_rules:
                 if rule['security_group_id'] == id:
-                    print(rule)
                     rules.append([rule['id'],rule['direction'],rule['protocol'],rule['port_range_max'],rule['port_range_min']])
             return rules
 
