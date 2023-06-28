@@ -12,11 +12,9 @@ ready = False
 worker_estimacion = {}
 worker_info = {}
 tiempo_espera = 0
-collection={
-    "worker1":6701,
-    "worker2":6702,
-    "worker3":6703
-}
+collection={"worker1":6701}
+
+#   "worker2":6702, "worker3":6703
 
 app = FastAPI(title = "Servidor de Estimación",
               description = "Corriendo servidor!",
@@ -59,7 +57,7 @@ def socket_listener():
 
 def getInfoPorWorker(worker,connection):
     global worker_info
-    data = connection.find().limit(100).sort("$natural",-1)
+    data = connection.find().limit(100).sort("$natural",+1)
     info = {}
     ##Creamos los arreglos de listas
     cpu_0_percent =[]
