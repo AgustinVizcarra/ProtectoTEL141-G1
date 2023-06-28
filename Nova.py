@@ -476,7 +476,6 @@ class NovaClient(object):
         
         url = f"{self.nova_url}/v2.1/os-security-groups"
         response = requests.get(url, headers=self.headers)
-        print(response.json())
         
 
         if response.status_code == 200:
@@ -509,19 +508,18 @@ class NovaClient(object):
             print("Error al obtener el ID del Grupo de seguridad:", response.status_code)
 
 #Listar Reglas
-    def infoSecurityGroup(self,nombre):
+    def infoSecurityGroupRules(self,nombre):
         self.neutron_url = "http://10.20.12.188:9696"
         url = f"{self.neutron_url}/v2.0/security-group-rules"
         response = requests.get(url, headers=self.headers)
-        print(response.status_code)
+        id=self.obtenerIDSecurityGroupSDK(nombre)
+        rules=[]
         if response.status_code == 200:
             security_group_rules = response.json().get('security_group_rules', [])
             for rule in security_group_rules:
                 if rule['security_group_id'] == id:
-                    rule_id=rule['id']
-                    print("Protocolo:", security_group_rules['ip_protocol'])
-                    print("Puerto origen:", security_group_rules['from_port'])
-                    print("Puerto destino:", security_group_rules['to_port'])
+                    rules.append([rule['id'],rule['direction'],rule['protocol'],rule['port_range_max'],rule['port_range_min']])
+            return rules
 
     
 #Agregar regla
@@ -869,3 +867,43 @@ class NovaClient(object):
             print("Error al añadir la interfaz:", response.status_code)
 
 #MIGRAR
+
+    #Migracion en Frio    
+    def cold_migrate_instance(self, name, target_host):
+        
+        instance_id=self.get_instance_id(name)
+        url = f"{self.nova_url}/servers/{instance_id}/action"
+
+        data = {
+            "os-migrateLive": {
+                "host": target_host,
+                "block_migration": False,
+                "disk_over_commit": False
+            }
+        }
+        response = requests.post(url, headers=self.headers, json=data)
+
+        if response.status_code == 202:
+            print("Migración en frío iniciada correctamente.")
+        else:
+            print("Error al iniciar la migración en frío:", response.status_code)
+
+
+    #Migracion en Caliente
+    def live_migrate_instance(self, name, target_host):
+        instance_id=self.get_instance_id(name)
+        url = f"{self.nova_url}/servers/{instance_id}/action"
+        data = {
+            "os-migrateLive": {
+                "host": target_host,
+                "block_migration": True,
+                "disk_over_commit": False
+            }
+        }
+        response = requests.post(url, headers=self.headers, json=data)
+
+        if response.status_code == 202:
+            print("Migración en caliente iniciada correctamente.")
+        else:
+            print("Error al iniciar la migración en caliente:", response.status_code)
+
