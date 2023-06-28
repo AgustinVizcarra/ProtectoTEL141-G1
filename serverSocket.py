@@ -72,5 +72,3 @@ if __name__ == "__main__":
     socket_thread.start()
     #Inicalizando servicio de API
     uvicorn.run(app,host="10.0.0.10",port=9090)
-
-    
