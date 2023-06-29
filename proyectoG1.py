@@ -1065,6 +1065,15 @@ def crearTopologia(keystone,neutron,nova,glance):
                 print("[*] Ingrese un número válido\n")
                 continue
             else:
+                k = 2 
+                while k <= numeroNiveles:
+                    print("***  Nivel "+ str(k) + " ***\n")
+                    cantidadVMNiveles = input("| Ingrese el número de nodos : ")
+                    
+                        
+                    
+                    
+                    
                 cantidadNodos = (2**(int(numeroNiveles)))-1
                 break
     elif opcion == "Salir":
@@ -1098,6 +1107,9 @@ def crearTopologia(keystone,neutron,nova,glance):
         i = 1
         listaVMs = []
         while i <= cantidadNodos:
+            
+            #USAR UNA VARIABLE PARA PODER ITERAR PARA EL CASO DE ARBOL
+            
             print("|\n---Virtual Machine "+str(i) + "---")
             nombre = input("| Ingrese un nombre de VirtualMachine: ")
             if(nombre != ''):

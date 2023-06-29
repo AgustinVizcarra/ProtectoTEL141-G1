@@ -36,6 +36,7 @@ class GlanceClient(object):
             'ami': ['ami'],
             'vdi': ['vdi'],
             'vhd': ['vhd'],
+            'iso': ['iso']
             
             # Agrega aquí otros formatos compatibles y sus correspondientes extensiones
         }
@@ -57,7 +58,6 @@ class GlanceClient(object):
             'visibility': 'public',
             'disk_format': formato,
             'container_format': 'bare',
-            #'container_format': 'bare',
         }
 
         #DISK-FORMAT
