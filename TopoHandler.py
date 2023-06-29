@@ -12,7 +12,7 @@ class TopoConstructor:
             networks.append(nameNetwork)
             nameSubnet = str(uuid.uuid4())
             network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-            NetworkConstructor.createNetwork(network,neutron,nova)
+            NetworkConstructor.createNetwork(network,neutron,nova) 
         #Create VMs
         for i in range(len(VMs)):
             if i == 0:
@@ -98,7 +98,7 @@ class TopoConstructor:
         return 1
         pass
 
-    def meshConstructorV2(VMs,CIDR,neutron,nova):
+    def meshConstructorV2(self,VMs,CIDR,neutron,nova):
         ### Primero debemos mapear la relación entre VM's y el número de vertices de una red MESH
         ## para eso se realiza lo siguiente:
         mapVMVertice = {}
