@@ -12,8 +12,9 @@ ready = False
 worker_estimacion = {}
 worker_info = {}
 tiempo_espera = 0
-collection={"worker1":6701,"worker2":6702, "worker3":6703}
+collection={"worker1":6701}
 
+#,"worker2":6702, "worker3":6703
 
 app = FastAPI(title = "Servidor de Estimación",
               description = "Corriendo servidor!",
@@ -103,9 +104,10 @@ def sendDataToCompute(dataSegment,worker,port):
     informacion=dataSegment
     ## Envío la información al nodo de computo
     data = json.dumps(informacion)
+    print(data)
     client_socket.sendall(data.encode('utf-8'))
     ## Recibo la respuesta
-    response = client_socket.recv(1024)
+    response = client_socket.recv()
     data = json.loads(response.decode('utf-8'))         
     client_socket.close()
     aux = {}
