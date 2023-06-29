@@ -41,8 +41,8 @@ def socket_listener(IP):
     while True:
         client_socket, client_add = server_socket.accept()
         print("Conexione entrante de "+str(client_add[0])+ ":"+str(client_add[1]))
-        #Recibiendo con buffer 1024 bytes
-        data = client_socket.recv(1024)
+        #Recibiendo con buffer size de aprox 100 muestras
+        data = client_socket.recv(5120)
         data = data.decode('utf-8')
         informacion = json.loads(data)
         # Procesamos la información para crear los hilos respectivos
