@@ -387,12 +387,6 @@ class NovaClient(object):
         else:
             print(" [*] Error al listar los Grupos de Seguridad:", response.status_code)
             return []
-<<<<<<< HEAD
-    
-   
-=======
-
->>>>>>> aedd90d84b664c60cb6b0fd09796ad89690f1cb3
     
 #Editar securitygroup
     def editarSecurityGroup(self,name,nuevoname,descripcion):
@@ -853,6 +847,23 @@ class NovaClient(object):
 
     #Agregar una interfaz    
     def agregar_interfaz_to_VM(self, vm_id, network_id):
+        
+        url = f"{self.nova_url}/v2.1/servers/{vm_id}/os-interface"
+        data = {
+            "interfaceAttachment": {
+                "net_id": network_id
+            }
+        }
+        response = requests.post(url, headers=self.headers, json=data)
+        
+
+        if response.status_code == 200:
+            print("Interfaz añadida correctamente.")
+        else:
+            print("Error al añadir la interfaz:", response.status_code)
+            
+    #Agregar una interfaz a la VM br_provider
+    def agregar_interfaz_to_VM_br_provider(self, vm_id):
         
         url = f"{self.nova_url}/v2.1/servers/{vm_id}/os-interface"
         data = {

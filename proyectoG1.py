@@ -1065,15 +1065,11 @@ def crearTopologia(keystone,neutron,nova,glance):
                 print("[*] Ingrese un número válido\n")
                 continue
             else:
-                k = 2 
-                while k <= numeroNiveles:
-                    print("***  Nivel "+ str(k) + " ***\n")
-                    cantidadVMNiveles = input("| Ingrese el número de nodos : ")
-                    
-                        
-                    
-                    
-                    
+                #k = 2 
+                #numeroNiveles = int(numeroNiveles)
+                #while k <= numeroNiveles:
+                #    print("***  Nivel "+ str(k) + " ***\n")
+                #    cantidadVMNiveles = input("| Ingrese el número de nodos : ")
                 cantidadNodos = (2**(int(numeroNiveles)))-1
                 break
     elif opcion == "Salir":
