@@ -8,11 +8,11 @@ class TopoConstructor:
         networks = []
         #Create Networks
         for i in range(numberNetworks):
-            nameNetwork = str(uuid.uuid4)
+            nameNetwork = str(uuid.uuid4())
             networks.append(nameNetwork)
-            nameSubnet = str(uuid.uuid4)
+            nameSubnet = str(uuid.uuid4())
             network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-            NetworkConstructor.createNetwork(network,neutron,nova)
+            NetworkConstructor.createNetwork(network,neutron,nova) 
         #Create VMs
         for i in range(len(VMs)):
             if i == 0:
@@ -28,9 +28,9 @@ class TopoConstructor:
         networks = []
         #Create Networks
         for i in range(numberNetworks):
-            nameNetwork = str(uuid.uuid4)
+            nameNetwork = str(uuid.uuid4())
             networks.append(nameNetwork)
-            nameSubnet = str(uuid.uuid4)
+            nameSubnet = str(uuid.uuid4())
             network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
             NetworkConstructor.createNetwork(network,neutron,nova)
         #Create VMs
@@ -44,9 +44,9 @@ class TopoConstructor:
         networks = [] 
         #Create Networks
         for i in range(numberNetworks):
-            nameNetwork = str(uuid.uuid4)
+            nameNetwork = str(uuid.uuid4())
             networks.append(nameNetwork) # network = ["asxcsda","asdqoi","foiwenfweip"]
-            nameSubnet = str(uuid.uuid4)
+            nameSubnet = str(uuid.uuid4())
             network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
             NetworkConstructor.createNetwork(network,neutron,nova)
         #Create VMs
@@ -81,15 +81,15 @@ class TopoConstructor:
         Ndiagonales = []
         #Create Networks
         for i in range(numberNetworksPerimetrales):
-            nameNetwork = str(uuid.uuid4)
+            nameNetwork = str(uuid.uuid4())
             networks.append(nameNetwork)
-            nameSubnet = str(uuid.uuid4)
+            nameSubnet = str(uuid.uuid4())
             network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
             NetworkConstructor.createNetwork(network,neutron,nova)
         for i in range(diagonales):
-            nameNetwork = str(uuid.uuid4)
+            nameNetwork = str(uuid.uuid4())
             Ndiagonales.append(nameNetwork)
-            nameSubnet = str(uuid.uuid4)
+            nameSubnet = str(uuid.uuid4())
             network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
             NetworkConstructor.createNetwork(network,neutron,nova)
         #Create VMs
@@ -98,7 +98,7 @@ class TopoConstructor:
         return 1
         pass
 
-    def meshConstructorV2(VMs,CIDR,neutron,nova):
+    def meshConstructorV2(self,VMs,CIDR,neutron,nova):
         ### Primero debemos mapear la relación entre VM's y el número de vertices de una red MESH
         ## para eso se realiza lo siguiente:
         mapVMVertice = {}
@@ -169,8 +169,8 @@ class TopoConstructor:
             VMConstructor.createVM(mapVMVertice[i],aux,neutron,nova)
             
 def networkConstructor(CIDR,neutron,nova):
-        nameNetwork = str(uuid.uuid4)
-        nameSubnet = str(uuid.uuid4)
+        nameNetwork = str(uuid.uuid4())
+        nameSubnet = str(uuid.uuid4())
         network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
         NetworkConstructor.createNetwork(network,neutron,nova)
         return network            

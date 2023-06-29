@@ -67,10 +67,10 @@ class NeutronClient(object):
             raise Exception('Failed to list networks. Status code: {}'.format(response.status_code))
 
     #Funcion que permite crear la redprovider
-    def create_network(self, red,subred,cidr,gateway,project):
+    def create_network(self,red,subred,cidr):
+        
         network_data = {
             'network': {
-                'name': red,
                 "admin_state_up": True,
                 "name": red,
                 "shared": True,
@@ -80,8 +80,10 @@ class NeutronClient(object):
                 #'project_id': project
             }
         }
+        print(network_data)
         
         response = requests.post(self.neutron_url + 'networks', json=network_data, headers=self.headers)
+        print(response.json())
 
         cidr_regex = re.compile(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2}$')
         
@@ -102,8 +104,10 @@ class NeutronClient(object):
                     #'gateway_ip': gateway
                 }
             }
+            print(subnet_data)
             
             response = requests.post(self.neutron_url + 'subnets', json=subnet_data, headers=self.headers)
+            print(response.json())
             if response.status_code == 201:
                 self.NetworkID = network_id
                 print("[*] Red Provider creada exitosamente\n")
@@ -175,12 +179,21 @@ class NeutronClient(object):
         información=[]
 
         if response.status_code == 200:
-            networks = response.json().get('networks', [])
+            networks = response.json().get('networks', [''])
+            
             for network in networks :
+                
+                
                 subnet_id = network.get('subnets', [''])[0]
+                #subnet_id = subnet_id.strip("[]")
+                
                 # Obtener información de la subred
+            
                 subnet_url = f"{self.neutron_url}/subnets/{subnet_id}"
+                
                 subnet_response = requests.get(subnet_url, headers=self.headers)
+            
+                
                 if subnet_response.status_code == 200:
                     subnet = subnet_response.json().get('subnet', {})
                     subnet_info = {
@@ -208,7 +221,57 @@ class NeutronClient(object):
         return información
             
        
+    #Funcion que permite crear la redprovider para la topology
+    def create_network_topology(self, red,subred,cidr):
+
         
+        network_data = {
+            'network': {
+                
+                "admin_state_up": True,
+                "name": red,
+                "shared": True,
+                "provider:physical_network": "provider",
+                "provider:network_type": "vlan",
+                "provider:segmentation_id": random.randint(1, 1000)
+                #'project_id': project
+            }
+        }
+        
+        response = requests.post(self.neutron_url + 'networks', json=network_data, headers=self.headers)
+        
+
+        cidr_regex = re.compile(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2}$')
+        
+
+        if response.status_code == 201:
+            network_id = response.json()['network']['id']
+
+            # Mientras el CIDR sea '0.0.0.0/0', seguir pidiendo un nuevo CIDR
+            while cidr == '0.0.0.0/0' or not cidr_regex.match(cidr):
+                cidr = input("Por favor, introduce un CIDR válido de la forma 'x.x.x.x/x' que no sea '0.0.0.0/0': ")
+            
+            subnet_data = {
+                'subnet': {
+                    'network_id': network_id,
+                    "name": subred,
+                    "ip_version": 4,
+                    'cidr': cidr,
+                    #'gateway_ip': gateway
+                }
+            }
+            
+            response = requests.post(self.neutron_url + 'subnets', json=subnet_data, headers=self.headers)
+            if response.status_code == 201:
+                self.NetworkID = network_id
+                print("[*] Red Provider creada exitosamente\n")
+                return True
+            else:
+                print("[*] Ha ocurrido un error al crear la redProvider\n")
+                return False
+        else:
+            print("[*] Ha ocurrido un error al crear la redProvider\n")
+            return False
         
 
     

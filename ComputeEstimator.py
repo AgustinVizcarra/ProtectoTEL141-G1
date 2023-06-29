@@ -41,8 +41,8 @@ def socket_listener(IP):
     while True:
         client_socket, client_add = server_socket.accept()
         print("Conexione entrante de "+str(client_add[0])+ ":"+str(client_add[1]))
-        #Recibiendo con buffer 1024 bytes
-        data = client_socket.recv(1024)
+        #Recibiendo con buffer size de aprox 100 muestras
+        data = client_socket.recv(5120)
         data = data.decode('utf-8')
         informacion = json.loads(data)
         # Procesamos la información para crear los hilos respectivos
@@ -97,25 +97,25 @@ def estimarCPU(input_core_0_percent,input_core_1_percent,input_core_2_percent,in
     ## Para el core 0 (%)
     train = input_core_0_percent
     # Se entrena el según la siguiente variante de ARIMA: CPU Workload forecasting of Machines in Data Centers using LSTM Recurrent Neural Networks and ARIMA Models
-    model = ARIMA(train, order=(3, 1, 2))
+    model = ARIMA(train, order=(2, 1, 1))
     model_fit = model.fit()
     # Se realiza la predicción del valor siguiente a las listas de entrada
-    estimacion_core_0_percent = model_fit.forecast()[0]
+    estimacion_core_0_percent = model_fit.forecast()[0] if model_fit.forecast()[0] > 0 else 0.5
     ## Para el core 1 (%)
     train = input_core_1_percent
-    model = ARIMA(train, order=(3, 1, 2))
+    model = ARIMA(train, order=(2, 1, 1))
     model_fit = model.fit()
-    estimacion_core_1_percent = model_fit.forecast()[0]
+    estimacion_core_1_percent = model_fit.forecast()[0] if model_fit.forecast()[0] > 0 else 0.5
     ## Para el core 2 (%)
     train = input_core_2_percent
-    model = ARIMA(train, order=(3, 1, 2))
+    model = ARIMA(train, order=(2,1,1))
     model_fit = model.fit()
-    estimacion_core_2_percent = model_fit.forecast()[0]
+    estimacion_core_2_percent = model_fit.forecast()[0] if model_fit.forecast()[0] > 0 else 0.5
     ## Para el core 3 (%)
     train = input_core_3_percent
-    model = ARIMA(train, order=(3, 1, 2))
+    model = ARIMA(train, order=(2,1,1))
     model_fit = model.fit()
-    estimacion_core_3_percent = model_fit.forecast()[0]
+    estimacion_core_3_percent = model_fit.forecast()[0] if model_fit.forecast()[0] > 0 else 0.5
     
 def estimarMemoria(input_memoria_usada_GB,input_memoria_diponible_MB):
     ## ARIMA
@@ -148,5 +148,5 @@ def estimarAlmacenamiento(input_almacenamiento_usado_GB,input_almacenamiento_usa
     estimacion_disco_usado_percent = model_fit.forecast()[0]
 
 if __name__ == "__main__":
-    IP = input("Ingrese la dirección IP de este nodo de la red de management (x.x.x.x):")
+    IP = "10.0.0.30"
     socket_listener(IP)
