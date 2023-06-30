@@ -20,21 +20,35 @@ def obtener_uuids_pids():
         lineas = salida.decode().split('\n')[:-2]  # Eliminar la última línea 
         resultado = [linea.split(':') for linea in lineas]
         resultado.pop(-1)
-        resultado = []
+        resultado2 = []
         for i in resultado:
-            aux = i.split(" ")
-            resultado.append(aux)
+            aux = i[0].split(" ")
+            resultado2.append(aux)
+        #devuelve esto [[uuid,pid], ....]
         return resultado
+
     else:
         print(f"Se produjo un error: {error.decode()}")
         return []
 
-    
+
+def obtener_cpu_mem():
+    pass
+
+def obtener_Vm_migrar():
+    uwu = obtener_uuids_pids()
+    uwu1 = []
+    for i in uwu:
+        aux = obtener_cpu_mem()
+        #aux = [%cpu,%mem]
+        uwu1.append([i[0],aux[0],aux[1]])
 
 
 app.get("/")
 async def soplonVMs():
-    pass
+    uuid = obtener_Vm_migrar()
+    data = {"uuid":uuid}
+    return JSONResponse(content=data,status_code=200)
 
 
 if __name__ == "__main__":

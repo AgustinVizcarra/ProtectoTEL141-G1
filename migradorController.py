@@ -16,16 +16,12 @@ hosts= {
 def migrarVM(id,hostDestino):
     pass
 
-def obtener_ID_VM(vm_name):
-    #A partir del nombre de la VM obtenida de la función padre de esta obtendremos el id de la vm, para posteriormente mmigrar
-    pass
 
 def obtener_VM_cargada(vm):
     r = requests.get(f'http://{vm}:13001/')
     if r.status_code == 200:
         data = r.json()
-        id_vm = obtener_ID_VM(data["nombre"])
-        return id_vm
+        return data["uuid"]
     elif r.status_code == 404:
         raise Exception("Mano mira si tus servidores estan vivos en los nodos de computo")
     else:
@@ -39,6 +35,7 @@ app.post("/migrar")
 async def chamoDeVMs(body: dict):
     if not body:
         resp = {"mensaje": "papi para que me mandas tus webadas?"}
+        return JSONResponse(content=resp,status_code=400)
     else:
         if "host_migrar" in body and "destino" in body:
             id_vm = obtener_VM_cargada(body["host_migrar"])
