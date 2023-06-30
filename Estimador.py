@@ -238,11 +238,11 @@ async def allocateVM(body: dict):
             if body['estilo'] == 'besteffort':
                 # Dimensionamos en funcion de best effort
                 # Para la cantidad de vCPU's*10 + 10 (hipervisor + I/O)
-                cpu_requirement = body['vcpus']*10 + 10
+                cpu_requirement = body['flavor']['vcpus']*10 + 10
                 # Para la cantidad de memoria (1Gb memoria) -> 10% 1Gb del Host
-                memory_requirement = body['memory']*0.1
+                memory_requirement = body['flavor']['memory']*0.1
                 # Para el disco (relacion 1:1)
-                disco_requirement = body['storage']
+                disco_requirement = body['flavor']['storage']
                 if ready:
                     # Quiere decir que la informacion se encuentra lista para ser el analisis
                     for worker in worker_estimacion:
@@ -285,11 +285,11 @@ async def allocateVM(body: dict):
             elif body['estilo'] == 'hpc':
                 # Dimensionamos en funcion de HPC
                 # Para la cantidad de vCPU's*100 + 10 (hipervisor + I/O)
-                cpu_requirement = body['vcpus']*100 + 10
+                cpu_requirement = body['flavor']['vcpus']*100 + 10
                 # Para la cantidad de memoria (1Gb memoria) -> 10% 1Gb del Host
-                memory_requirement = body['memory']*0.1
+                memory_requirement = body['flavor']['memory']*0.1
                 # Para el disco (relacion 1:1)
-                disco_requirement = body['storage']
+                disco_requirement = body['flavor']['storage']
                 if ready:
                     # Quiere decir que la informacion se encuentra lista para ser el analisis
                     for worker in worker_estimacion:
