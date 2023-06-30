@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+
 import requests
 
 app = FastAPI(title="Servidor de migración",
@@ -14,17 +15,16 @@ hosts= {
 }
 
 def migrarVM(id,hostDestino):
-    pass
-
-def obtener_ID_VM(vm_name):
-    #A partir del nombre de la VM obtenida de la función padre de esta obtendremos el id de la vm, para posteriormente mmigrar
+    #Aqui se activa el acto de migrar vm
+    
+    #
     pass
 
 def obtener_VM_cargada(vm):
     r = requests.get(f'http://{vm}:13001/')
     if r.status_code == 200:
         data = r.json()
-        id_vm = obtener_ID_VM(data["id"])
+        id_vm = data["uuid"]
         return id_vm
     elif r.status_code == 404:
         raise Exception("Mano mira si tus servidores estan vivos en los nodos de computo")
@@ -39,10 +39,12 @@ app.post("/migrar")
 async def chamoDeVMs(body: dict):
     if not body:
         resp = {"mensaje": "papi para que me mandas tus webadas?"}
+        return JSONResponse(content=resp,status_code=400)
     else:
         if "host_migrar" in body and "destino" in body:
             id_vm = obtener_VM_cargada(body["host_migrar"])
             migrarVM(id_vm,hosts["destino"])
+
 
 
 if __name__ == "__main__":

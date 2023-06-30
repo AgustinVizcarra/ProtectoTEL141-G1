@@ -897,10 +897,10 @@ class NovaClient(object):
 #MIGRAR
 
     #Migracion en Frio    
-    def cold_migrate_instance(self, name, target_host):
+    def cold_migrate_instance(self, id, target_host):
         
-        instance_id=self.get_instance_id(name)
-        url = f"{self.nova_url}/servers/{instance_id}/action"
+        #instance_id=self.get_instance_id(name)
+        url = f"{self.nova_url}/servers/{id}/action"
 
         data = {
             "os-migrateLive": {
@@ -915,6 +915,7 @@ class NovaClient(object):
             print("Migración en frío iniciada correctamente.")
         else:
             print("Error al iniciar la migración en frío:", response.status_code)
+        return response.status_code
 
 
     #Migracion en Caliente
@@ -934,4 +935,4 @@ class NovaClient(object):
             print("Migración en caliente iniciada correctamente.")
         else:
             print("Error al iniciar la migración en caliente:", response.status_code)
-
+        return response.status_code
