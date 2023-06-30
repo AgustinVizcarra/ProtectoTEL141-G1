@@ -7,12 +7,14 @@ from fastapi.responses import JSONResponse
 import time
 from datetime import datetime  
 import threading
+import requests
 
 ready = False
 worker_estimacion = {}
 worker_info = {}
 tiempo_espera = 0
 collection={"worker1":6701,"worker2":6702, "worker3":6703}
+collection_compute={"worker1":"10.0.1.10","worker2":"10.0.1.20", "worker3":"10.0.1.30"}
 worker_sobrecargados = {}
 worker_libre = {}
 
@@ -74,7 +76,7 @@ def alertarMigrador():
         # Realizamos el análisis
         if conteo_cpu >= 390 or conteo_memoria <= 100 or conteo_disco >= 98:
             # Se debe migrar urgentemente
-            worker_sobrecargados[worker] = worker_estimacion[worker]
+            worker_sobrecargados[worker] = collection_compute[worker]
     # Renicio mis variables auxiliares
     conteo_cpu = 0
     conteo_memoria = 0
@@ -108,9 +110,15 @@ def alertarMigrador():
                         cons_disco=conteo_disco
                         cons_worker=worker
             # Una vez acabado el ciclo iterativo
-            worker_libre[cons_worker]=worker_estimacion[cons_worker]
+            worker_libre[cons_worker]= collection_compute[cons_worker]
             # Realizar el envío de información al migrador
-            
+            for worker_sobrecargado in worker_sobrecargados:
+                body={
+                    "host_migrar": worker_sobrecargados[worker_sobrecargado],
+                    "destino": worker_libre[cons_worker]
+                }
+                endpoint = "http://localhost:13000/migrar"
+                response = requests.post(endpoint, json=body)
         
 def getInfoPorWorker(worker,connection):
     global worker_info
