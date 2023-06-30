@@ -13,7 +13,8 @@ worker_estimacion = {}
 worker_info = {}
 tiempo_espera = 0
 collection={"worker1":6701,"worker2":6702, "worker3":6703}
-
+worker_sobrecargados = {}
+worker_libre = {}
 
 app = FastAPI(title = "Servidor de Estimación",
               description = "Corriendo servidor!",
@@ -51,9 +52,66 @@ def socket_listener():
         ## Aqui ya se debe tener todas las colecciones como para poder guardarla en base de datos
         tiempo_espera = final - inicio
         ready = True
+        ## alerto en caso haya sobrecarga
+        alertarMigrador()
         ## Dejo que espere otros 5 segundos
         time.sleep(5)
 
+def alertarMigrador():
+    global worker_estimacion
+    global worker_sobrecargados
+    global worker_libre
+    conteo_cpu = 0
+    conteo_memoria = 0
+    conteo_disco = 0
+    for worker in worker_estimacion:
+        # Hallamos el conteo por CPU (realizamos la suma)
+        conteo_cpu = worker_estimacion[worker]['Core0(%)']+worker_estimacion[worker]['Core1(%)']+worker_estimacion[worker]['Core2(%)']+worker_estimacion[worker]['Core3(%)']
+        # Hallamos el conteo por Memoria (consideramos los megas disponibles)
+        conteo_memoria = worker_estimacion[worker]['MemoriaDisponible(Mb)']
+        # Hallamos el porcentaje de disco disponible (consideramos el porcentaje de disco)
+        conteo_disco = worker_estimacion[worker]['AlmacenamientoUsado(%)']
+        # Realizamos el análisis
+        if conteo_cpu >= 390 or conteo_memoria <= 100 or conteo_disco >= 98:
+            # Se debe migrar urgentemente
+            worker_sobrecargados[worker] = worker_estimacion[worker]
+    # Renicio mis variables auxiliares
+    conteo_cpu = 0
+    conteo_memoria = 0
+    conteo_disco = 0
+    #Analizo para definir el worker libre
+    cons_cpu =0
+    cons_memoria=0
+    cons_disco=0
+    cons_worker=''
+    if len(worker_sobrecargados)==0:
+        # Quiere decir que no hay problemas
+        pass
+    else:
+        # Quiere decir que si hay problemas
+        if (len(worker_sobrecargados)==len(collection)):
+            # No hay chance de migración todo el sistema se encuentra sobrecargado
+            pass
+        else:
+            # Si hay chance de migracion para eso debemos identificar el worker libre en base a consolidacion
+            for worker in worker_estimacion:
+                # Verifico para no interar sobre los workers 
+                if worker not in worker_sobrecargados.keys():
+                    # Quiere decir que me encuentro en alguno de los workers que se encuentra libre
+                    conteo_cpu = worker_estimacion[worker]['Core0(%)']+worker_estimacion[worker]['Core1(%)']+worker_estimacion[worker]['Core2(%)']+worker_estimacion[worker]['Core3(%)']
+                    conteo_memoria = worker_estimacion[worker]['MemoriaDisponible(Mb)']
+                    conteo_disco = worker_estimacion[worker]['AlmacenamientoUsado(%)']
+                    if conteo_cpu>cons_cpu and conteo_memoria>cons_memoria and conteo_disco>cons_disco and conteo_cpu<350 and conteo_memoria>100 and conteo_disco<95:
+                        #Busco los valores que permitan la consolidacion
+                        cons_cpu=conteo_cpu
+                        cons_memoria=conteo_memoria
+                        cons_disco=conteo_disco
+                        cons_worker=worker
+            # Una vez acabado el ciclo iterativo
+            worker_libre[cons_worker]=worker_estimacion[cons_worker]
+            # Realizar el envío de información al migrador
+            
+        
 def getInfoPorWorker(worker,connection):
     global worker_info
     data = connection.find().limit(100).sort("$natural",+1)
