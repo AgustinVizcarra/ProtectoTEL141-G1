@@ -24,7 +24,7 @@ def obtener_VM_cargada(vm):
     r = requests.get(f'http://{vm}:13001/')
     if r.status_code == 200:
         data = r.json()
-        id_vm = obtener_ID_VM(data["nombre"])
+        id_vm = obtener_ID_VM(data["id"])
         return id_vm
     elif r.status_code == 404:
         raise Exception("Mano mira si tus servidores estan vivos en los nodos de computo")
