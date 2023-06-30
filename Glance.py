@@ -69,10 +69,10 @@ class GlanceClient(object):
 
         # Crear la imagen
         response = requests.post(url, headers=self.headers, json=data)
-        print(response.json)
+        #print(response.json)
 
         if response.status_code == 201:
-            print("Imagen creada exitosamente.")
+            print("[*] Imagen creada exitosamente.")
             image_id = response.json()['id']
 
             # Subir los datos de la imagen
@@ -83,11 +83,11 @@ class GlanceClient(object):
                 response = requests.put(url, headers=self.headers, data=f)
 
             if response.status_code == 204:
-                print("Datos de la imagen cargados exitosamente.")
+                print("[*] Datos de la imagen cargados exitosamente.")
             else:
-                print("Error al cargar los datos de la imagen:", response.status_code)
+                print("[*] Error al cargar los datos de la imagen:", response.status_code)
         else:
-            print("Error al crear la imagen:", response.status_code)
+            print("[*] Error al crear la imagen:", response.status_code)
 
     def obtener_informacion_imagen(self, imagen_id):
 
