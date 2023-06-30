@@ -17,6 +17,7 @@ class NovaClient(object):
             'Content-Type': 'application/json',
             'X-Auth-Token': self.auth_token
         }
+        self.providerNetworkID = "794ca462-47ec-4f90-8d1e-8be57004378a"
    
     def list_flavors(self):
         url=f"{self.nova_url}/v2.1/flavors"
@@ -278,10 +279,10 @@ class NovaClient(object):
                     print("[*] No se encontraron keypairs para el usuario:", user)
                     return []
                 
-                else:
-                    print("Keypairs del usuario:")
-                    for name in keypair_names:
-                        print("- Nombre del Keypair:", name)
+                #else:
+                    #print("Keypairs del usuario:")
+                    #for name in keypair_names:
+                    #    print("- Nombre del Keypair:", name)
 
                 return keypair_names
         else:
@@ -311,13 +312,13 @@ class NovaClient(object):
     def obtenerIDKeyPair(self,keypair,userId):
         url = f"{self.nova_url}/v2/os-keypairs"
         response = requests.get(url, headers=self.headers)
-        print(keypair)
+        #print(keypair)
 
         if response.status_code == 200:
             keypairs = response.json().get('keypairs', [])
             for kp in keypairs:
                 if kp['keypair']['name'] == keypair:
-                    print("Nombre de la Keypair:", kp['keypair']['name'])
+                    #print("Nombre de la Keypair:", kp['keypair']['name'])
                     return kp['keypair']['name']
             print("No se encontró el Keypair especificado")
         else:
@@ -387,12 +388,6 @@ class NovaClient(object):
         else:
             print(" [*] Error al listar los Grupos de Seguridad:", response.status_code)
             return []
-<<<<<<< HEAD
-    
-   
-=======
-
->>>>>>> aedd90d84b664c60cb6b0fd09796ad89690f1cb3
     
 #Editar securitygroup
     def editarSecurityGroup(self,name,nuevoname,descripcion):
@@ -616,7 +611,6 @@ class NovaClient(object):
         
     # Crear una instancia de VM
     def create_instance(self, name, flavor_id, image_id, network_id,keypairID,securitygroupID):
-        
         instance_data = {
             'server': {
                 'name': name,
@@ -636,23 +630,24 @@ class NovaClient(object):
                 ]
             }
         }
-        
         response = requests.post(self.nova_url + '/v2.1/servers', json=instance_data, headers=self.headers)
-        
-
-        
-
         if response.status_code == 202:
             instance = response.json()['server']
-            #time.sleep(5)
-            #Id_instance=self.get_instance_id(name)
-            #neutron=NeutronClient(self.auth_token)
-            #neutron.obtener_puerto_por_instancia(Id_instance)
-            print("Instancia creada de manera exitosa")
+            id_instance = instance['id']
+            while True:
+                estado = self.get_instance_estado(id_instance)
+                if estado == "active":
+                    break
+            self.agregar_interfaz_to_VM_br_provider(id_instance)
+            self.reboot_instance(id_instance)
+            while True:
+                estado = self.get_instance_estado(id_instance)
+                if estado == "active":
+                    break
+            print("[*] Instancia creada de manera exitosa")
             return instance
         else:
             raise Exception('Failed to create instance. Status code: {}'.format(response.status_code))
-
     # Obtener detalles de una instancia de VM
     def get_instance(self, server_id):
         url = f"{self.nova_url}/servers/{server_id}"
@@ -686,6 +681,16 @@ class NovaClient(object):
                     print(f"    - IP: {ip.get('addr')}")
         else:
             print("Error al obtener los detalles del servidor:", response.status_code)
+            
+    # Obtener ESTADO de una instancia de VM
+    def get_instance_estado(self, server_id):
+        url = f"{self.nova_url}/v2.1/servers/{server_id}"
+        response = requests.get(url, headers=self.headers)
+        if response.status_code == 200:
+            server_details = response.json()
+            return server_details['server']['OS-EXT-STS:vm_state']
+        else:
+            print("[*] Error al obtener el estado del servidor:", response.status_code)
 
     # Actualizar una instancia de VM
     def update_instance(self, name, newname, descripcion,project):
@@ -762,7 +767,7 @@ class NovaClient(object):
                 'type': 'SOFT'
             }
         }
-        response = requests.post(self.nova_url + '/servers/{}/action'.format(instance_id), json=action_data, headers=self.headers)
+        response = requests.post(self.nova_url + '/v2.1/servers/{}/action'.format(instance_id), json=action_data, headers=self.headers)
 
         if response.status_code == 202:
             return True
@@ -867,6 +872,27 @@ class NovaClient(object):
             print("Interfaz añadida correctamente.")
         else:
             print("Error al añadir la interfaz:", response.status_code)
+            
+    #Agregar una interfaz a la VM br_provider
+    def agregar_interfaz_to_VM_br_provider(self, vm_id):
+        url = f"{self.nova_url}/v2.1/servers/{vm_id}/os-interface"
+        data = {
+            "interfaceAttachment": {
+                "net_id": self.providerNetworkID
+            }
+        }
+        response = requests.post(url, headers=self.headers, json=data)
+        if response.status_code == 200:
+            #port_id = response.json()['interfaceAttachment']['port_id']
+            #print(port_id)
+            #url2 = f"{self.nova_url}/v2.1/servers/{vm_id}/os-interface/{port_id}"
+            #response = requests.put(url2, headers=self.headers, json={'interfaceAttachment': {'port_state': 'ACTIVE'}})
+            #print(response.json())
+            #if response.status_code == 200:
+            #    print('[*] La interfaz se ha establecido como ACTIVA correctamente.')   
+            print("[*] Interfaz añadida correctamente.")
+        else:
+            print("[*] Error al añadir la interfaz:", response.status_code)
 
 #MIGRAR
 

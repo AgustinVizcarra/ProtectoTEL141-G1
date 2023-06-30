@@ -1065,15 +1065,11 @@ def crearTopologia(keystone,neutron,nova,glance):
                 print("[*] Ingrese un número válido\n")
                 continue
             else:
-                k = 2 
-                while k <= numeroNiveles:
-                    print("***  Nivel "+ str(k) + " ***\n")
-                    cantidadVMNiveles = input("| Ingrese el número de nodos : ")
-                    
-                        
-                    
-                    
-                    
+                #k = 2 
+                #numeroNiveles = int(numeroNiveles)
+                #while k <= numeroNiveles:
+                #    print("***  Nivel "+ str(k) + " ***\n")
+                #    cantidadVMNiveles = input("| Ingrese el número de nodos : ")
                 cantidadNodos = (2**(int(numeroNiveles)))-1
                 break
     elif opcion == "Salir":
@@ -1183,7 +1179,6 @@ def editarSlice(keystone,neutron,nova):
                                 if(cidrRed == "ESC"):
                                     print("[*] Ha salido de la opción de -Editar Slice- \n")
                                     return "Salir"
-                                #FUNCION UNIR VM1 - VM2
                                 TopoConstructor.linkConstructor(neutron=neutron,nova=nova,VMs=[VM(name=nombre,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None),VM(name=nombre2,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None)],network=[],CIDR=cidrRed)
                                 return "Salir"
                             else:
@@ -1209,7 +1204,6 @@ def editarSlice(keystone,neutron,nova):
                         if(red == "ESC"):
                             print("[*] Ha salido de la opción de -Editar Slice- \n")
                             return "Salir"
-                        #FUNCION UNIR VM1 - RED PROVIDER
                         TopoConstructor.linkConstructor(neutron=neutron,nova=nova,VMs=[VM(name=nombre,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None)],network=[red],CIDR=None)
                         return "Salir"
                     else:
