@@ -74,7 +74,7 @@ def alertarMigrador():
         # Hallamos el porcentaje de disco disponible (consideramos el porcentaje de disco)
         conteo_disco = worker_estimacion[worker]['AlmacenamientoUsado(%)']
         # Realizamos el análisis
-        if conteo_cpu >= 390 or conteo_memoria <= 100 or conteo_disco >= 98:
+        if conteo_cpu >= 390 or conteo_memoria <= 200 or conteo_disco >= 98:
             # Se debe migrar urgentemente
             worker_sobrecargados[worker] = collection_compute[worker]
     # Renicio mis variables auxiliares
@@ -103,7 +103,8 @@ def alertarMigrador():
                     conteo_cpu = worker_estimacion[worker]['Core0(%)']+worker_estimacion[worker]['Core1(%)']+worker_estimacion[worker]['Core2(%)']+worker_estimacion[worker]['Core3(%)']
                     conteo_memoria = worker_estimacion[worker]['MemoriaDisponible(Mb)']
                     conteo_disco = worker_estimacion[worker]['AlmacenamientoUsado(%)']
-                    if conteo_cpu>cons_cpu and conteo_memoria>cons_memoria and conteo_disco>cons_disco and conteo_cpu<350 and conteo_memoria>100 and conteo_disco<95:
+                    # Capacidad de migrar o un best effort (10% mas delta) o una hpc (100% de un core)
+                    if conteo_cpu>cons_cpu and conteo_memoria>cons_memoria and conteo_disco>cons_disco and conteo_cpu<290 and conteo_memoria>200 and conteo_disco<95:
                         #Busco los valores que permitan la consolidacion
                         cons_cpu=conteo_cpu
                         cons_memoria=conteo_memoria
@@ -197,7 +198,7 @@ async def startup():
     print("Esperando solicitudes...")
     
 @app.get("/estimacion")
-def get_recursos():
+async def get_recursos():
     #Obtener los ultimos recursos de cada worker
     ## Proximamente
     global ready
@@ -218,6 +219,122 @@ def get_recursos():
                 body_response["estimacion"] = worker_estimacion
                 body_response["tiempo_respuesta"] = tiempo_espera
                 return JSONResponse(content=body_response,status_code=200)
+
+@app.post("/allocate")
+async def allocateVM(body: dict):
+    global ready
+    global worker_estimacion
+    if not body:
+        #Si en caso no se tiene valores dentro del body
+        data = {"mensaje": "Se debe proveer un body para realizar el allocation de la VM"}
+        return JSONResponse(content=data,status_code=400)
+    else:
+        if 'flavor' in body and 'estilo' in body:
+            # Aquí se tiene dos casuisticas si en caso se tiene 
+            conteo_cpu = 0
+            conteo_memoria = 0
+            conteo_disco = 0
+            cons_worker = ''
+            if body['estilo'] == 'besteffort':
+                # Dimensionamos en funcion de best effort
+                # Para la cantidad de vCPU's*10 + 10 (hipervisor + I/O)
+                cpu_requirement = body['flavor']['vcpus']*10 + 10
+                # Para la cantidad de memoria (1Gb memoria) -> 10% 1Gb del Host
+                memory_requirement = body['flavor']['memory']*0.1
+                # Para el disco (relacion 1:1)
+                disco_requirement = body['flavor']['storage']
+                if ready:
+                    # Quiere decir que la informacion se encuentra lista para ser el analisis
+                    for worker in worker_estimacion:
+                        # Analizamos el candidato mediante consolidacion
+                        conteo_cpu = worker_estimacion[worker]['Est_Core0(%)']+worker_estimacion[worker]['Est_Core1(%)']+worker_estimacion[worker]['Est_Core2(%)']+worker_estimacion[worker]['Est_Core3(%)']+cpu_requirement
+                        conteo_memoria = worker_estimacion[worker]['Est_MemoriaUsada(Gb)']+memory_requirement
+                        conteo_disco = worker_estimacion[worker]['Est_AlmacenamientoUsado(Gb)']+disco_requirement
+                        if conteo_cpu>cons_cpu and conteo_memoria>cons_memoria and conteo_disco>cons_disco and conteo_cpu<390 and conteo_memoria<4.08 and conteo_disco<9.4:
+                            #Busco los valores que permitan la consolidacion
+                            cons_cpu=conteo_cpu
+                            cons_memoria=conteo_memoria
+                            cons_disco=conteo_disco
+                            cons_worker=worker
+                    if cons_worker != '':
+                        body_response={"destino":collection_compute[cons_worker]}
+                    else:
+                        body_response={"destino":"Sistema saturado"}
+                    return JSONResponse(content=body_response,status_code=200)
+                else:
+                    # La informacion no se encuentra lista para enviarse por lo que debe esperar
+                    while True:
+                        if ready:
+                            # Quiere decir que la info se encuentra lista para el analisis
+                            for worker in worker_estimacion:
+                                # Analizamos el candidato mediante consolidacion
+                                conteo_cpu = worker_estimacion[worker]['Est_Core0(%)']+worker_estimacion[worker]['Est_Core1(%)']+worker_estimacion[worker]['Est_Core2(%)']+worker_estimacion[worker]['Est_Core3(%)']+cpu_requirement
+                                conteo_memoria = worker_estimacion[worker]['Est_MemoriaUsada(Gb)']+memory_requirement
+                                conteo_disco = worker_estimacion[worker]['Est_AlmacenamientoUsado(Gb)']+disco_requirement
+                                if conteo_cpu>cons_cpu and conteo_memoria>cons_memoria and conteo_disco>cons_disco and conteo_cpu<390 and conteo_memoria<4.08 and conteo_disco<9.4:
+                                    #Busco los valores que permitan la consolidacion
+                                    cons_cpu=conteo_cpu
+                                    cons_memoria=conteo_memoria
+                                    cons_disco=conteo_disco
+                                    cons_worker=worker
+                            if cons_worker != '':
+                                body_response={"destino":collection_compute[cons_worker]}
+                            else:
+                                body_response={"destino":"Sistema saturado"}
+                            return JSONResponse(content=body_response,status_code=200)
+            elif body['estilo'] == 'hpc':
+                # Dimensionamos en funcion de HPC
+                # Para la cantidad de vCPU's*100 + 10 (hipervisor + I/O)
+                cpu_requirement = body['flavor']['vcpus']*100 + 10
+                # Para la cantidad de memoria (1Gb memoria) -> 10% 1Gb del Host
+                memory_requirement = body['flavor']['memory']*0.1
+                # Para el disco (relacion 1:1)
+                disco_requirement = body['flavor']['storage']
+                if ready:
+                    # Quiere decir que la informacion se encuentra lista para ser el analisis
+                    for worker in worker_estimacion:
+                        # Analizamos el candidato mediante consolidacion
+                        conteo_cpu = worker_estimacion[worker]['Est_Core0(%)']+worker_estimacion[worker]['Est_Core1(%)']+worker_estimacion[worker]['Est_Core2(%)']+worker_estimacion[worker]['Est_Core3(%)']+cpu_requirement
+                        conteo_memoria = worker_estimacion[worker]['Est_MemoriaUsada(Gb)']+memory_requirement
+                        conteo_disco = worker_estimacion[worker]['Est_AlmacenamientoUsado(Gb)']+disco_requirement
+                        if conteo_cpu>cons_cpu and conteo_memoria>cons_memoria and conteo_disco>cons_disco and conteo_cpu<390 and conteo_memoria<4.08 and conteo_disco<9.4:
+                            #Busco los valores que permitan la consolidacion
+                            cons_cpu=conteo_cpu
+                            cons_memoria=conteo_memoria
+                            cons_disco=conteo_disco
+                            cons_worker=worker
+                    if cons_worker != '':
+                        body_response={"destino":collection_compute[cons_worker]}
+                    else:
+                        body_response={"destino":"Sistema saturado"}
+                    return JSONResponse(content=body_response,status_code=200)
+                else:
+                    # La informacion no se encuentra lista para enviarse por lo que debe esperar
+                    while True:
+                        if ready:
+                            # Quiere decir que la info se encuentra lista para el analisis
+                            for worker in worker_estimacion:
+                                # Analizamos el candidato mediante consolidacion
+                                conteo_cpu = worker_estimacion[worker]['Est_Core0(%)']+worker_estimacion[worker]['Est_Core1(%)']+worker_estimacion[worker]['Est_Core2(%)']+worker_estimacion[worker]['Est_Core3(%)']+cpu_requirement
+                                conteo_memoria = worker_estimacion[worker]['Est_MemoriaUsada(Gb)']+memory_requirement
+                                conteo_disco = worker_estimacion[worker]['Est_AlmacenamientoUsado(Gb)']+disco_requirement
+                                if conteo_cpu>cons_cpu and conteo_memoria>cons_memoria and conteo_disco>cons_disco and conteo_cpu<390 and conteo_memoria<4.08 and conteo_disco<9.4:
+                                    #Busco los valores que permitan la consolidacion
+                                    cons_cpu=conteo_cpu
+                                    cons_memoria=conteo_memoria
+                                    cons_disco=conteo_disco
+                                    cons_worker=worker
+                            if cons_worker != '':
+                                body_response={"destino":collection_compute[cons_worker]}
+                            else:
+                                body_response={"destino":"Sistema saturado"}
+                            return JSONResponse(content=body_response,status_code=200)
+            else:
+                data = {"mensaje": "no se tiene este estilo para el despliegue de VM"}
+                return JSONResponse(content=data,status_code=400) 
+        else:
+            data = {"mensaje": "se enviaron campos incorrectos"}
+            return JSONResponse(content=data,status_code=400)
             
 if __name__ == "__main__":
     import uvicorn

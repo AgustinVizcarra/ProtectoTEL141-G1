@@ -24,31 +24,19 @@ def obtener_uuids_pids():
         for i in resultado:
             aux = i[0].split(" ")
             resultado2.append(aux)
-        #devuelve esto [[uuid,pid], ....]
-        return resultado
-
+        return resultado2
     else:
         print(f"Se produjo un error: {error.decode()}")
         return []
 
+    
 
-def obtener_cpu_mem():
-    pass
-
-def obtener_Vm_migrar():
-    uwu = obtener_uuids_pids()
-    uwu1 = []
-    for i in uwu:
-        aux = obtener_cpu_mem()
-        #aux = [%cpu,%mem]
-        uwu1.append([i[0],aux[0],aux[1]])
-
+def escoger_vm(lista: list):
+    return max(lista, key=lambda x: float(x[1]))
 
 app.get("/")
 async def soplonVMs():
-    uuid = obtener_Vm_migrar()
-    data = {"uuid":uuid}
-    return JSONResponse(content=data,status_code=200)
+    pass
 
 
 if __name__ == "__main__":
@@ -56,3 +44,4 @@ if __name__ == "__main__":
     #Inicializando servicio de socket
     #Inicalizando servicio de API
     uvicorn.run(app,host="localhost",port=13001)
+    
