@@ -1,4 +1,5 @@
 import uuid
+import math
 from Classes.Network import Network
 from NetworkHandler import NetworkConstructor
 from VMHandler import VMConstructor
@@ -109,6 +110,7 @@ class TopoConstructor:
         i = 1
         for vm in VMs:
             mapVMVertice[i] = vm
+            i+=1
         ## Esto se mapea de la siguiente manera p.e {Vertice: 1, VM: VM1}
         ## Ahora si quere mapear los enlaces perimetrales se hace de la siguiente manera
         ## Si la secuencia a nivel de vertices es 1-2-3-4-5-6-1 (Para tener una figura cerrada) (Siendo N=6)
@@ -167,7 +169,56 @@ class TopoConstructor:
                     aux.append(mapVMNetwork[k])
             ## Una vez tenido todas las redes creadas se procede a crear las vm's junto con sus redes contiguas y cruzadas
             VMConstructor.createVM(mapVMVertice[i],aux,neutron,nova)
-            
+
+        def treeConstructor(self,VMs,CIDR,neutron,nova,niveles):
+            # Definimos la cantidad de Vm's por nivel para eso consideramos lo siguiente
+            if(niveles>=3):
+                # Realizo la numeración
+                numeracion = {}
+                i = 1
+                for vm in VMs:
+                    mapVMVertice[i] = vm
+                    i+=1
+                cantidad_vms = len(VMs) 
+                # Nos basamos que la razon de la progresion geometrica no puede ser mayor a la mitad del número de VM's
+                # Aplicando la division entera
+                aux_mitad = cantidad_vms//niveles
+                # Usamos un diccionario que permita guardar la desviacion entre la suma de potencias y la cantidad de VM's
+                map_diferencias = {}
+                for i in range(2,aux_mitad+1):
+                    # No se considera el 1 puesto que no se tendría una serie geométrica y no se podría sumar los términos
+                    suma=(1 * (math.pow(i, niveles )-1)) / (i-1)
+                    # Hallamos el valor que más se acerca a la cantidad de vms para ello
+                    diferencia= cantidad_vms-suma
+                    map_diferencias[i]=diferencia
+                # hallo el indice de la cantidad de nodos por nivel y la diferencia que este tiene con respecto a la cantidad de VM's
+                cantidad_nodos_vm = min(map_diferencias,key=abs(map_diferencias.get))
+                # Ahora tenemos 2 casuisticas de
+                if(map_diferencias[cantidad_nodos_vm]==0):
+                    # Quiere decir que la suma de la progresion geométrica cuya razon es la cantidad de nodos por VM es la cantidad de nodos o vms en total
+                    enlaces = []
+                    for n in range(niveles):
+                        for k in range(cantidad_nodos_vm**niveles):
+                            if(k==0 and n==0):
+                                nodo = 1
+                                for i in range(cantidad_nodos_vm):
+                                    vecino = cantidad_nodos_vm**n + i + 1
+                                    enlaces.append([nodo,vecino])
+                            elif(n>0 and n < (niveles-1)):
+                                nodo = int(((cantidad_nodos_vm**n-1)/(cantidad_nodos_vm-1))+k+1)
+                                for i in range(cantidad_nodos_vm):
+                                    vecino = nodo+cantidad_nodos_vm**n+i+j*(cantidad_nodos_vm-1)
+                                    enlaces.append([nodo,vecino])
+                                j+=1
+                            # Una vez que conozco en que nodo me encuentro procedo a ver los vecinos
+                    
+                else:
+                    # Quiere decir que la suma no cuadra con la cantidad de nodos
+                    pass
+            else:
+                print("[*] Debe ingresar una cantidad de niveles mayor o igual a 3")
+         
+    
 def networkConstructor(CIDR,neutron,nova):
         nameNetwork = str(uuid.uuid4())
         nameSubnet = str(uuid.uuid4())
