@@ -1179,7 +1179,6 @@ def editarSlice(keystone,neutron,nova):
                                 if(cidrRed == "ESC"):
                                     print("[*] Ha salido de la opción de -Editar Slice- \n")
                                     return "Salir"
-                                #FUNCION UNIR VM1 - VM2
                                 TopoConstructor.linkConstructor(neutron=neutron,nova=nova,VMs=[VM(name=nombre,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None),VM(name=nombre2,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None)],network=[],CIDR=cidrRed)
                                 return "Salir"
                             else:
@@ -1205,7 +1204,6 @@ def editarSlice(keystone,neutron,nova):
                         if(red == "ESC"):
                             print("[*] Ha salido de la opción de -Editar Slice- \n")
                             return "Salir"
-                        #FUNCION UNIR VM1 - RED PROVIDER
                         TopoConstructor.linkConstructor(neutron=neutron,nova=nova,VMs=[VM(name=nombre,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None)],network=[red],CIDR=None)
                         return "Salir"
                     else:
