@@ -1038,7 +1038,7 @@ def crearTopologia(keystone,neutron,nova,glance):
                 break
             else:
                 print("[*] Ingrese una opción válida.")
-    if opcion == "Lineal" or opcion == "Anillo" or opcion == "Bus":
+    if opcion == "Lineal" or opcion == "Anillo" or opcion == "Bus" or opcion == "Malla":
         while True:
             cantidadNodos = input("| Ingrese la cantidad de nodos: ")
             if cantidadNodos == "":
@@ -1047,17 +1047,6 @@ def crearTopologia(keystone,neutron,nova,glance):
             else:
                 cantidadNodos = int(cantidadNodos)
                 break 
-    elif opcion == "Malla":
-        while True:
-            numeroFilasColumnas = input("| Ingrese el número de filas y columnas con el formato A-B: ")
-            if numeroFilasColumnas == "":
-                print("[*] Ingrese un formato válido\n")
-                continue
-            else:
-                filas = numeroFilasColumnas.split("-")[0]
-                columnas = numeroFilasColumnas.split("-")[1]
-                cantidadNodos = int(filas) * int(columnas)
-                break
     elif opcion == "Árbol":
         while True:
             numeroNiveles = input("| Ingrese el número de niveles: ")
