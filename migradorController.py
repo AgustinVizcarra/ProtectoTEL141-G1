@@ -39,6 +39,7 @@ app.post("/migrar")
 async def chamoDeVMs(body: dict):
     if not body:
         resp = {"mensaje": "papi para que me mandas tus webadas?"}
+        return JSONResponse(content=resp,status_code=400)
     else:
         if "host_migrar" in body and "destino" in body:
             id_vm = obtener_VM_cargada(body["host_migrar"])

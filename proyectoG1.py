@@ -1048,19 +1048,28 @@ def crearTopologia(keystone,neutron,nova,glance):
                 cantidadNodos = int(cantidadNodos)
                 break 
     elif opcion == "Árbol":
+        ramificaciones = [[1]] #La cabezita
         while True:
-            numeroNiveles = input("| Ingrese el número de niveles: ")
+            numeroNiveles = input("| Ingrese el número de niveles del árbol(Mayor a 2): ")
             if numeroNiveles == "":
-                print("[*] Ingrese un número válido\n")
-                continue
+                print("[*] Ingrese una cantidad válida\n")
+                continue  
             else:
-                #k = 2 
-                #numeroNiveles = int(numeroNiveles)
-                #while k <= numeroNiveles:
-                #    print("***  Nivel "+ str(k) + " ***\n")
-                #    cantidadVMNiveles = input("| Ingrese el número de nodos : ")
-                cantidadNodos = (2**(int(numeroNiveles)))-1
-                break
+                numeroNiveles = int(numeroNiveles)
+                if numeroNiveles <= 2:
+                    print("[*] Ingrese una cantidad válida\n")
+                    continue 
+                break 
+        i = 1
+        while i < numeroNiveles:
+            nodo = []
+            for j in ramificaciones[i-1]:
+                for k in range(int(j)):
+                    numeroNodos = input("| Ingrese la cantidad de Nodo(s) para el Nodo"+str(k+1)+" - Nivel"+str(i)+": ")
+                    nodo.append(int(numeroNodos))
+            ramificaciones.append(nodo)    
+            i = i + 1    
+        print(ramificaciones)    
     elif opcion == "Salir":
         return "Salir"
     while True:
@@ -1073,38 +1082,79 @@ def crearTopologia(keystone,neutron,nova,glance):
     if int(decision) == 1:
         i = 1
         listaVMs = []
-        while i <= cantidadNodos:
-            print("|\n---Virtual Machine "+str(i) + "---")
-            nombre = input("| Ingrese un nombre de VirtualMachine: ")
-            if(nombre != ''):
-                flavorID = getFlavorsID(nova)
-                imagenID = getImagenesID(glance)
-                keypairID = getKeyPairID(nova,keystone)
-                securityID = getSecurityGroupID(nova)
-                listaVMs.append(VM(nombre,flavorID,imagenID,keypairID,securityID))
+        if opcion == "Árbol":
+            i = 1
+            while i <= numeroNiveles:
+                nodo = []
+                for j in ramificaciones[i-1]:
+                    for k in range(int(j)):
+                        bandera = True
+                        while bandera:
+                            print("|\n---Virtual Machine Nodo"+str(k+1)+" - Nivel"+str(i)+"---")    
+                            nombre = input("| Ingrese un nombre de VirtualMachine: ")
+                            if(nombre != ''):
+                                flavorID = getFlavorsID(nova)
+                                imagenID = getImagenesID(glance)
+                                keypairID = getKeyPairID(nova,keystone)
+                                securityID = getSecurityGroupID(nova)
+                                nodo.append(VM(nombre,flavorID,imagenID,keypairID,securityID))
+                                bandera = False
+                            else:
+                                print("[*] Ingrese un nombre de VirtualMachine válido\n")
+                                continue
+                listaVMs.append(nodo)    
                 i = i + 1
-            else:
-                print("[*] Ingrese un nombre de VirtualMachine válido\n")
-                continue
+        else:
+            while i <= cantidadNodos:
+                print("|\n---Virtual Machine "+str(i) + "---")
+                nombre = input("| Ingrese un nombre de VirtualMachine: ")
+                if(nombre != ''):
+                    flavorID = getFlavorsID(nova)
+                    imagenID = getImagenesID(glance)
+                    keypairID = getKeyPairID(nova,keystone)
+                    securityID = getSecurityGroupID(nova)
+                    listaVMs.append(VM(nombre,flavorID,imagenID,keypairID,securityID))
+                    i = i + 1
+                else:
+                    print("[*] Ingrese un nombre de VirtualMachine válido\n")
+                    continue
     if int(decision) == 2:
         flavorID = getFlavorsID(nova)
         imagenID = getImagenesID(glance)
         i = 1
         listaVMs = []
-        while i <= cantidadNodos:
-            
-            #USAR UNA VARIABLE PARA PODER ITERAR PARA EL CASO DE ARBOL
-            
-            print("|\n---Virtual Machine "+str(i) + "---")
-            nombre = input("| Ingrese un nombre de VirtualMachine: ")
-            if(nombre != ''):
-                keypairID = getKeyPairID(nova,keystone)
-                securityID = getSecurityGroupID(nova)
-                listaVMs.append(VM(nombre,flavorID,imagenID,keypairID,securityID))
+        if opcion == "Árbol":
+            i = 1
+            while i <= numeroNiveles:
+                nodo = []
+                for j in ramificaciones[i-1]:
+                    for k in range(int(j)):
+                        bandera = True
+                        while bandera:
+                            print("|\n---Virtual Machine Nodo"+str(k+1)+" - Nivel"+str(i)+"---")    
+                            nombre = input("| Ingrese un nombre de VirtualMachine: ")
+                            if(nombre != ''):
+                                keypairID = getKeyPairID(nova,keystone)
+                                securityID = getSecurityGroupID(nova)
+                                nodo.append(VM(nombre,flavorID,imagenID,keypairID,securityID))
+                                bandera = False
+                            else:
+                                print("[*] Ingrese un nombre de VirtualMachine válido\n")
+                                continue
+                listaVMs.append(nodo)    
                 i = i + 1
-            else:
-                print("[*] Ingrese un nombre de VirtualMachine válido\n")
-                continue
+        else:
+            while i <= cantidadNodos:
+                print("|\n---Virtual Machine "+str(i) + "---")
+                nombre = input("| Ingrese un nombre de VirtualMachine: ")
+                if(nombre != ''):
+                    keypairID = getKeyPairID(nova,keystone)
+                    securityID = getSecurityGroupID(nova)
+                    listaVMs.append(VM(nombre,flavorID,imagenID,keypairID,securityID))
+                    i = i + 1
+                else:
+                    print("[*] Ingrese un nombre de VirtualMachine válido\n")
+                    continue
     while True:
         CIDR = input("| Ingrese el CIDR de la red: ")
         if CIDR != "":
@@ -1121,7 +1171,7 @@ def crearTopologia(keystone,neutron,nova,glance):
     elif opcion == "Malla":
         TopoConstructor().meshConstructor(listaVMs,CIDR, neutron, nova)   
     elif opcion == "Árbol":
-        TopoConstructor().meshConstructorV2(listaVMs,CIDR, neutron, nova)
+        TopoConstructor().arbolConstructor(listaVMs,CIDR, neutron, nova)
     return "Salir"
     
 #Funcion que permite editar un slice

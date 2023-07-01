@@ -29,7 +29,6 @@ def obtener_uuids_pids():
         print(f"Se produjo un error: {error.decode()}")
         return []
 
-
 def obtener_cpu_memoria(pid: str):
     comand = f'top -p {pid} -b -n 2 -d 0.2'
     comand = comand +  "| tail -1 | awk '{print $9 \" \" $10}'"
@@ -59,6 +58,7 @@ async def soplonVMs():
         "uuid": uuid        
     }    
     return JSONResponse(content=data,status_code=200)
+
 
 if __name__ == "__main__":
     import uvicorn
