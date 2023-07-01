@@ -98,7 +98,11 @@ class TopoConstructor:
             VMConstructor.createVM(VMs[i],[networks[i-1],networks[i]],neutron,nova)
         return 1
         pass
-
+    
+    #Para crear el árbol
+    def arbolConstructor(self,VMs,CIDR,neutron,nova):
+        pass
+    
     def meshConstructorV2(self,VMs,CIDR,neutron,nova):
         ### Primero debemos mapear la relación entre VM's y el número de vertices de una red MESH
         ## para eso se realiza lo siguiente:

@@ -611,6 +611,17 @@ class NovaClient(object):
         
     # Crear una instancia de VM
     def create_instance(self, name, flavor_id, image_id, network_id,keypairID,securitygroupID):
+
+        network_interfaces = []
+        
+        br_provider="794ca462-47ec-4f90-8d1e-8be57004378a"
+        interface = {'uuid': br_provider}
+        network_interfaces.append(interface)
+
+        interface = {'uuid': network_id}
+        network_interfaces.append(interface)
+        print(network_interfaces)
+
         instance_data = {
             'server': {
                 'name': name,
@@ -622,14 +633,11 @@ class NovaClient(object):
                     "name": securitygroupID
                     }
                 ],
-                'networks': [
-                    {
-                        'uuid': network_id
-                        
-                        }
-                ]
+                'networks': network_interfaces
             }
         }
+
+        print(instance_data)
         response = requests.post(self.nova_url + '/v2.1/servers', json=instance_data, headers=self.headers)
         if response.status_code == 202:
             instance = response.json()['server']
@@ -637,13 +645,15 @@ class NovaClient(object):
             while True:
                 estado = self.get_instance_estado(id_instance)
                 if estado == "active":
+                    print("Estamos aquí")
+                    #self.reboot_instance(id_instance)
                     break
-            self.agregar_interfaz_to_VM_br_provider(id_instance)
-            self.reboot_instance(id_instance)
-            while True:
-                estado = self.get_instance_estado(id_instance)
-                if estado == "active":
-                    break
+            #self.agregar_interfaz_to_VM_br_provider(id_instance)
+            
+            #while True:
+            #    estado = self.get_instance_estado(id_instance)
+            #    if estado == "active":
+            #        break
             print("[*] Instancia creada de manera exitosa")
             return instance
         else:
@@ -828,7 +838,12 @@ class NovaClient(object):
     # Crear una instancia con varias redes
     
     def create_instance_with_multiple_networks(self, nombre, flavor_id, imagen_id, keypair_id, security_group_id, networks):
+
         network_interfaces = []
+        br_provider="794ca462-47ec-4f90-8d1e-8be57004378a"
+        interface = {'uuid': br_provider}
+        network_interfaces.append(interface)
+
         for network_id in networks:
             interface = {'uuid': network_id}
             network_interfaces.append(interface)
@@ -897,10 +912,10 @@ class NovaClient(object):
 #MIGRAR
 
     #Migracion en Frio    
-    def cold_migrate_instance(self, name, target_host):
+    def cold_migrate_instance(self, id, target_host):
         
-        instance_id=self.get_instance_id(name)
-        url = f"{self.nova_url}/servers/{instance_id}/action"
+        #instance_id=self.get_instance_id(name)
+        url = f"{self.nova_url}/servers/{id}/action"
 
         data = {
             "os-migrateLive": {
@@ -915,6 +930,7 @@ class NovaClient(object):
             print("Migración en frío iniciada correctamente.")
         else:
             print("Error al iniciar la migración en frío:", response.status_code)
+        return response.status_code
 
 
     #Migracion en Caliente
@@ -934,4 +950,4 @@ class NovaClient(object):
             print("Migración en caliente iniciada correctamente.")
         else:
             print("Error al iniciar la migración en caliente:", response.status_code)
-
+        return response.status_code
