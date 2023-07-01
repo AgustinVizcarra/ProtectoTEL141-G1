@@ -13,9 +13,9 @@ collection={
 }
 """
 collection={
-    "10.0.1.10":"worker1",
-    "10.0.1.20":"worker2",
-    "10.0.1.30":"worker3"
+    "10.0.0.30":"worker1",
+    "10.0.0.40":"worker2",
+    "10.0.0.50":"worker3"
 }
 
 app = FastAPI(title = "Servidor de monitoreo",
