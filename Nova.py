@@ -255,7 +255,6 @@ class NovaClient(object):
     def listarKeyPair(self,user):
         url = f"{self.nova_url}/v2.1/os-keypairs"
         response = requests.get(url, headers=self.headers)
-        print(response.json())
         if response.status_code == 200:
             keypairs = response.json().get('keypairs', [])
             if len(keypairs) == 0:
