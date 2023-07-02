@@ -977,7 +977,7 @@ def crearFlavor(nova):
 def listarFlavors(nova):
     listado = nova.list_flavors()
     if len(listado) != 0:
-        Cabecera = ["NOMBRE FLAVOR","RAM","DISK","vCPUS"]
+        Cabecera = ["NOMBRE FLAVOR","RAM (MB)","DISK (GB)","vCPUS"]
         filas = []
         for flavor in listado:
             filasopt = []
