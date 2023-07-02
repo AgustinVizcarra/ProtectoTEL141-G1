@@ -5,6 +5,7 @@ import json
 import time
 from fastapi import FastAPI
 import threading
+from datetime import datetime 
 
 
 collection={
@@ -61,13 +62,14 @@ def limpiarBaseDeDatos():
         for workerIP in collection:
             col = mydb[collection[workerIP]]
             result= col.find()
+            # Match entre worker y longitudes
             longitudes[collection[workerIP]] = result.count()
         # Se debe eliminar la información
         # print(longitudes)
-        if longitudes['worker1']>200 and longitudes['worker2']>200 and longitudes['worker3']>200:
-            for workerIP in collection:
-                print("Eliminando la informacion del "+collection[workerIP])
-                col = mydb[collection[workerIP]]
+        for worker in longitudes:
+            if longitudes[worker] > 200:
+                print("Eliminando la informacion del "+worker+ "a las "+str(datetime.now().strftime("%d-%m-%Y %H:%M:%S")))
+                col = mydb[worker]
                 documents_to_delete = col.find().limit(100).sort("$natural", +1)
                 for document in documents_to_delete:
                     col.delete_one({'_id': document['_id']})
