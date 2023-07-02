@@ -203,7 +203,7 @@ def borrarRed(keystone,neutron):
             if(nombre == "ESC"):
                 print("[*] Ha salido de la opción de -Eliminar Red Provider- \n")
                 return
-            neutron.delete_network(keystone.getProjectID())
+            neutron.delete_network(nombre,keystone.getProjectID())
             break
         else:
             print("[*] Ingrese un nombre válido\n")
