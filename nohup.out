@@ -1,0 +1,34 @@
+INFO:     Started server process [1860170]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://10.0.0.10:8888 (Press CTRL+C to quit)
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/usr/lib/python3.8/threading.py", line 932, in _bootstrap_inner
+    self.run()
+  File "/usr/lib/python3.8/threading.py", line 870, in run
+    self._target(*self._args, **self._kwargs)
+  File "Estimador.py", line 58, in socket_listener
+    alertarMigrador()
+  File "Estimador.py", line 71, in alertarMigrador
+    conteo_cpu = worker_estimacion[worker]['Core0(%)']+worker_estimacion[worker]['Core1(%)']+worker_estimacion[worker]['Core2(%)']+worker_estimacion[worker]['Core3(%)']
+KeyError: 'Core0(%)'
+INFO:     Started server process [1860837]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://10.0.0.10:8888 (Press CTRL+C to quit)
+Servicio de estimacion inicializado en el puerto 6767
+Iniciando el API de Estimación
+Esperando solicitudes...
+INFO:     10.8.0.66:61333 - "GET /estimacion HTTP/1.1" 200 OK
+INFO:     10.8.0.66:49234 - "GET /estimacion HTTP/1.1" 200 OK
+INFO:     10.8.0.66:49240 - "GET /estimacion HTTP/1.1" 200 OK
+Exception in thread Thread-119:
+Traceback (most recent call last):
+  File "/usr/lib/python3.8/threading.py", line 932, in _bootstrap_inner
+    self.run()
+  File "/usr/lib/python3.8/threading.py", line 870, in run
+    self._target(*self._args, **self._kwargs)
+  File "Estimador.py", line 177, in sendDataToCompute
+    response = client_socket.recv(1024)
+ConnectionResetError: [Errno 104] Connection reset by peer

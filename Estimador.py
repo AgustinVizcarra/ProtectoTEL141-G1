@@ -68,11 +68,11 @@ def alertarMigrador():
     conteo_disco = 0
     for worker in worker_estimacion:
         # Hallamos el conteo por CPU (realizamos la suma)
-        conteo_cpu = worker_estimacion[worker]['Core0(%)']+worker_estimacion[worker]['Core1(%)']+worker_estimacion[worker]['Core2(%)']+worker_estimacion[worker]['Core3(%)']
+        conteo_cpu = worker_estimacion[worker]['Est_Core0(%)']+worker_estimacion[worker]['Est_Core1(%)']+worker_estimacion[worker]['Est_Core2(%)']+worker_estimacion[worker]['Est_Core3(%)']
         # Hallamos el conteo por Memoria (consideramos los megas disponibles)
-        conteo_memoria = worker_estimacion[worker]['MemoriaDisponible(Mb)']
+        conteo_memoria = worker_estimacion[worker]['Est_MemoriaDisponible(Mb)']
         # Hallamos el porcentaje de disco disponible (consideramos el porcentaje de disco)
-        conteo_disco = worker_estimacion[worker]['AlmacenamientoUsado(%)']
+        conteo_disco = worker_estimacion[worker]['Est_AlmacenamientoUsado(%)']
         # Realizamos el análisis
         if conteo_cpu >= 390 or conteo_memoria <= 200 or conteo_disco >= 98:
             # Se debe migrar urgentemente
@@ -100,9 +100,11 @@ def alertarMigrador():
                 # Verifico para no interar sobre los workers 
                 if worker not in worker_sobrecargados.keys():
                     # Quiere decir que me encuentro en alguno de los workers que se encuentra libre
-                    conteo_cpu = worker_estimacion[worker]['Core0(%)']+worker_estimacion[worker]['Core1(%)']+worker_estimacion[worker]['Core2(%)']+worker_estimacion[worker]['Core3(%)']
-                    conteo_memoria = worker_estimacion[worker]['MemoriaDisponible(Mb)']
-                    conteo_disco = worker_estimacion[worker]['AlmacenamientoUsado(%)']
+                    conteo_cpu = worker_estimacion[worker]['Est_Core0(%)']+worker_estimacion[worker]['Est_Core1(%)']+worker_estimacion[worker]['Est_Core2(%)']+worker_estimacion[worker]['Est_Core3(%)']
+                    # Hallamos el conteo por Memoria (consideramos los megas disponibles)
+                    conteo_memoria = worker_estimacion[worker]['Est_MemoriaDisponible(Mb)']
+                    # Hallamos el porcentaje de disco disponible (consideramos el porcentaje de disco)
+                    conteo_disco = worker_estimacion[worker]['Est_AlmacenamientoUsado(%)']
                     # Capacidad de migrar o un best effort (10% mas delta) o una hpc (100% de un core)
                     if conteo_cpu>cons_cpu and conteo_memoria>cons_memoria and conteo_disco>cons_disco and conteo_cpu<290 and conteo_memoria>200 and conteo_disco<95:
                         #Busco los valores que permitan la consolidacion
