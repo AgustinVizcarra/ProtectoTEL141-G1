@@ -368,7 +368,7 @@ class NovaClient(object):
         url = f"{self.nova_url}/v2.1/os-security-groups"
         response = requests.get(url, headers=self.headers)
     
-
+        
         if response.status_code == 200:
             security_groups = response.json().get('security_groups', [])
             

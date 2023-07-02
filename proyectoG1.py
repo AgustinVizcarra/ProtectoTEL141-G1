@@ -1493,7 +1493,7 @@ while(int(privilegios)<0):
         while True:
             result,keystone = MenuListaProyectos(keystone)
             project_id=keystone.getProjectID()
-            keystone.get_token_project(project_id)
+            tokensito = keystone.get_token_project(project_id)
             if not (result): #No esta asignado a ningun proyecto
                 print("[*] Gracias por usar nuestro sistema!\n")
                 privilegios = 0
