@@ -189,7 +189,7 @@ def sendDataToCompute(dataSegment,worker,port):
     ## Recibo la respuesta
     response = client_socket.recv(1024)
     data = json.loads(response.decode('utf-8'))
-    print(data)         
+    #print(data)         
     client_socket.close()
     aux = {}
     ## CPU
@@ -204,7 +204,7 @@ def sendDataToCompute(dataSegment,worker,port):
     aux['Est_AlmacenamientoUsado(Gb)'] = data[worker]['AlmacenamientoUsado(Gb)'] 
     aux['Est_AlmacenamientoUsado(%)'] = data[worker]['AlmacenamientoUsado(%)'] 
     ## Aqui proceso la informacion y la guardo en base de datos
-    aux['timestamp'] = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+    #aux['timestamp'] = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
     worker_estimacion[worker] = aux
     
     
