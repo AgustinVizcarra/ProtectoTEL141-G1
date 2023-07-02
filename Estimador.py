@@ -18,6 +18,7 @@ collection_compute={"worker1":"10.0.1.10","worker2":"10.0.1.20", "worker3":"10.0
 worker_sobrecargados = {}
 worker_libre = {}
 
+
 app = FastAPI(title = "Servidor de Estimación",
               description = "Corriendo servidor!",
               version = "1.0.1")
@@ -125,7 +126,7 @@ def alertarMigrador():
         
 def getInfoPorWorker(worker,connection):
     global worker_info
-    data = connection.find().limit(100).sort("$natural",+1)
+    data = connection.find().sort("$natural",-1).limit(100)
     info = {}
     ##Creamos los arreglos de listas
     cpu_0_percent =[]
@@ -136,6 +137,7 @@ def getInfoPorWorker(worker,connection):
     memoriaDisponibleMB =[]
     almacenamientoUsadoGB =[]
     almacenamientoUsadoPercent=[]
+    #timestamps = []
     for value in data:
         value.pop("_id")
         ## Segmentamos la data que es de utilidad para nosotros
@@ -150,18 +152,29 @@ def getInfoPorWorker(worker,connection):
         ## Para el disco
         almacenamientoUsadoGB.append(value['AlmacenamientoUsado(Gb)'])
         almacenamientoUsadoPercent.append(value['AlmacenamientoUsado(%)'])
+        #timestamps.append(value['timestamp'])
     ## Armamos la estructura
     ## CPU
+    cpu_0_percent.reverse()
+    cpu_1_percent.reverse()
+    cpu_2_percent.reverse()
+    cpu_3_percent.reverse()
     info['Core0(%)'] = cpu_0_percent
     info['Core1(%)'] = cpu_1_percent
     info['Core2(%)'] = cpu_2_percent
     info['Core3(%)'] = cpu_3_percent
     ## Memoria
+    memoriaUsadaGB.reverse()
+    memoriaDisponibleMB.reverse()
     info['MemoriaUsada(Gb)'] = memoriaUsadaGB
     info['MemoriaDisponible(Mb)'] = memoriaDisponibleMB
     ## Disco
+    almacenamientoUsadoGB.reverse()
+    almacenamientoUsadoPercent.reverse()
     info['AlmacenamientoUsado(Gb)'] = almacenamientoUsadoGB
     info['AlmacenamientoUsado(%)'] = almacenamientoUsadoPercent
+    #timestamps.reverse()
+    #print(timestamps)
     worker_info[worker] = info
 
 def sendDataToCompute(dataSegment,worker,port):
@@ -175,7 +188,8 @@ def sendDataToCompute(dataSegment,worker,port):
     client_socket.sendall(data.encode('utf-8'))
     ## Recibo la respuesta
     response = client_socket.recv(1024)
-    data = json.loads(response.decode('utf-8'))         
+    data = json.loads(response.decode('utf-8'))
+    print(data)         
     client_socket.close()
     aux = {}
     ## CPU
