@@ -1236,9 +1236,9 @@ def crearTopologia(keystone,neutron,nova,glance):
     elif opcion == "Bus":
         TopoConstructor().busConstructor(listaVMs,CIDR, neutron, nova)   
     elif opcion == "Malla":
-        TopoConstructor().meshConstructor(listaVMs,CIDR, neutron, nova)   
+        TopoConstructor().meshConstructorV2(listaVMs,CIDR, neutron, nova)   
     elif opcion == "Árbol":
-        TopoConstructor().arbolConstructor(listaVMs,CIDR, neutron, nova)
+        TopoConstructor().treeConstructor(listaVMs,CIDR,neutron,nova,numeroNiveles)
     return "Salir"
     
 #Funcion que permite editar un slice
