@@ -13,11 +13,11 @@ ready = False
 worker_estimacion = {}
 worker_info = {}
 tiempo_espera = 0
-collection={"worker1":6701}
+collection={"worker1":6701,"worker2":6702, "worker3":6703}
 collection_compute={"worker1":"10.0.1.10","worker2":"10.0.1.20", "worker3":"10.0.1.30"}
 worker_sobrecargados = {}
 worker_libre = {}
-# ,"worker2":6702, "worker3":6703
+
 
 app = FastAPI(title = "Servidor de Estimación",
               description = "Corriendo servidor!",
