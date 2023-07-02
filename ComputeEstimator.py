@@ -30,7 +30,7 @@ def socket_listener(IP):
     global estimacion_memoria_usada_gb,estimacion_memoria_disponible_mb
     global estimacion_disco_usado_gb,estimacion_disco_usado_percent
     # Instancia TCP-IP Socket
-    print("Servicio de escucha inicializado en el puerto 9898")
+    print("Servicio de escucha inicializado en el puerto 6767")
     server_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     #Direccionamos con la direccion IP correspondiente a la red interna
     server_add = (IP,6767)
@@ -42,15 +42,13 @@ def socket_listener(IP):
     while True:
         client_socket, client_add = server_socket.accept()
         print("Conexione entrante de "+str(client_add[0])+ ":"+str(client_add[1]))
-        #Recibiendo con buffer size de aprox 100 muestras
-        data = b""
-        while True:
-            chunk = client_socket.recv(8192)
-            if not chunk:
-                break
-            data += chunk
-        data = data.decode('utf-8')
+        # Recibo el tamaño del buffer que usaré para setear el tamaño del mismo
+        data_length = int(client_socket.recv(1024).decode('utf-8'))
+        response= "ok"
+        client_socket.sendall(response.encode('utf-8'))
         try:
+            data = client_socket.recv(data_length)
+            data = data.decode('utf-8')
             informacion = json.loads(data)
             # Procesamos la información para crear los hilos respectivos
             # CPU
@@ -94,6 +92,7 @@ def socket_listener(IP):
             data[collection[IP]]=body
             response = json.dumps(data)
             # print(response)
+            # print("enviando data")
             client_socket.sendall(response.encode('utf-8'))
             #Cerramos la conexion
             client_socket.close()
