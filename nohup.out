@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 INFO:     Started server process [1972014]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
@@ -8,3 +9,444 @@ Esperando solicitudes...
 INFO:     10.8.0.66:63077 - "GET /estimacion HTTP/1.1" 200 OK
 INFO:     10.8.0.66:61746 - "GET /estimacion HTTP/1.1" 200 OK
 INFO:     10.8.0.66:53791 - "GET /estimacion HTTP/1.1" 200 OK
+=======
+Servicio de escucha inicializado en el puerto 9898
+Escuchando Peticiones...
+Conexione entrante de 10.20.12.188:36760
+{"worker1": {"Core0(%)": 3.9, "Core1(%)": 1.93, "Core2(%)": 3.39, "Core3(%)": 2.08, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.23, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36770
+{"worker1": {"Core0(%)": 3.28, "Core1(%)": 1.81, "Core2(%)": 3.68, "Core3(%)": 2.7, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.22, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36776
+{"worker1": {"Core0(%)": 3.88, "Core1(%)": 1.87, "Core2(%)": 3.58, "Core3(%)": 2.77, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.0, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36784
+{"worker1": {"Core0(%)": 3.88, "Core1(%)": 1.87, "Core2(%)": 3.58, "Core3(%)": 2.77, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.0, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36788
+{"worker1": {"Core0(%)": 3.49, "Core1(%)": 2.05, "Core2(%)": 3.46, "Core3(%)": 2.72, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.81, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36794
+{"worker1": {"Core0(%)": 3.34, "Core1(%)": 1.97, "Core2(%)": 3.61, "Core3(%)": 2.69, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.7, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36800
+{"worker1": {"Core0(%)": 3.46, "Core1(%)": 1.89, "Core2(%)": 3.59, "Core3(%)": 2.68, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.48, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36806
+{"worker1": {"Core0(%)": 3.46, "Core1(%)": 1.89, "Core2(%)": 3.59, "Core3(%)": 2.68, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.48, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36812
+{"worker1": {"Core0(%)": 3.42, "Core1(%)": 1.79, "Core2(%)": 3.52, "Core3(%)": 2.57, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.89, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36818
+{"worker1": {"Core0(%)": 3.94, "Core1(%)": 1.83, "Core2(%)": 3.43, "Core3(%)": 2.45, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.56, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36824
+{"worker1": {"Core0(%)": 3.6, "Core1(%)": 1.72, "Core2(%)": 3.44, "Core3(%)": 2.4, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.65, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36830
+{"worker1": {"Core0(%)": 3.6, "Core1(%)": 1.72, "Core2(%)": 3.44, "Core3(%)": 2.4, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.65, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36836
+{"worker1": {"Core0(%)": 4.39, "Core1(%)": 1.76, "Core2(%)": 3.34, "Core3(%)": 2.47, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.63, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36840
+{"worker1": {"Core0(%)": 3.82, "Core1(%)": 1.83, "Core2(%)": 3.37, "Core3(%)": 2.62, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.88, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36848
+{"worker1": {"Core0(%)": 3.24, "Core1(%)": 1.59, "Core2(%)": 3.28, "Core3(%)": 2.41, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1128.18, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36852
+{"worker1": {"Core0(%)": 3.24, "Core1(%)": 1.59, "Core2(%)": 3.28, "Core3(%)": 2.41, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1128.18, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36860
+{"worker1": {"Core0(%)": 3.7, "Core1(%)": 1.91, "Core2(%)": 3.32, "Core3(%)": 2.14, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1128.04, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36866
+{"worker1": {"Core0(%)": 3.9, "Core1(%)": 1.59, "Core2(%)": 3.49, "Core3(%)": 2.42, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.13, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36872
+{"worker1": {"Core0(%)": 3.07, "Core1(%)": 1.95, "Core2(%)": 3.19, "Core3(%)": 2.54, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.72, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36878
+{"worker1": {"Core0(%)": 3.07, "Core1(%)": 1.95, "Core2(%)": 3.19, "Core3(%)": 2.54, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.72, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36884
+{"worker1": {"Core0(%)": 4.29, "Core1(%)": 1.8, "Core2(%)": 3.46, "Core3(%)": 2.69, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.82, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36890
+{"worker1": {"Core0(%)": 4.8, "Core1(%)": 1.93, "Core2(%)": 3.29, "Core3(%)": 2.31, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.92, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36896
+{"worker1": {"Core0(%)": 2.79, "Core1(%)": 2.34, "Core2(%)": 3.13, "Core3(%)": 2.18, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.95, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36902
+{"worker1": {"Core0(%)": 2.79, "Core1(%)": 2.34, "Core2(%)": 3.13, "Core3(%)": 2.18, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.95, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36906
+{"worker1": {"Core0(%)": 3.63, "Core1(%)": 2.01, "Core2(%)": 3.3, "Core3(%)": 2.86, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.53, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36914
+{"worker1": {"Core0(%)": 4.37, "Core1(%)": 2.48, "Core2(%)": 3.12, "Core3(%)": 2.57, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.45, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36920
+{"worker1": {"Core0(%)": 3.47, "Core1(%)": 2.29, "Core2(%)": 3.1, "Core3(%)": 2.87, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.43, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36926
+{"worker1": {"Core0(%)": 3.47, "Core1(%)": 2.29, "Core2(%)": 3.1, "Core3(%)": 2.87, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.43, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36932
+{"worker1": {"Core0(%)": 3.65, "Core1(%)": 2.13, "Core2(%)": 3.67, "Core3(%)": 2.72, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.08, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36938
+{"worker1": {"Core0(%)": 3.68, "Core1(%)": 2.25, "Core2(%)": 3.47, "Core3(%)": 2.74, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.98, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36944
+{"worker1": {"Core0(%)": 4.31, "Core1(%)": 2.35, "Core2(%)": 2.85, "Core3(%)": 2.81, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.43, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36952
+{"worker1": {"Core0(%)": 4.31, "Core1(%)": 2.35, "Core2(%)": 2.85, "Core3(%)": 2.81, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.43, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36956
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/tsa/statespace/sarimax.py:966: UserWarning: Non-stationary starting autoregressive parameters found. Using zeros as starting parameters.
+  warn('Non-stationary starting autoregressive parameters'
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/tsa/statespace/sarimax.py:978: UserWarning: Non-invertible starting MA parameters found. Using zeros as starting parameters.
+  warn('Non-invertible starting MA parameters found.'
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+{"worker1": {"Core0(%)": 3.14, "Core1(%)": 2.23, "Core2(%)": 3.73, "Core3(%)": 2.79, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.23, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36966
+{"worker1": {"Core0(%)": 3.89, "Core1(%)": 2.12, "Core2(%)": 3.1, "Core3(%)": 2.54, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.22, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36970
+{"worker1": {"Core0(%)": 3.69, "Core1(%)": 1.76, "Core2(%)": 3.3, "Core3(%)": 2.46, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.88, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36976
+{"worker1": {"Core0(%)": 3.69, "Core1(%)": 1.76, "Core2(%)": 3.3, "Core3(%)": 2.46, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.88, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36982
+{"worker1": {"Core0(%)": 3.99, "Core1(%)": 1.84, "Core2(%)": 3.56, "Core3(%)": 2.67, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.78, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36988
+{"worker1": {"Core0(%)": 3.97, "Core1(%)": 2.53, "Core2(%)": 3.18, "Core3(%)": 2.64, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.56, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:36994
+{"worker1": {"Core0(%)": 3.96, "Core1(%)": 2.2, "Core2(%)": 3.24, "Core3(%)": 2.58, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.69, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37000
+{"worker1": {"Core0(%)": 3.96, "Core1(%)": 2.2, "Core2(%)": 3.24, "Core3(%)": 2.58, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.69, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37006
+{"worker1": {"Core0(%)": 3.72, "Core1(%)": 2.0, "Core2(%)": 3.6, "Core3(%)": 2.14, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.88, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37014
+{"worker1": {"Core0(%)": 4.09, "Core1(%)": 1.56, "Core2(%)": 3.56, "Core3(%)": 2.22, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.89, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37022
+{"worker1": {"Core0(%)": 4.09, "Core1(%)": 1.56, "Core2(%)": 3.56, "Core3(%)": 2.22, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.89, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37028
+{"worker1": {"Core0(%)": 4.5, "Core1(%)": 1.68, "Core2(%)": 2.97, "Core3(%)": 2.68, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.56, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37038
+{"worker1": {"Core0(%)": 3.35, "Core1(%)": 2.29, "Core2(%)": 3.6, "Core3(%)": 2.7, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.13, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37044
+{"worker1": {"Core0(%)": 3.82, "Core1(%)": 2.18, "Core2(%)": 3.38, "Core3(%)": 2.76, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.56, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37048
+{"worker1": {"Core0(%)": 3.82, "Core1(%)": 2.18, "Core2(%)": 3.38, "Core3(%)": 2.76, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.56, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37054
+{"worker1": {"Core0(%)": 4.58, "Core1(%)": 2.05, "Core2(%)": 3.12, "Core3(%)": 2.67, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.2, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37060
+{"worker1": {"Core0(%)": 3.36, "Core1(%)": 1.96, "Core2(%)": 3.64, "Core3(%)": 2.62, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.2, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37066
+{"worker1": {"Core0(%)": 4.66, "Core1(%)": 1.88, "Core2(%)": 3.09, "Core3(%)": 2.71, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.31, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37074
+{"worker1": {"Core0(%)": 4.66, "Core1(%)": 1.88, "Core2(%)": 3.09, "Core3(%)": 2.71, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.31, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37082
+{"worker1": {"Core0(%)": 3.8, "Core1(%)": 1.92, "Core2(%)": 3.44, "Core3(%)": 2.7, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.97, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37088
+{"worker1": {"Core0(%)": 3.44, "Core1(%)": 1.75, "Core2(%)": 3.36, "Core3(%)": 2.68, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1125.09, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37096
+{"worker1": {"Core0(%)": 3.94, "Core1(%)": 1.81, "Core2(%)": 3.47, "Core3(%)": 2.62, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.52, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37102
+{"worker1": {"Core0(%)": 3.94, "Core1(%)": 1.81, "Core2(%)": 3.47, "Core3(%)": 2.62, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.52, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37108
+{"worker1": {"Core0(%)": 3.64, "Core1(%)": 1.82, "Core2(%)": 3.26, "Core3(%)": 2.51, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.33, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37114
+{"worker1": {"Core0(%)": 3.55, "Core1(%)": 1.75, "Core2(%)": 3.27, "Core3(%)": 2.42, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.13, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37120
+{"worker1": {"Core0(%)": 3.61, "Core1(%)": 1.9, "Core2(%)": 3.41, "Core3(%)": 2.01, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.8, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37130
+{"worker1": {"Core0(%)": 3.61, "Core1(%)": 1.9, "Core2(%)": 3.41, "Core3(%)": 2.01, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.8, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37134
+{"worker1": {"Core0(%)": 3.64, "Core1(%)": 1.92, "Core2(%)": 3.3, "Core3(%)": 2.47, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.9, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37142
+{"worker1": {"Core0(%)": 3.41, "Core1(%)": 1.9, "Core2(%)": 3.42, "Core3(%)": 2.15, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.67, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37148
+{"worker1": {"Core0(%)": 3.41, "Core1(%)": 1.9, "Core2(%)": 3.42, "Core3(%)": 2.15, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.67, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37156
+{"worker1": {"Core0(%)": 3.81, "Core1(%)": 2.04, "Core2(%)": 3.32, "Core3(%)": 2.64, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.28, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37162
+{"worker1": {"Core0(%)": 3.33, "Core1(%)": 1.85, "Core2(%)": 3.53, "Core3(%)": 2.29, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.42, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37168
+{"worker1": {"Core0(%)": 3.82, "Core1(%)": 2.17, "Core2(%)": 3.37, "Core3(%)": 2.64, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.93, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+Conexione entrante de 10.20.12.188:37174
+{"worker1": {"Core0(%)": 3.82, "Core1(%)": 2.17, "Core2(%)": 3.37, "Core3(%)": 2.64, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.93, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37180
+{"worker1": {"Core0(%)": 3.31, "Core1(%)": 2.14, "Core2(%)": 3.3, "Core3(%)": 2.67, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.13, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37186
+{"worker1": {"Core0(%)": 4.23, "Core1(%)": 2.02, "Core2(%)": 3.31, "Core3(%)": 1.99, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.26, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37192
+{"worker1": {"Core0(%)": 3.41, "Core1(%)": 2.06, "Core2(%)": 3.49, "Core3(%)": 2.64, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.23, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37198
+{"worker1": {"Core0(%)": 3.41, "Core1(%)": 2.06, "Core2(%)": 3.49, "Core3(%)": 2.64, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.23, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37210
+{"worker1": {"Core0(%)": 3.6, "Core1(%)": 1.9, "Core2(%)": 3.28, "Core3(%)": 2.64, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.36, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37224
+{"worker1": {"Core0(%)": 3.6, "Core1(%)": 1.82, "Core2(%)": 3.27, "Core3(%)": 2.75, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.07, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37230
+{"worker1": {"Core0(%)": 3.6, "Core1(%)": 1.82, "Core2(%)": 3.27, "Core3(%)": 2.75, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.07, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37236
+{"worker1": {"Core0(%)": 3.65, "Core1(%)": 1.79, "Core2(%)": 3.41, "Core3(%)": 2.68, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1128.53, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37240
+{"worker1": {"Core0(%)": 3.59, "Core1(%)": 1.9, "Core2(%)": 3.25, "Core3(%)": 2.34, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.67, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37248
+{"worker1": {"Core0(%)": 3.6, "Core1(%)": 1.83, "Core2(%)": 3.61, "Core3(%)": 2.96, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.7, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37254
+{"worker1": {"Core0(%)": 3.6, "Core1(%)": 1.83, "Core2(%)": 3.61, "Core3(%)": 2.96, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1126.7, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37260
+{"worker1": {"Core0(%)": 3.54, "Core1(%)": 2.17, "Core2(%)": 3.38, "Core3(%)": 2.69, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.82, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37268
+{"worker1": {"Core0(%)": 3.66, "Core1(%)": 2.11, "Core2(%)": 3.31, "Core3(%)": 2.3, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.37, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37270
+{"worker1": {"Core0(%)": 3.36, "Core1(%)": 1.76, "Core2(%)": 3.31, "Core3(%)": 2.61, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.64, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37276
+{"worker1": {"Core0(%)": 3.36, "Core1(%)": 1.76, "Core2(%)": 3.31, "Core3(%)": 2.61, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.64, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37286
+{"worker1": {"Core0(%)": 3.44, "Core1(%)": 2.04, "Core2(%)": 3.17, "Core3(%)": 2.89, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.47, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37290
+{"worker1": {"Core0(%)": 2.91, "Core1(%)": 1.89, "Core2(%)": 3.5, "Core3(%)": 2.81, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.09, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37298
+{"worker1": {"Core0(%)": 2.91, "Core1(%)": 1.89, "Core2(%)": 3.5, "Core3(%)": 2.81, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.09, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37302
+{"worker1": {"Core0(%)": 4.1, "Core1(%)": 2.21, "Core2(%)": 3.48, "Core3(%)": 2.67, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.17, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37310
+{"worker1": {"Core0(%)": 3.19, "Core1(%)": 1.62, "Core2(%)": 3.41, "Core3(%)": 2.85, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.19, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37314
+{"worker1": {"Core0(%)": 2.94, "Core1(%)": 2.56, "Core2(%)": 3.42, "Core3(%)": 2.9, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.28, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37322
+{"worker1": {"Core0(%)": 2.94, "Core1(%)": 2.56, "Core2(%)": 3.42, "Core3(%)": 2.9, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.28, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37328
+{"worker1": {"Core0(%)": 2.9, "Core1(%)": 1.71, "Core2(%)": 3.37, "Core3(%)": 2.94, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.3, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37334
+{"worker1": {"Core0(%)": 3.63, "Core1(%)": 2.77, "Core2(%)": 3.43, "Core3(%)": 2.83, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.29, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37338
+{"worker1": {"Core0(%)": 2.75, "Core1(%)": 2.31, "Core2(%)": 3.48, "Core3(%)": 2.67, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.24, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37346
+{"worker1": {"Core0(%)": 2.75, "Core1(%)": 2.31, "Core2(%)": 3.48, "Core3(%)": 2.67, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.24, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37356
+{"worker1": {"Core0(%)": 2.91, "Core1(%)": 2.24, "Core2(%)": 3.47, "Core3(%)": 2.54, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.23, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37362
+{"worker1": {"Core0(%)": 2.93, "Core1(%)": 0.84, "Core2(%)": 3.51, "Core3(%)": 1.7, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.25, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37366
+{"worker1": {"Core0(%)": 2.93, "Core1(%)": 0.84, "Core2(%)": 3.51, "Core3(%)": 1.7, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.25, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37374
+{"worker1": {"Core0(%)": 2.87, "Core1(%)": 3.02, "Core2(%)": 3.56, "Core3(%)": 1.91, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.36, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37380
+{"worker1": {"Core0(%)": 3.11, "Core1(%)": 2.71, "Core2(%)": 3.49, "Core3(%)": 3.09, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.47, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37386
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+/home/ubuntu/.local/lib/python3.8/site-packages/statsmodels/base/model.py:607: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+  warnings.warn("Maximum Likelihood optimization failed to "
+{"worker1": {"Core0(%)": 3.23, "Core1(%)": 2.42, "Core2(%)": 3.52, "Core3(%)": 2.91, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.41, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37392
+{"worker1": {"Core0(%)": 3.23, "Core1(%)": 2.42, "Core2(%)": 3.52, "Core3(%)": 2.91, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.41, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37398
+{"worker1": {"Core0(%)": 3.71, "Core1(%)": 2.58, "Core2(%)": 3.64, "Core3(%)": 2.77, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.47, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37402
+{"worker1": {"Core0(%)": 4.12, "Core1(%)": 2.44, "Core2(%)": 3.75, "Core3(%)": 2.75, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.41, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37410
+{"worker1": {"Core0(%)": 4.12, "Core1(%)": 2.44, "Core2(%)": 3.75, "Core3(%)": 2.75, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.41, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37420
+{"worker1": {"Core0(%)": 4.09, "Core1(%)": 2.33, "Core2(%)": 3.65, "Core3(%)": 2.75, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.44, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37426
+{"worker1": {"Core0(%)": 3.49, "Core1(%)": 1.78, "Core2(%)": 3.53, "Core3(%)": 2.47, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.46, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37434
+{"worker1": {"Core0(%)": 3.21, "Core1(%)": 2.37, "Core2(%)": 3.56, "Core3(%)": 2.46, "MemoriaUsada(Gb)": 2.7, "MemoriaDisponible(Mb)": 1127.34, "AlmacenamientoUsado(Gb)": 3.4, "AlmacenamientoUsado(%)": 35.0}}
+Conexione entrante de 10.20.12.188:37442
+Traceback (most recent call last):
+  File "ComputeEstimator.py", line 152, in <module>
+    socket_listener(IP)
+  File "ComputeEstimator.py", line 47, in socket_listener
+    informacion = json.loads(data)
+  File "/usr/lib/python3.8/json/__init__.py", line 357, in loads
+    return _default_decoder.decode(s)
+  File "/usr/lib/python3.8/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+  File "/usr/lib/python3.8/json/decoder.py", line 355, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 2897 (char 2896)
+>>>>>>> 8012221fb2eefea86de3dba3ffdb3e5228ad20f1

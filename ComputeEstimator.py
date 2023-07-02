@@ -3,6 +3,7 @@ import json
 import threading
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
+from datetime import datetime
 
 # Instaciacion Variables globales
 # CPU
@@ -42,9 +43,12 @@ def socket_listener(IP):
         client_socket, client_add = server_socket.accept()
         print("Conexione entrante de "+str(client_add[0])+ ":"+str(client_add[1]))
         #Recibiendo con buffer size de aprox 100 muestras
-        data = client_socket.recv(6144)
+        data = client_socket.recv(8192)
         data = data.decode('utf-8')
-        informacion = json.loads(data)
+        try:
+            informacion = json.loads(data)
+        except:
+            print("El error ocurió a las "+strd(datetime.now().strftime("%d-%m-%Y %H:%M:%S"))+" y se recibio la siguiente data: "+ data)
         # Procesamos la información para crear los hilos respectivos
         # CPU
         input_core_0_percent = informacion['Core0(%)']
@@ -86,7 +90,7 @@ def socket_listener(IP):
         data = {}
         data[collection[IP]]=body
         response = json.dumps(data)
-        print(response)
+        # print(response)
         client_socket.sendall(response.encode('utf-8'))
         #Cerramos la conexion
         client_socket.close()
