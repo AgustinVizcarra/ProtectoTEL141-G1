@@ -10,13 +10,15 @@ import requests
 from tabulate import tabulate
 from Classes.VM import VM
 from TopoHandler import TopoConstructor
+from funcioncitas import *
 ############################################    F   U   N   C   I   O   N   E   S   ############################################
 #Funcion que muestra el menu de la lista de Proyectos
 def MenuListaProyectos(keystone):
     listaProyectos, listaRoles = keystone.getListProjects()
     if len(listaProyectos) == 0:   
         Cabecera = ["Lista de Proyectos"]
-        Filas = [["Actualmente, usted no se encuentra asignado a ningún proyecto.\nPorfavor, póngase en contacto con su PhD. Santivañez."]]
+        Filas = [["Actualmente, usted no se encuentra asignado a ningún proyecto.\nPorfavor, póngase en contacto con un administrador."]]
+        print("\n")
         print(tabulate(Filas1,headers=Cabecera1,tablefmt='fancy_grid',stralign='center'))
         return False,keystone
     else:
@@ -30,23 +32,27 @@ def MenuListaProyectos(keystone):
                 i = i + 1
             filas.append(["\n".join(filasopt)])
             filas.append(["**Escriba ESC para poder salir**"])
+            print("\n")
             print(tabulate(filas,headers=Cabecera,tablefmt='fancy_grid',stralign='center'))
             opcionProyecto = input("| Ingrese el # del proyecto al que desea ingresar: ")
             if str(opcionProyecto) == "ESC":
                 return False,keystone
-            if int(opcionProyecto) > len(listaProyectos):
-                 print("[*] Ingrese el # de un proyecto válido\n")
-            else:
-                idProyecto = listaProyectos[int(opcionProyecto)-1][0]
-                keystone.setProjectID(idProyecto)
-                keystone.setRolName(listaRoles[int(opcionProyecto)-1])
-                break
+            try:
+                if int(opcionProyecto) > len(listaProyectos):
+                    print("[*] Ingrese el # de un proyecto válido\n")
+                else:
+                    idProyecto = listaProyectos[int(opcionProyecto)-1][0]
+                    keystone.setProjectID(idProyecto)
+                    keystone.setRolName(listaRoles[int(opcionProyecto)-1])
+                    break
+            except ValueError:
+                print("[*] Ingrese el # de un proyecto válido\n")
         return True,keystone
    
 #Funcion que muestra el Menú Principal        
 def menuPrincipal(keystone):
-    opcionesAdmin = ["Usuario","RedProvider","Topología","KeyPair","SecurityGroup","VirtualMachine","Flavors","Images"]
-    opcionesUsuario = ["RedProvider","KeyPair","SecurityGroup","VirtualMachine"]
+    opcionesAdmin = ["Usuario","Red","Topología","KeyPair","SecurityGroup","VirtualMachine","Flavors","Images"]
+    opcionesUsuario = ["Red","KeyPair","SecurityGroup","VirtualMachine"]
     if keystone.getRolName() == "admin":
         opciones = opcionesAdmin
     else:
@@ -64,15 +70,18 @@ def menuPrincipal(keystone):
             print("\n")
             print(tabulate(filas,headers=Cabecera,tablefmt='fancy_grid',stralign='center'))
             opcion = input("| Ingrese una opción: ")
-            if int(opcion) == (len(opciones)+1):
-                opcion = "Salir"
-                break
-            else:
-                if int(opcion) <= len(opciones):
-                    opcion = opciones[int(opcion)-1]
+            try:
+                if int(opcion) == (len(opciones)+1):
+                    opcion = "Salir"
                     break
                 else:
-                    print("[*] Ingrese una opción válida.\n")
+                    if int(opcion) <= len(opciones):
+                        opcion = opciones[int(opcion)-1]
+                        break
+                    else:
+                        print("[*] Ingrese una opción válida.\n")
+            except ValueError:            
+                print("[*] Ingrese una opción válida.\n")
     return opcion
 
 #Funcion que muestra el Menú Usuarios
@@ -90,15 +99,18 @@ def menuUsuarios():
             print("\n")
             print(tabulate(filas,headers=[],tablefmt='fancy_grid',stralign='center'))
             opcion = input("| Ingrese una opción: ")
-            if int(opcion) == (len(opciones)+1):
-                opcion = "Salir"
-                break
-            else:
-                if int(opcion) <= len(opciones):
-                    opcion = opciones[int(opcion)-1]
+            try:
+                if int(opcion) == (len(opciones)+1):
+                    opcion = "Salir"
                     break
                 else:
-                    print("[*] Ingrese una opción válida.")
+                    if int(opcion) <= len(opciones):
+                        opcion = opciones[int(opcion)-1]
+                        break
+                    else:
+                        print("[*] Ingrese una opción válida\n")
+            except ValueError:
+                print("[*] Ingrese una opción válida\n")
     return opcion
 
 #Funcion para listar proyectos por usuario
@@ -111,7 +123,10 @@ def listarUsuariosProyecto(keystone):
             filas.append([str(user)])
         print("\n")
         print(tabulate(filas,headers=head,tablefmt='grid',stralign='center'))
-    
+    else:
+        print("\n")
+        print(tabulate([["No hay usuarios en este proyecto."]],headers=[],tablefmt='grid',stralign='center'))
+        
 #Funcion que muestra el Menú redesprovider
 def menuRedes(keystone):
     opcionesAdmin = ["Crear red","Listar redes","Borrar red"]
@@ -132,49 +147,51 @@ def menuRedes(keystone):
             print("\n")
             print(tabulate(filas,headers=[],tablefmt='fancy_grid',stralign='center'))
             opcion = input("| Ingrese una opción: ")
-            if int(opcion) == (len(opciones)+1):
-                opcion = "Salir"
-                break
-            else:
-                if int(opcion) <= len(opciones):
-                    opcion = opciones[int(opcion)-1]
+            try:
+                if int(opcion) == (len(opciones)+1):
+                    opcion = "Salir"
                     break
                 else:
-                    print("[*] Ingrese una opción válida.")
+                    if int(opcion) <= len(opciones):
+                        opcion = opciones[int(opcion)-1]
+                        break
+                    else:
+                        print("[*] Ingrese una opción válida\n")
+            except ValueError:
+                print("[*] Ingrese una opción válida\n")
     return opcion
 
-#Funcion que permite crear RedProvider
+#Funcion que permite crear Red
 def crearRed(keystone,neutron,nova,glance):
     print("**Escriba ESC para poder salir de esta opción**")
     while True:
         red = input("| Ingrese un nombre de red: ")
         if(red != ''):
             if(red == "ESC"):
-                print("[*] Ha salido de la opción de -Crear RedProvider-\n")
+                print("[*] Ha salido de la opción de -Crear Red-\n")
                 return
             while True:
                 subred = input("| Ingrese un nombre de subred: ")
                 if(subred != ''):
                     if(subred == "ESC"):
-                        print("[*] Ha salido de la opción de -Crear RedProvider- \n")
+                        print("[*] Ha salido de la opción de -Crear Red- \n")
                         return
                     while True:
                         cidr = input("| Ingrese un CIDR: ")
-                        if(cidr != ''):
-                            if(cidr == "ESC"):
-                                print("[*] Ha salido de la opción de -Crear RedProvider- \n")
-                                return
+                        if(cidr == "ESC"):
+                            print("[*] Ha salido de la opción de -Crear Red- \n")
+                            return
+                        if validar_cidr(cidr):
                             while True:
                                 gatewayIP = input("| Ingrese una IP del gateway: ")
-                                if(gatewayIP != ''):
-                                    if(gatewayIP == "ESC"):
-                                        print("[*] Ha salido de la opción de -Crear RedProvider- \n")
-                                        return
+                                if(gatewayIP == "ESC"):
+                                    print("[*] Ha salido de la opción de -Crear Red- \n")
+                                    return
+                                if validar_direccion_ip(gatewayIP):
                                     neutron.create_network(red,subred,cidr)
-                                    #neutron.create_network(red,subred,cidr,gatewayIP,keystone.getProjectID())
                                     return
                                 else:
-                                    print("[*] Ingrese una IP válido\n")
+                                    print("[*] Ingrese una IP válida\n")
                                     continue
                         else:
                             print("[*] Ingrese un CIDR válido\n")
@@ -186,24 +203,27 @@ def crearRed(keystone,neutron,nova,glance):
             print("[*] Ingrese un nombre de red válido\n")
             continue
 
-#Funcion que permite mostrar la info de la RedProvider
+#Funcion que permite mostrar la info de la Red
 def infoRed(keystone,neutron):
     informacion = neutron.infoRedProvider(keystone.getProjectID())
     if len(informacion) != 0:
-        cabeceras = ["NOMBRE RED PROVIDER","DESCRIPCION","FECHA CREACIÓN","CIDR","GATEWAY IP"]
+        cabeceras = ["NOMBRE RED","DESCRIPCION","FECHA CREACIÓN","CIDR","GATEWAY IP"]
         print("\n")
         print(tabulate(informacion,headers=cabeceras,tablefmt='grid',stralign='center'))    
+    else:
+        print("\n")
+        print(tabulate([["No hay redes en este proyecto."]],headers=[],tablefmt='grid',stralign='center'))
     
-#Funcion que permite borrar una RedProvider
+#Funcion que permite borrar una Red
 def borrarRed(keystone,neutron):
     print("**Escriba ESC para poder salir de esta opción**")
     while True:
-        nombre = input("| Ingrese el nombre de la red Provider: ")
+        nombre = input("| Ingrese el nombre de la red: ")
         if(nombre != ''):
             if(nombre == "ESC"):
-                print("[*] Ha salido de la opción de -Eliminar Red Provider- \n")
+                print("[*] Ha salido de la opción de -Eliminar Red- \n")
                 return
-            neutron.delete_network(keystone.getProjectID())
+            neutron.delete_network(nombre,keystone.getProjectID())
             break
         else:
             print("[*] Ingrese un nombre válido\n")
@@ -230,15 +250,18 @@ def menuKeyPair():
             print("\n")
             print(tabulate(filas,headers=[],tablefmt='fancy_grid',stralign='center'))
             opcion = input("| Ingrese una opción: ")
-            if int(opcion) == (len(opciones)+1):
-                opcion = "Salir"
-                break
-            else:
-                if int(opcion) <= len(opciones):
-                    opcion = opciones[int(opcion)-1]
+            try:
+                if int(opcion) == (len(opciones)+1):
+                    opcion = "Salir"
                     break
                 else:
-                    print("[*] Ingrese una opción válida.")
+                    if int(opcion) <= len(opciones):
+                        opcion = opciones[int(opcion)-1]
+                        break
+                    else:
+                        print("[*] Ingrese una opción válida\n")
+            except ValueError:
+                print("[*] Ingrese una opción válida\n")
     return opcion
 
 #Funcion que permite crear la keypair
@@ -275,7 +298,10 @@ def listarKeypair(keystone,nova):
             filas.append([str(key)])
         print("\n")
         print(tabulate(filas,headers=head,tablefmt='grid',stralign='center'))
-
+    else:
+        print("\n")
+        print(tabulate([["No hay keypairs creadas hasta el momento."]],headers=[],tablefmt='grid',stralign='center'))
+        
 #Funcion para ver info de la keypair
 def infoKeypair(keystone,nova):
     print("**Escriba ESC para poder salir de esta opción**")
@@ -289,12 +315,15 @@ def infoKeypair(keystone,nova):
         else:
             print("[*] Ingrese un nombre válido\n")
             continue
-    informacionsita = nova.infoKeyPair(nombre, keystone.getUserID())
+    informacionsita = nova.infoKeyPair(nombre,keystone.getUserID())
     if len(informacionsita) != 0:
         cabeceras = ["NOMBRE KEYPAIR","TIPO","FINGERPRINT","FECHA CREACIÓN"]
         print("\n")
         print(tabulate([informacionsita],headers=cabeceras,tablefmt='grid',stralign='center'))  
-
+    else:
+        print("\n")
+        print(tabulate([["No hay información sobre esa llave."]],headers=[],tablefmt='grid',stralign='center'))
+        
 #Funcion para borrar la keypair
 def borrarKeypair(keystone,nova):
     print("**Escriba ESC para poder salir de esta opción**")
@@ -304,7 +333,7 @@ def borrarKeypair(keystone,nova):
             if(nombre == "ESC"):
                 print("[*] Ha salido de la opción de -Borrar KeyPair- \n")
                 return
-            nova.borrarKeyPair(nombre, keystone.getUserID())
+            nova.borrarKeyPair(nombre,keystone.getUserID())
             break
         else:
             print("[*] Ingrese un nombre válido\n")
@@ -330,15 +359,18 @@ def menuSecurityGroup():
             print("\n")
             print(tabulate(filas,headers=[],tablefmt='fancy_grid',stralign='center'))
             opcion = input("| Ingrese una opción: ")
-            if int(opcion) == (len(opciones)+1):
-                opcion = "Salir"
-                break
-            else:
-                if int(opcion) <= len(opciones):
-                    opcion = opciones[int(opcion)-1]
+            try:
+                if int(opcion) == (len(opciones)+1):
+                    opcion = "Salir"
                     break
                 else:
-                    print("[*] Ingrese una opción válida.")
+                    if int(opcion) <= len(opciones):
+                        opcion = opciones[int(opcion)-1]
+                        break
+                    else:
+                        print("[*] Ingrese una opción válida\n")
+            except ValueError:
+                print("[*] Ingrese una opción válida\n")
     return opcion
 
 #Funcion que permite crear la security group
@@ -368,10 +400,13 @@ def crearSecurityGroup(nova):
 #Funcion que permite listar los security group
 def listarSecurityGroup(nova):
     listado = nova.listarSecurityGroup()
-    print("\n")
     if len(listado) != 0:
         cabeceras = ["SECURITY GROUP","DESCRIPCION"]
+        print("\n")
         print(tabulate(listado,headers=cabeceras,tablefmt='grid',stralign='center'))    
+    else:
+        print("\n")
+        print(tabulate([["No hay security groups creados hasta el momento."]],headers=[],tablefmt='grid',stralign='center'))
 
 #Funcion que permite mostrar la información de un security group
 def infoSecurityGroup(nova):
@@ -384,14 +419,17 @@ def infoSecurityGroup(nova):
                 return
             break
         else:
-            print("[*] Ingrese una descripción válida\n")
+            print("[*] Ingrese un nombre válido\n")
             continue
     listado = nova.infoSecurityGroupRules(nombre)
-    print("\n")
     if len(listado) != 0:
         cabeceras = ["ID","DIRECTION","PROTOCOL","PORT_RANGE_MAX","PORT_RANGE_MIN"]
+        print("\n")
         print(tabulate(listado,headers=cabeceras,tablefmt='grid',stralign='center')) 
-    
+    else:
+        print("\n")
+        print(tabulate([["No hay información sobre ese security group."]],headers=[],tablefmt='grid',stralign='center'))
+        
 #Funcion que permite editar un security group
 def editarSecurityGroup(nova):
     print("**Escriba ESC para poder salir de esta opción**")
@@ -401,33 +439,49 @@ def editarSecurityGroup(nova):
             if(name == "ESC"):
                 print("[*] Ha salido de la opción de -Editar SecurityGroup-\n")
                 return
-            verificarNombre = input("| ¿Desea cambiar el nombre?[Y/N]: ")
-            nuevoNombre = None
-            if verificarNombre == "Y" or verificarNombre == "y":
-                while True:
-                    nuevoNombre = input("| Ingrese un nuevo nombre de SecurityGroup: ")
-                    if(nuevoNombre == ''):
-                        print("[*] Ingrese un nombre válido\n")
-                        continue
-                    else:
-                        if(nuevoNombre == "ESC"):
-                            print("[*] Ha salido de la opción de -Editar SecurityGroup-\n")
-                            return
-                        break
-            elif(verificarNombre == "ESC"):
-                print("[*] Ha salido de la opción de -Editar SecurityGroup-\n")
-                return    
-            verificarDescripcion = input("| ¿Desea cambiar la descripcion?[Y/N]: ")
-            descripcion = None
-            if verificarDescripcion == "Y" or verificarDescripcion == "y":
-                descripcion = input("| Ingrese una nueva descripcion: ")
-                if(descripcion == "ESC"):
+            while True:
+                verificarNombre = input("| ¿Desea cambiar el nombre?[Y/N]: ")
+                nuevoNombre = None
+                if verificarNombre == "Y" or verificarNombre == "y":
+                    while True:
+                        nuevoNombre = input("| Ingrese un nuevo nombre de SecurityGroup: ")
+                        if(nuevoNombre == ''):
+                            print("[*] Ingrese un nombre válido\n")
+                            continue
+                        else:
+                            if(nuevoNombre == "ESC"):
+                                print("[*] Ha salido de la opción de -Editar SecurityGroup-\n")
+                                return
+                            break
+                elif(verificarNombre == "ESC"):
                     print("[*] Ha salido de la opción de -Editar SecurityGroup-\n")
                     return    
-            elif(verificarDescripcion == "ESC"):
-                print("[*] Ha salido de la opción de -Editar SecurityGroup-\n")
-                return
-            if (verificarNombre == "N") and (verificarDescripcion=="N"):
+                elif verificarNombre == "N" or verificarNombre == "n":
+                    break
+                else:
+                    print("[*] Ingrese una opción correcta\n")
+            while True:
+                verificarDescripcion = input("| ¿Desea cambiar la descripcion?[Y/N]: ")
+                descripcion = None
+                if verificarDescripcion == "Y" or verificarDescripcion == "y":
+                    while True:
+                        descripcion = input("| Ingrese una nueva descripcion: ")
+                        if(descripcion == ''):
+                            print("[*] Ingrese un descripcion válida\n")
+                            continue
+                        else:
+                            if(descripcion == "ESC"):
+                                print("[*] Ha salido de la opción de -Editar SecurityGroup-\n")
+                                return 
+                            break 
+                elif(verificarDescripcion == "ESC"):
+                    print("[*] Ha salido de la opción de -Editar SecurityGroup-\n")
+                    return
+                elif verificarDescripcion == "N" or verificarDescripcion == "n":
+                    break
+                else:
+                    print("[*] Ingrese una opción correcta\n")
+            if (verificarNombre == "N" or verificarNombre == "n") and (verificarDescripcion=="N" or verificarDescripcion == "n"):
                 print("[*] Ha decidido no realizar ningún cambio al SecurityGroup\n")
                 break 
             nova.editarSecurityGroup(name,nuevoNombre,descripcion)
@@ -548,15 +602,18 @@ def menuVirtualMachine():
             print("\n")
             print(tabulate(filas,headers=[],tablefmt='fancy_grid',stralign='center'))
             opcion = input("| Ingrese una opción: ")
-            if int(opcion) == (len(opciones)+1):
-                opcion = "Salir"
-                break
-            else:
-                if int(opcion) <= len(opciones):
-                    opcion = opciones[int(opcion)-1]
+            try:
+                if int(opcion) == (len(opciones)+1):
+                    opcion = "Salir"
                     break
                 else:
-                    print("[*] Ingrese una opción válida.")
+                    if int(opcion) <= len(opciones):
+                        opcion = opciones[int(opcion)-1]
+                        break
+                    else:
+                        print("[*] Ingrese una opción válida\n")
+            except ValueError:
+                print("[*] Ingrese una opción válida\n")
     return opcion
 
 #Funcion que permite crear una VirtualMachine
@@ -584,7 +641,11 @@ def listarVirtualMachine(keystone,nova):
     if len(listado) != 0:
         cabeceras = ["VIRTUAL MACHINES"]
         lista_resultante = [[elemento] for elemento in listado]
+        print("\n")
         print(tabulate(lista_resultante,headers=cabeceras,tablefmt='grid',stralign='center'))    
+    else:
+        print("\n")
+        print(tabulate([["No hay VirtualMachines en este proyecto."]],headers=[],tablefmt='grid',stralign='center'))
 
 #Funcion que permite editar una VirtualMachine
 def editarVirtualMachine(nova,projectID):
@@ -595,38 +656,51 @@ def editarVirtualMachine(nova,projectID):
             if(nombre == "ESC"):
                 print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
                 return
-            verificarNombre = input("| ¿Desea cambiar su nombre?[Y/N]: ")
-            nuevoNombre = None
-            if verificarNombre == "Y" or verificarNombre == "y":
-                while True:
-                    nuevoNombre = input("| Ingrese un nuevo nombre para la VirtualMachine: ")
-                    if(nuevoNombre == ''):
-                        print("[*] Ingrese un nombre válida\n")
-                        continue
-                    else:
-                        if(nuevoNombre == "ESC"):
-                            print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
-                            return
-                        break
-            elif(verificarNombre == "ESC"):
-                print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
-                return 
-            verificarDescripcion = input("| ¿Desea cambiar su descripcion?[Y/N]: ")
-            descripcion = None
-            if verificarDescripcion == "Y" or verificarDescripcion == "y":
-                while True:
-                    descripcion = input("| Ingrese una descripcion para la VirtualMachine: ")
-                    if(descripcion == ''):
-                        print("[*] Ingrese una descripcion válida\n")
-                        continue
-                    else:
-                        if(descripcion == "ESC"):
-                            print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
-                            return
-                        break
-            elif(verificarDescripcion == "ESC"):
-                print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
-                return           
+            while True:
+                verificarNombre = input("| ¿Desea cambiar su nombre?[Y/N]: ")
+                nuevoNombre = None
+                if verificarNombre == "Y" or verificarNombre == "y":
+                    while True:
+                        nuevoNombre = input("| Ingrese un nuevo nombre para la VirtualMachine: ")
+                        if(nuevoNombre == ''):
+                            print("[*] Ingrese un nombre válida\n")
+                            continue
+                        else:
+                            if(nuevoNombre == "ESC"):
+                                print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
+                                return
+                            break
+                elif(verificarNombre == "ESC"):
+                    print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
+                    return
+                elif verificarNombre == "N" or verificarNombre == "n":
+                    break
+                else:
+                    print("[*] Ingrese una opción correcta\n")
+            while True:
+                verificarDescripcion = input("| ¿Desea cambiar su descripcion?[Y/N]: ")
+                descripcion = None
+                if verificarDescripcion == "Y" or verificarDescripcion == "y":
+                    while True:
+                        descripcion = input("| Ingrese una descripcion para la VirtualMachine: ")
+                        if(descripcion == ''):
+                            print("[*] Ingrese una descripcion válida\n")
+                            continue
+                        else:
+                            if(descripcion == "ESC"):
+                                print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
+                                return
+                            break
+                elif(verificarDescripcion == "ESC"):
+                    print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
+                    return
+                elif verificarDescripcion == "N" or verificarDescripcion == "n":
+                    break
+                else:
+                    print("[*] Ingrese una opción correcta\n")
+            if (verificarNombre == "N" or verificarNombre == "n") and (verificarDescripcion=="N" or verificarDescripcion == "n"):
+                print("[*] Ha decidido no realizar ningún cambio a la VirtualMachine\n")
+                break   
             nova.update_instance(nombre,nuevoNombre,descripcion,projectID)
             break
         else:
@@ -669,11 +743,17 @@ def getFlavorsID(nova):
             print("\n")
             print(tabulate(filas,headers=Cabecera,tablefmt='grid',stralign='center'))   
             opcionFlavor = input("| Ingrese el # del flavor que desea usar: ")
-            if int(opcionFlavor) > len(listado):
+            try:
+                if int(opcionFlavor) > len(listado):
+                    print("[*] Ingrese el # de un flavor válido\n")
+                else:
+                    idFlavor = listado[int(opcionFlavor)-1][0]
+                    break
+            except ValueError:
                 print("[*] Ingrese el # de un flavor válido\n")
-            else:
-                idFlavor = listado[int(opcionFlavor)-1][0]
-                break
+    else:
+        print("\n")
+        print(tabulate([["No hay flavors creados."]],headers=[],tablefmt='grid',stralign='center'))
     return idFlavor
     
 #Funcion que permite obtener el ID de una Imagen
@@ -694,11 +774,17 @@ def getImagenesID(glance):
             print("\n")
             print(tabulate(filas,headers=Cabecera,tablefmt='grid',stralign='center'))
             opcionImagen = input("| Ingrese el # de la imagen que desea usar: ")
-            if int(opcionImagen) > len(listado):
+            try:
+                if int(opcionImagen) > len(listado):
+                    print("[*] Ingrese el # de una imagen válida\n")
+                else:
+                    idImagen = listado[int(opcionImagen)-1][0]
+                    break
+            except ValueError:
                 print("[*] Ingrese el # de una imagen válida\n")
-            else:
-                idImagen = listado[int(opcionImagen)-1][0]
-                break
+    else:
+        print("\n")
+        print(tabulate([["No hay imágenes creadas."]],headers=[],tablefmt='grid',stralign='center'))
     return idImagen
 
 #Funcion que permite obtener el ID de una red
@@ -707,7 +793,7 @@ def getNetworkID(neutron,keystone):
     listado = neutron.list_networks(keystone.getProjectID())
     if len(listado) != 0:
         while True:
-            Cabecera = ["#","NOMBRE RED PROVIDER","CIDR","GATEWAY IP"]
+            Cabecera = ["#","NOMBRE RED","CIDR","GATEWAY IP"]
             filas = []
             i = 0
             for red in listado:
@@ -721,11 +807,17 @@ def getNetworkID(neutron,keystone):
             print("\n")
             print(tabulate(filas,headers=Cabecera,tablefmt='grid',stralign='center'))
             opcionRed= input("| Ingrese el # de la red que desea usar: ")
-            if int(opcionRed) > len(listado):
+            try:
+                if int(opcionRed) > len(listado):
+                    print("[*] Ingrese el # de una red válida\n")
+                else:
+                    idRed = listado[int(opcionRed)-1][3]
+                    break
+            except ValueError:
                 print("[*] Ingrese el # de una red válida\n")
-            else:
-                idRed = listado[int(opcionRed)-1][3]
-                break
+    else:
+        print("\n")
+        print(tabulate([["No hay redes creadas."]],headers=[],tablefmt='grid',stralign='center'))                 
     return idRed
 
 #Funcion que permite obtener el ID de una keypair
@@ -745,13 +837,18 @@ def getKeyPairID(nova,keystone):
             print("\n")
             print(tabulate(filas,headers=Cabecera,tablefmt='grid',stralign='center'))
             opcionKeyPair = input("| Ingrese el # de la keypair que desea usar: ")
-            if int(opcionKeyPair) > len(listado):
+            try:
+                if int(opcionKeyPair) > len(listado):
+                    print("[*] Ingrese el # de una keypair válida\n")
+                else:
+                    keypair = listado[int(opcionKeyPair)-1]
+                    break
+            except ValueError:
                 print("[*] Ingrese el # de una keypair válida\n")
-            else:
-                keypair = listado[int(opcionKeyPair)-1]
-                break
         return nova.obtenerIDKeyPair(keypair,keystone.getUserID())
     else:
+        print("\n")
+        print(tabulate([["No hay keypairs creadas."]],headers=[],tablefmt='grid',stralign='center'))
         return None
     
 #Funcion que permite obtener el ID de un SecurityGroup
@@ -772,13 +869,18 @@ def getSecurityGroupID(nova):
             print("\n")
             print(tabulate(filas,headers=Cabecera,tablefmt='grid',stralign='center'))           
             opcionSecurityGroup = input("| Ingrese el # del securitygroup que desea usar: ")
-            if int(opcionSecurityGroup) > len(listado):
+            try:
+                if int(opcionSecurityGroup) > len(listado):
+                    print("[*] Ingrese el # de un securitygroup válido\n")
+                else:
+                    securitygroup = listado[int(opcionSecurityGroup)-1][0]
+                    break
+            except ValueError:
                 print("[*] Ingrese el # de un securitygroup válido\n")
-            else:
-                securitygroup = listado[int(opcionSecurityGroup)-1][0]
-                break
         return nova.obtenerIDSecurityGroup(securitygroup)[0]
     else:
+        print("\n")
+        print(tabulate([["No hay security groups creados."]],headers=[],tablefmt='grid',stralign='center'))
         return None
     
 #Funcion que muestra el Menú Flavors
@@ -796,15 +898,18 @@ def menuFlavors():
             print("\n")
             print(tabulate(filas,headers=[],tablefmt='fancy_grid',stralign='center'))
             opcion = input("| Ingrese una opción: ")
-            if int(opcion) == (len(opciones)+1):
-                opcion = "Salir"
-                break
-            else:
-                if int(opcion) <= len(opciones):
-                    opcion = opciones[int(opcion)-1]
+            try:
+                if int(opcion) == (len(opciones)+1):
+                    opcion = "Salir"
                     break
                 else:
-                    print("[*] Ingrese una opción válida.")
+                    if int(opcion) <= len(opciones):
+                        opcion = opciones[int(opcion)-1]
+                        break
+                    else:
+                        print("[*] Ingrese una opción válida\n")
+            except ValueError:
+                print("[*] Ingrese una opción válida\n")
     return opcion
 
 #Funcion que permite crear Flavors
@@ -864,7 +969,10 @@ def listarFlavors(nova):
             filas.append(filasopt)
         print("\n")
         print(tabulate(filas,headers=Cabecera,tablefmt='grid',stralign='center'))   
-
+    else:
+        print("\n")
+        print(tabulate([["No hay flavors creados hasta el momento."]],headers=[],tablefmt='grid',stralign='center'))
+        
 #Funcion que permite borrar flavor
 def borrarFlavor(nova):
     print("**Escriba ESC para poder salir de esta opción**")
@@ -895,15 +1003,18 @@ def menuImages():
         print("\n")
         print(tabulate(filas,headers=[],tablefmt='fancy_grid',stralign='center'))
         opcion = input("| Ingrese una opción: ")
-        if int(opcion) == (len(opciones)+1):
-            opcion = "Salir"
-            break
-        else:
-            if int(opcion) <= len(opciones):
-                opcion = opciones[int(opcion)-1]
+        try:
+            if int(opcion) == (len(opciones)+1):
+                opcion = "Salir"
                 break
             else:
-                print("[*] Ingrese una opción válida.")
+                if int(opcion) <= len(opciones):
+                    opcion = opciones[int(opcion)-1]
+                    break
+                else:
+                    print("[*] Ingrese una opción válida\n")
+        except ValueError:
+            print("[*] Ingrese una opción válida\n")
     return opcion
 
 #Funcion que permite crear una Image
@@ -933,12 +1044,15 @@ def crearImage(glance):
 #Funcion que permite listar Images
 def listarImages(glance):
     listado = glance.listar_imagenes() 
-    print("\n")
     if len(listado) != 0:
         cabeceras = ["IMAGES"]
         lista_resultante = [[elemento[1]] for elemento in listado]
+        print("\n")
         print(tabulate(lista_resultante,headers=cabeceras,tablefmt='grid',stralign='center'))  
-            
+    else:
+        print("\n")
+        print(tabulate([["No hay imagenes creadas hasta el momento."]],headers=[],tablefmt='grid',stralign='center')) 
+        
 #Funcion que permite editar Images
 def editarImage(glance):
     print("**Escriba ESC para poder salir de esta opción**")
@@ -1048,7 +1162,6 @@ def crearTopologia(keystone,neutron,nova,glance):
                 cantidadNodos = int(cantidadNodos)
                 break 
     elif opcion == "Árbol":
-        ramificaciones = [[1]] #La cabezita
         while True:
             numeroNiveles = input("| Ingrese el número de niveles del árbol(Mayor a 2): ")
             if numeroNiveles == "":
@@ -1060,16 +1173,14 @@ def crearTopologia(keystone,neutron,nova,glance):
                     print("[*] Ingrese una cantidad válida\n")
                     continue 
                 break 
-        i = 1
-        while i < numeroNiveles:
-            nodo = []
-            for j in ramificaciones[i-1]:
-                for k in range(int(j)):
-                    numeroNodos = input("| Ingrese la cantidad de Nodo(s) para el Nodo"+str(k+1)+" - Nivel"+str(i)+": ")
-                    nodo.append(int(numeroNodos))
-            ramificaciones.append(nodo)    
-            i = i + 1    
-        print(ramificaciones)    
+        while True:
+            cantidadNodos = input("| Ingrese la cantidad de nodos: ")
+            if cantidadNodos == "":
+                print("[*] Ingrese una cantidad válida\n")
+                continue  
+            else:
+                cantidadNodos = int(cantidadNodos)
+                break     
     elif opcion == "Salir":
         return "Salir"
     while True:
@@ -1082,30 +1193,7 @@ def crearTopologia(keystone,neutron,nova,glance):
     if int(decision) == 1:
         i = 1
         listaVMs = []
-        if opcion == "Árbol":
-            i = 1
-            while i <= numeroNiveles:
-                nodo = []
-                for j in ramificaciones[i-1]:
-                    for k in range(int(j)):
-                        bandera = True
-                        while bandera:
-                            print("|\n---Virtual Machine Nodo"+str(k+1)+" - Nivel"+str(i)+"---")    
-                            nombre = input("| Ingrese un nombre de VirtualMachine: ")
-                            if(nombre != ''):
-                                flavorID = getFlavorsID(nova)
-                                imagenID = getImagenesID(glance)
-                                keypairID = getKeyPairID(nova,keystone)
-                                securityID = getSecurityGroupID(nova)
-                                nodo.append(VM(nombre,flavorID,imagenID,keypairID,securityID))
-                                bandera = False
-                            else:
-                                print("[*] Ingrese un nombre de VirtualMachine válido\n")
-                                continue
-                listaVMs.append(nodo)    
-                i = i + 1
-        else:
-            while i <= cantidadNodos:
+        while i <= cantidadNodos:
                 print("|\n---Virtual Machine "+str(i) + "---")
                 nombre = input("| Ingrese un nombre de VirtualMachine: ")
                 if(nombre != ''):
@@ -1123,28 +1211,7 @@ def crearTopologia(keystone,neutron,nova,glance):
         imagenID = getImagenesID(glance)
         i = 1
         listaVMs = []
-        if opcion == "Árbol":
-            i = 1
-            while i <= numeroNiveles:
-                nodo = []
-                for j in ramificaciones[i-1]:
-                    for k in range(int(j)):
-                        bandera = True
-                        while bandera:
-                            print("|\n---Virtual Machine Nodo"+str(k+1)+" - Nivel"+str(i)+"---")    
-                            nombre = input("| Ingrese un nombre de VirtualMachine: ")
-                            if(nombre != ''):
-                                keypairID = getKeyPairID(nova,keystone)
-                                securityID = getSecurityGroupID(nova)
-                                nodo.append(VM(nombre,flavorID,imagenID,keypairID,securityID))
-                                bandera = False
-                            else:
-                                print("[*] Ingrese un nombre de VirtualMachine válido\n")
-                                continue
-                listaVMs.append(nodo)    
-                i = i + 1
-        else:
-            while i <= cantidadNodos:
+        while i <= cantidadNodos:
                 print("|\n---Virtual Machine "+str(i) + "---")
                 nombre = input("| Ingrese un nombre de VirtualMachine: ")
                 if(nombre != ''):
@@ -1276,7 +1343,7 @@ def menu2(opcion,nivel,keystone,nova,glance,neutron):
             return False
         return True
         
-    elif opcion == "RedProvider":
+    elif opcion == "Red":
         if(nivel == "Menú"):
             while True:
                 seleccion = menuRedes(keystone)
@@ -1420,16 +1487,13 @@ while(int(privilegios)<0):
     password = getpass("| Ingrese su contraseña: ")
     keystone = KeystoneAuth(username, password)
     tokensito = keystone.get_token()
-    #print(tokensito)
     #Si tiene cuenta de Openstack 
     if tokensito != None:
         tokensito = keystone.updateToken()
-        #print(tokensito)
         while True:
             result,keystone = MenuListaProyectos(keystone)
             project_id=keystone.getProjectID()
-            tokensito=keystone.get_token_project(project_id)
-            #print(tokensito)
+            keystone.get_token_project(project_id)
             if not (result): #No esta asignado a ningun proyecto
                 print("[*] Gracias por usar nuestro sistema!\n")
                 privilegios = 0
