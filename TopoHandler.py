@@ -99,10 +99,6 @@ class TopoConstructor:
         return 1
         pass
     
-    #Para crear el árbol
-    def arbolConstructor(self,VMs,CIDR,neutron,nova):
-        pass
-    
     def meshConstructorV2(self,VMs,CIDR,neutron,nova):
         ### Primero debemos mapear la relación entre VM's y el número de vertices de una red MESH
         ## para eso se realiza lo siguiente:
@@ -174,7 +170,7 @@ class TopoConstructor:
             ## Una vez tenido todas las redes creadas se procede a crear las vm's junto con sus redes contiguas y cruzadas
             VMConstructor.createVM(mapVMVertice[i],aux,neutron,nova)
 
-        def treeConstructor(self,VMs,CIDR,neutron,nova,niveles):
+    def treeConstructor(self,VMs,CIDR,neutron,nova,niveles):
             # Definimos la cantidad de Vm's por nivel para eso consideramos lo siguiente
             if(niveles>=3):
                 # Realizo la numeración

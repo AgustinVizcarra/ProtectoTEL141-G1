@@ -18,6 +18,7 @@ collection_compute={"worker1":"10.0.1.10","worker2":"10.0.1.20", "worker3":"10.0
 worker_sobrecargados = {}
 worker_libre = {}
 
+
 app = FastAPI(title = "Servidor de Estimación",
               description = "Corriendo servidor!",
               version = "1.0.1")
@@ -68,11 +69,11 @@ def alertarMigrador():
     conteo_disco = 0
     for worker in worker_estimacion:
         # Hallamos el conteo por CPU (realizamos la suma)
-        conteo_cpu = worker_estimacion[worker]['Core0(%)']+worker_estimacion[worker]['Core1(%)']+worker_estimacion[worker]['Core2(%)']+worker_estimacion[worker]['Core3(%)']
+        conteo_cpu = worker_estimacion[worker]['Est_Core0(%)']+worker_estimacion[worker]['Est_Core1(%)']+worker_estimacion[worker]['Est_Core2(%)']+worker_estimacion[worker]['Est_Core3(%)']
         # Hallamos el conteo por Memoria (consideramos los megas disponibles)
-        conteo_memoria = worker_estimacion[worker]['MemoriaDisponible(Mb)']
+        conteo_memoria = worker_estimacion[worker]['Est_MemoriaDisponible(Mb)']
         # Hallamos el porcentaje de disco disponible (consideramos el porcentaje de disco)
-        conteo_disco = worker_estimacion[worker]['AlmacenamientoUsado(%)']
+        conteo_disco = worker_estimacion[worker]['Est_AlmacenamientoUsado(%)']
         # Realizamos el análisis
         if conteo_cpu >= 390 or conteo_memoria <= 200 or conteo_disco >= 98:
             # Se debe migrar urgentemente
@@ -100,9 +101,11 @@ def alertarMigrador():
                 # Verifico para no interar sobre los workers 
                 if worker not in worker_sobrecargados.keys():
                     # Quiere decir que me encuentro en alguno de los workers que se encuentra libre
-                    conteo_cpu = worker_estimacion[worker]['Core0(%)']+worker_estimacion[worker]['Core1(%)']+worker_estimacion[worker]['Core2(%)']+worker_estimacion[worker]['Core3(%)']
-                    conteo_memoria = worker_estimacion[worker]['MemoriaDisponible(Mb)']
-                    conteo_disco = worker_estimacion[worker]['AlmacenamientoUsado(%)']
+                    conteo_cpu = worker_estimacion[worker]['Est_Core0(%)']+worker_estimacion[worker]['Est_Core1(%)']+worker_estimacion[worker]['Est_Core2(%)']+worker_estimacion[worker]['Est_Core3(%)']
+                    # Hallamos el conteo por Memoria (consideramos los megas disponibles)
+                    conteo_memoria = worker_estimacion[worker]['Est_MemoriaDisponible(Mb)']
+                    # Hallamos el porcentaje de disco disponible (consideramos el porcentaje de disco)
+                    conteo_disco = worker_estimacion[worker]['Est_AlmacenamientoUsado(%)']
                     # Capacidad de migrar o un best effort (10% mas delta) o una hpc (100% de un core)
                     if conteo_cpu>cons_cpu and conteo_memoria>cons_memoria and conteo_disco>cons_disco and conteo_cpu<290 and conteo_memoria>200 and conteo_disco<95:
                         #Busco los valores que permitan la consolidacion
@@ -123,7 +126,7 @@ def alertarMigrador():
         
 def getInfoPorWorker(worker,connection):
     global worker_info
-    data = connection.find().limit(100).sort("$natural",+1)
+    data = connection.find().sort("$natural",-1).limit(100)
     info = {}
     ##Creamos los arreglos de listas
     cpu_0_percent =[]
@@ -134,6 +137,7 @@ def getInfoPorWorker(worker,connection):
     memoriaDisponibleMB =[]
     almacenamientoUsadoGB =[]
     almacenamientoUsadoPercent=[]
+    #timestamps = []
     for value in data:
         value.pop("_id")
         ## Segmentamos la data que es de utilidad para nosotros
@@ -148,18 +152,29 @@ def getInfoPorWorker(worker,connection):
         ## Para el disco
         almacenamientoUsadoGB.append(value['AlmacenamientoUsado(Gb)'])
         almacenamientoUsadoPercent.append(value['AlmacenamientoUsado(%)'])
+        #timestamps.append(value['timestamp'])
     ## Armamos la estructura
     ## CPU
+    cpu_0_percent.reverse()
+    cpu_1_percent.reverse()
+    cpu_2_percent.reverse()
+    cpu_3_percent.reverse()
     info['Core0(%)'] = cpu_0_percent
     info['Core1(%)'] = cpu_1_percent
     info['Core2(%)'] = cpu_2_percent
     info['Core3(%)'] = cpu_3_percent
     ## Memoria
+    memoriaUsadaGB.reverse()
+    memoriaDisponibleMB.reverse()
     info['MemoriaUsada(Gb)'] = memoriaUsadaGB
     info['MemoriaDisponible(Mb)'] = memoriaDisponibleMB
     ## Disco
+    almacenamientoUsadoGB.reverse()
+    almacenamientoUsadoPercent.reverse()
     info['AlmacenamientoUsado(Gb)'] = almacenamientoUsadoGB
     info['AlmacenamientoUsado(%)'] = almacenamientoUsadoPercent
+    #timestamps.reverse()
+    #print(timestamps)
     worker_info[worker] = info
 
 def sendDataToCompute(dataSegment,worker,port):
@@ -173,7 +188,8 @@ def sendDataToCompute(dataSegment,worker,port):
     client_socket.sendall(data.encode('utf-8'))
     ## Recibo la respuesta
     response = client_socket.recv(1024)
-    data = json.loads(response.decode('utf-8'))         
+    data = json.loads(response.decode('utf-8'))
+    print(data)         
     client_socket.close()
     aux = {}
     ## CPU
