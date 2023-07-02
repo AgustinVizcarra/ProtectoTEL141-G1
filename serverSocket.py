@@ -5,10 +5,17 @@ import json
 from fastapi import FastAPI
 import threading
 
+"""
 collection={
     "10.0.1.10":"worker1",
     "10.0.1.20":"worker2",
     "10.0.1.30":"worker3"
+}
+"""
+collection={
+    "10.0.0.30":"worker1",
+    "10.0.0.40":"worker2",
+    "10.0.0.50":"worker3"
 }
 
 app = FastAPI(title = "Servidor de monitoreo",
@@ -42,7 +49,23 @@ def socket_listener():
         client_socket.sendall(response.encode('utf-8'))
         #Cerramos la conexion
         client_socket.close()
-        
+
+def limpiarBaseDeDatos():
+    myclient = pymongo.MongoClient("mongodb://localhost:27017/")
+    mydb = myclient["Estadisticas"]
+    longitudes={}
+    for workerIP in collection:
+        col = mydb[collection[workerIP]]
+        result= col.find()
+        longitudes[collection[workerIP]] = len(result)
+    # Se debe eliminar la información
+    print(longitudes)
+    if longitudes['worker1']>200 and longitudes['worker2']>200 and longitudes['worker3']>200:
+        for workerIP in collection:
+            col = mydb[collection[workerIP]]
+            result = collection.delete_many({}).limit(100)
+            print(result.delet_count)
+
 @app.on_event('startup')
 async def startup():
     print("Iniciando el API de Monitoreo")

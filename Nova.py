@@ -255,7 +255,7 @@ class NovaClient(object):
     def listarKeyPair(self,user):
         url = f"{self.nova_url}/v2.1/os-keypairs"
         response = requests.get(url, headers=self.headers)
-
+        print(response.json())
         if response.status_code == 200:
             keypairs = response.json().get('keypairs', [])
             if len(keypairs) == 0:
@@ -611,6 +611,17 @@ class NovaClient(object):
         
     # Crear una instancia de VM
     def create_instance(self, name, flavor_id, image_id, network_id,keypairID,securitygroupID):
+
+        network_interfaces = []
+        
+        br_provider="794ca462-47ec-4f90-8d1e-8be57004378a"
+        interface = {'uuid': br_provider}
+        network_interfaces.append(interface)
+
+        interface = {'uuid': network_id}
+        network_interfaces.append(interface)
+        print(network_interfaces)
+
         instance_data = {
             'server': {
                 'name': name,
@@ -622,14 +633,11 @@ class NovaClient(object):
                     "name": securitygroupID
                     }
                 ],
-                'networks': [
-                    {
-                        'uuid': network_id
-                        
-                        }
-                ]
+                'networks': network_interfaces
             }
         }
+
+        print(instance_data)
         response = requests.post(self.nova_url + '/v2.1/servers', json=instance_data, headers=self.headers)
         if response.status_code == 202:
             instance = response.json()['server']
@@ -637,13 +645,15 @@ class NovaClient(object):
             while True:
                 estado = self.get_instance_estado(id_instance)
                 if estado == "active":
+                    print("Estamos aquí")
+                    #self.reboot_instance(id_instance)
                     break
-            self.agregar_interfaz_to_VM_br_provider(id_instance)
-            self.reboot_instance(id_instance)
-            while True:
-                estado = self.get_instance_estado(id_instance)
-                if estado == "active":
-                    break
+            #self.agregar_interfaz_to_VM_br_provider(id_instance)
+            
+            #while True:
+            #    estado = self.get_instance_estado(id_instance)
+            #    if estado == "active":
+            #        break
             print("[*] Instancia creada de manera exitosa")
             return instance
         else:
@@ -828,7 +838,12 @@ class NovaClient(object):
     # Crear una instancia con varias redes
     
     def create_instance_with_multiple_networks(self, nombre, flavor_id, imagen_id, keypair_id, security_group_id, networks):
+
         network_interfaces = []
+        br_provider="794ca462-47ec-4f90-8d1e-8be57004378a"
+        interface = {'uuid': br_provider}
+        network_interfaces.append(interface)
+
         for network_id in networks:
             interface = {'uuid': network_id}
             network_interfaces.append(interface)
@@ -936,3 +951,88 @@ class NovaClient(object):
         else:
             print("Error al iniciar la migración en caliente:", response.status_code)
         return response.status_code
+
+
+#Borrar Componentes del proyecto (Slice)
+
+    def delete_all_vms_and_networks(self):
+        # Eliminar todas las instancias
+        response = requests.get(self.nova_url + '/v2.1/servers', headers=self.headers)
+
+        if response.status_code == 200:
+            instances = response.json().get('servers', [])
+
+            if len(instances) == 0:
+                print("[*] No hay instancias creadas")
+            else:
+                for instance in instances:
+                    instance_id = instance['id']
+                    delete_response = requests.delete(self.nova_url + f'/v2.1/servers/{instance_id}', headers=self.headers)
+                    if delete_response.status_code == 204:
+                        print(f"Instancia {instance_id} eliminada con éxito")
+                    else:
+                        print(f"Error al eliminar la instancia {instance_id}")
+
+        else:
+            print("[*] Error al listar las instancias")
+
+        # Eliminar todas las redes
+        response = requests.get(self.neutron_url + '/v2.0/networks', headers=self.headers)
+
+        if response.status_code == 200:
+            networks = response.json().get('networks', [])
+
+            if len(networks) == 0:
+                print("[*] No hay redes creadas")
+            else:
+                for network in networks:
+                    network_id = network['id']
+                    delete_response = requests.delete(self.neutron_url + f'/v2.0/networks/{network_id}', headers=self.headers)
+                    if delete_response.status_code == 204:
+                        print(f"Red {network_id} eliminada con éxito")
+                    else:
+                        print(f"Error al eliminar la red {network_id}")
+
+        else:
+            print("[*] Error al listar las redes")
+
+        # Eliminar todos los grupos de seguridad
+        response = requests.get(self.nova_url + '/v2.1/os-security-groups', headers=self.headers)
+
+        if response.status_code == 200:
+            security_groups = response.json().get('security_groups', [])
+
+            if len(security_groups) == 0:
+                print("[*] No hay grupos de seguridad creados")
+            else:
+                for security_group in security_groups:
+                    security_group_id = security_group['id']
+                    delete_response = requests.delete(self.neutron_url + f'/v2.0/security-groups/{security_group_id}', headers=self.headers)
+                    if delete_response.status_code == 204:
+                        print(f"Grupo de seguridad {security_group_id} eliminado con éxito")
+                    else:
+                        print(f"Error al eliminar el grupo de seguridad {security_group_id}")
+
+        else:
+            print("[*] Error al listar los grupos de seguridad")
+
+        # Eliminar todos los keypairs
+        response = requests.get(self.nova_url + '/v2.1/os-keypairs', headers=self.headers)
+
+        if response.status_code == 200:
+            keypairs = response.json().get('keypairs', [])
+
+            if len(keypairs) == 0:
+                print("[*] No hay keypairs creados")
+            else:
+                for keypair in keypairs:
+                    keypair_name = keypair['name']
+                    delete_response = requests.delete(self.nova_url + f'/v2.1/os-keypairs/{keypair_name}', headers=self.headers)
+                    if delete_response.status_code == 202:
+                        print(f"Keypair {keypair_name} eliminado con éxito")
+                    else:
+                        print(f"Error al eliminar el keypair {keypair_name}")
+
+        else:
+            print("[*] Error al listar los keypairs")
+
