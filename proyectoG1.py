@@ -514,72 +514,91 @@ def configurarSecurityGroup(nova):
         print("\n")
         print(tabulate(filas,headers=[],tablefmt='fancy_grid',stralign='center')) 
         opcion = input("| Ingrese una opción: ")
-        if int(opcion) == 1:
-            print("**Escriba ESC para poder salir de esta opción**")
-            while True:
-                nombre = input("| Ingrese un nombre de securitygroup: ")
-                if(nombre != ''):
-                    if(nombre == "ESC"):
-                        print("[*] Ha salido de la opción de -Añadir Regla-\n")
-                        return
-                    while True:
-                        protocol_ip = input("| Ingrese el protocolo IP: ")
-                        if(protocol_ip != ''):
-                            if(protocol_ip == "ESC"):
-                                print("[*] Ha salido de la opción de -Añadir Regla-\n")
-                                return
-                            while True:
-                                from_port = input("| Ingrese el from port: ")
-                                if(from_port != ''):
+        try:
+            if int(opcion) == 1:
+                print("**Escriba ESC para poder salir de esta opción**")
+                while True:
+                    nombre = input("| Ingrese un nombre de securitygroup: ")
+                    if(nombre != ''):
+                        if(nombre == "ESC"):
+                            print("[*] Ha salido de la opción de -Añadir Regla-\n")
+                            return
+                        while True:
+                            protocol_ip = input("| Ingrese el protocolo IP: ")
+                            if(protocol_ip != ''):
+                                if(protocol_ip == "ESC"):
+                                    print("[*] Ha salido de la opción de -Añadir Regla-\n")
+                                    return
+                                while True:
+                                    from_port = input("| Ingrese el from port: ")
                                     if(from_port == "ESC"):
                                         print("[*] Ha salido de la opción de -Añadir Regla-\n")
                                         return
-                                    while True:
-                                        dest_port = input("| Ingrese el dest port: ")
-                                        if(dest_port != ''):
+                                    if validar_puerto(from_port):
+                                        while True:
+                                            dest_port = input("| Ingrese el dest port: ")
                                             if(dest_port == "ESC"):
                                                 print("[*] Ha salido de la opción de -Añadir Regla-\n")
                                                 return 
-                                            verificar = input("| ¿Desea agregar un CIDR?[Y/N]: ")
-                                            cidr = None
-                                            if verificar == "Y" or verificar == "y":
-                                                cidr = input("| Ingrese un CIDR: ")
-                                                if(cidr == "ESC"):
-                                                    print("[*] Ha salido de la opción de -Añadir Regla-\n")
-                                                    return        
-                                            elif(verificar == "ESC"):
-                                                print("[*] Ha salido de la opción de -Añadir Regla-\n")
-                                                return
-                                            nova.agregarRegla(nombre,protocol_ip,from_port,dest_port,cidr)
-                                            return
-                                        else:
-                                            print("[*] Ingrese un puerto válido\n")
-                                            continue
-                                else:
-                                    print("[*] Ingrese un puerto válido\n")
-                                    continue
-                        else:
-                            print("[*] Ingrese un protocolo IP válido\n")
-                            continue
-                else:
-                    print("[*] Ingrese un nombre de securitygroup válido\n")
-                    continue
-        elif int(opcion) == 2:
-            print("**Escriba ESC para poder salir de esta opción**")
-            while True:
-                id = input("| Ingrese el ID de la regla a eliminar: ")
-                if(id != ''):
-                    if(id == "ESC"):
-                        print("[*] Ha salido de la opción de -Eliminar Regla-\n")
-                        return
-                    nova.eliminarRegla(id)
+                                            if validar_puerto(dest_port):
+                                                while True:
+                                                    verificar = input("| ¿Desea agregar permitir un CIDR ?[Y/N]: ")
+                                                    cidr = None
+                                                    if verificar == "Y" or verificar == "y":
+                                                        while True:
+                                                            cidr = input("| Ingrese un CIDR: ")
+                                                            if(cidr == "ESC"):
+                                                                print("[*] Ha salido de la opción de -Añadir Regla-\n")
+                                                            return 
+                                                            if validar_cidr(cidr):
+                                                                nova.agregarRegla(nombre,protocol_ip,from_port,dest_port,cidr)
+                                                                break
+                                                            else:
+                                                                print("[*] Ingrese un CIDR válido\n")
+                                                                continue
+                                                            break
+                                                    elif(verificar == "ESC"):
+                                                        print("[*] Ha salido de la opción de -Añadir Regla-\n")
+                                                        return
+                                                    elif verificar == "N" or verificar == "n":
+                                                        break
+                                                    else:
+                                                        print("[*] Ingrese una opción correcta\n")
+                                                    break
+                                            else:
+                                                print("[*] Ingrese un puerto válido\n")
+                                                continue
+                                            break
+                                    else:
+                                        print("[*] Ingrese un puerto válido\n")
+                                        continue
+                                    break
+                            else:
+                                print("[*] Ingrese un protocolo IP válido\n")
+                                continue
+                            break
+                    else:
+                        print("[*] Ingrese un nombre de securitygroup válido\n")
+                        continue
                     break
-                else:
-                    print("[*] Ingrese un ID válido\n")
-                    continue
-        elif int(opcion) == 3:
-            break
-        else:
+            elif int(opcion) == 2:
+                print("**Escriba ESC para poder salir de esta opción**")
+                while True:
+                    id = input("| Ingrese el ID de la regla a eliminar: ")
+                    if(id != ''):
+                        if(id == "ESC"):
+                            print("[*] Ha salido de la opción de -Eliminar Regla-\n")
+                            return
+                        nova.eliminarRegla(id)
+                        break
+                    else:
+                        print("[*] Ingrese un ID válido\n")
+                        continue
+            elif int(opcion) == 3:
+                break
+            else:
+                print("[*] Ingrese una opción correcta\n")
+        except ValueError:
             print("[*] Ingrese una opción correcta\n")
 
 #Funcion que muestra el Menú VirtualMachine
@@ -923,22 +942,22 @@ def crearFlavor(nova):
                 return
             while True:
                 ram = input("| Ingrese la cantidad de RAM (MB): ")
-                if(ram != ''):
-                    if(ram == "ESC"):
-                        print("[*] Ha salido de la opción de -Crear Flavor-\n")
-                        return
+                if(ram == "ESC"):
+                    print("[*] Ha salido de la opción de -Crear Flavor-\n")
+                    return
+                if validar_ram(ram):
                     while True:
                         vcpus = input("| Ingrese la cantidad de vCPUs: ")
-                        if(vcpus != ''):
-                            if(vcpus == "ESC"):
-                                print("[*] Ha salido de la opción de -Crear Flavor-\n")
-                                return
+                        if(vcpus == "ESC"):
+                            print("[*] Ha salido de la opción de -Crear Flavor-\n")
+                            return
+                        if validar_vcpus(vcpus):
                             while True:
                                 disk = input("| Ingrese el tamaño del DISK (GB): ")
-                                if(disk != ''):
-                                    if(disk == "ESC"):
-                                        print("[*] Ha salido de la opción de -Crear Flavor-\n")
-                                        return
+                                if(disk == "ESC"):
+                                    print("[*] Ha salido de la opción de -Crear Flavor-\n")
+                                    return
+                                if validar_disk(disk):
                                     nova.create_flavor(nombre, ram, vcpus, disk)
                                     return
                                 else:
@@ -946,7 +965,7 @@ def crearFlavor(nova):
                                     continue
                         else:
                             print("[*] Ingrese una cantidad de vCPUs válido\n")
-                            continue
+                            continue    
                 else:
                     print("[*] Ingrese una cantidad de RAM válido\n")
                     continue
@@ -1062,22 +1081,28 @@ def editarImage(glance):
             if(nombre == "ESC"):
                 print("[*] Ha salido de la opción de -Editar Image-\n")
                 return
-            verificarContenido = input("| ¿Desea cambiar el contenido de la image?[Y/N]: ")
-            nuevoContenido = None
-            if verificarContenido == "Y" or verificarContenido == "y":
-                while True:
-                    nuevoContenido = input("| Ingrese la ruta de la image: ")
-                    if(nuevoContenido == ''):
-                        print("[*] Ingrese una ruta válida\n")
-                        continue
-                    else:
-                        if(nuevoContenido == "ESC"):
-                            print("[*] Ha salido de la opción de -Editar Image-\n")
-                            return
-                        break
-            elif(verificarContenido == "ESC"):
-                print("[*] Ha salido de la opción de -Editar Image-\n")
-                return
+            while True:
+                verificarContenido = input("| ¿Desea cambiar el contenido de la image?[Y/N]: ")
+                nuevoContenido = None
+                if verificarContenido == "Y" or verificarContenido == "y":
+                    while True:
+                        nuevoContenido = input("| Ingrese la ruta de la image: ")
+                        if(nuevoContenido == ''):
+                            print("[*] Ingrese una ruta válida\n")
+                            continue
+                        else:
+                            if(nuevoContenido == "ESC"):
+                                print("[*] Ha salido de la opción de -Editar Image-\n")
+                                return
+                            break
+                elif(verificarContenido == "ESC"):
+                    print("[*] Ha salido de la opción de -Editar Image-\n")
+                    return
+                elif verificarContenido == "N" or verificarContenido == "n":
+                    break
+                else:
+                    print("[*] Ingrese una ruta válida\n")
+                    continue
             if nuevoContenido != None:
                 glance.update(nombre,nuevoContenido)
             else:
@@ -1117,15 +1142,18 @@ def menuTopologia():
         print("\n")
         print(tabulate(filas,headers=[],tablefmt='fancy_grid',stralign='center'))
         opcion = input("| Ingrese una opción: ")
-        if int(opcion) == (len(opciones)+1):
-            opcion = "Salir"
-            break
-        else:
-            if int(opcion) <= len(opciones):
-                opcion = opciones[int(opcion)-1]
+        try:
+            if int(opcion) == (len(opciones)+1):
+                opcion = "Salir"
                 break
             else:
-                print("[*] Ingrese una opción válida.")
+                if int(opcion) <= len(opciones):
+                    opcion = opciones[int(opcion)-1]
+                    break
+                else:
+                    print("[*] Ingrese una opción válida\n")
+        except ValueError:
+            print("[*] Ingrese una opción válida\n")
     return opcion
 
 #Funcion que permite crear una topología
@@ -1143,44 +1171,44 @@ def crearTopologia(keystone,neutron,nova,glance):
         print("\n")
         print(tabulate(filas,headers=[],tablefmt='fancy_grid',stralign='center'))
         opcion = input("| Ingrese una opción: ")
-        if int(opcion) == (len(opciones)+1):
-            opcion = "Salir"
-            break
-        else:
-            if int(opcion) <= len(opciones):
-                opcion = opciones[int(opcion)-1]
+        try:
+            if int(opcion) == (len(opciones)+1):
+                opcion = "Salir"
                 break
             else:
-                print("[*] Ingrese una opción válida.")
+                if int(opcion) <= len(opciones):
+                    opcion = opciones[int(opcion)-1]
+                    break
+                else:
+                    print("[*] Ingrese una opción válida\n")    
+        except ValueError:
+            print("[*] Ingrese una opción válida\n")       
     if opcion == "Lineal" or opcion == "Anillo" or opcion == "Bus" or opcion == "Malla":
         while True:
             cantidadNodos = input("| Ingrese la cantidad de nodos: ")
-            if cantidadNodos == "":
-                print("[*] Ingrese una cantidad válida\n")
-                continue  
-            else:
+            if validar_cantidad_nodos(cantidadNodos):
                 cantidadNodos = int(cantidadNodos)
                 break 
+            else:
+                print("[*] Ingrese una cantidad válida\n")
+                continue 
     elif opcion == "Árbol":
         while True:
             numeroNiveles = input("| Ingrese el número de niveles del árbol(Mayor a 2): ")
-            if numeroNiveles == "":
-                print("[*] Ingrese una cantidad válida\n")
-                continue  
-            else:
+            if validar_cantidad_niveles(numeroNiveles):
                 numeroNiveles = int(numeroNiveles)
-                if numeroNiveles <= 2:
-                    print("[*] Ingrese una cantidad válida\n")
-                    continue 
                 break 
+            else:
+                print("[*] Ingrese una cantidad válida\n")
+                continue 
         while True:
             cantidadNodos = input("| Ingrese la cantidad de nodos: ")
-            if cantidadNodos == "":
-                print("[*] Ingrese una cantidad válida\n")
-                continue  
-            else:
+            if validar_cantidad_nodos(cantidadNodos):
                 cantidadNodos = int(cantidadNodos)
-                break     
+                break 
+            else:
+                print("[*] Ingrese una cantidad válida\n")
+                continue   
     elif opcion == "Salir":
         return "Salir"
     while True:
@@ -1194,41 +1222,41 @@ def crearTopologia(keystone,neutron,nova,glance):
         i = 1
         listaVMs = []
         while i <= cantidadNodos:
-                print("|\n---Virtual Machine "+str(i) + "---")
-                nombre = input("| Ingrese un nombre de VirtualMachine: ")
-                if(nombre != ''):
-                    flavorID = getFlavorsID(nova)
-                    imagenID = getImagenesID(glance)
-                    keypairID = getKeyPairID(nova,keystone)
-                    securityID = getSecurityGroupID(nova)
-                    listaVMs.append(VM(nombre,flavorID,imagenID,keypairID,securityID))
-                    i = i + 1
-                else:
-                    print("[*] Ingrese un nombre de VirtualMachine válido\n")
-                    continue
+            print("|\n---Virtual Machine "+str(i) + "---")
+            nombre = input("| Ingrese un nombre de VirtualMachine: ")
+            if(nombre != ''):
+                flavorID = getFlavorsID(nova)
+                imagenID = getImagenesID(glance)
+                keypairID = getKeyPairID(nova,keystone)
+                securityID = getSecurityGroupID(nova)
+                listaVMs.append(VM(nombre,flavorID,imagenID,keypairID,securityID))
+                i = i + 1
+            else:
+                print("[*] Ingrese un nombre de VirtualMachine válido\n")
+                continue
     if int(decision) == 2:
         flavorID = getFlavorsID(nova)
         imagenID = getImagenesID(glance)
         i = 1
         listaVMs = []
         while i <= cantidadNodos:
-                print("|\n---Virtual Machine "+str(i) + "---")
-                nombre = input("| Ingrese un nombre de VirtualMachine: ")
-                if(nombre != ''):
-                    keypairID = getKeyPairID(nova,keystone)
-                    securityID = getSecurityGroupID(nova)
-                    listaVMs.append(VM(nombre,flavorID,imagenID,keypairID,securityID))
-                    i = i + 1
-                else:
-                    print("[*] Ingrese un nombre de VirtualMachine válido\n")
-                    continue
+            print("|\n---Virtual Machine "+str(i) + "---")
+            nombre = input("| Ingrese un nombre de VirtualMachine: ")
+            if(nombre != ''):
+                keypairID = getKeyPairID(nova,keystone)
+                securityID = getSecurityGroupID(nova)
+                listaVMs.append(VM(nombre,flavorID,imagenID,keypairID,securityID))
+                i = i + 1
+            else:
+                print("[*] Ingrese un nombre de VirtualMachine válido\n")
+                continue
     while True:
         CIDR = input("| Ingrese el CIDR de la red: ")
-        if CIDR != "":
+        if validar_cidr(CIDR):
             break
         else:
             print("[*] Ingrese un CIDR válido\n")
-            continue           
+            continue         
     if opcion == "Lineal":
         TopoConstructor().lineConstructor(listaVMs,CIDR, neutron, nova)      
     elif opcion == "Anillo":
@@ -1256,15 +1284,18 @@ def editarSlice(keystone,neutron,nova):
         print("\n")
         print(tabulate(filas,headers=[],tablefmt='fancy_grid',stralign='center'))
         opcion = input("| Ingrese una opción: ")
-        if int(opcion) == (len(opciones)+1):
-            opcion = "Salir"
-            break
-        else:
-            if int(opcion) <= len(opciones):
-                opcion = opciones[int(opcion)-1]
+        try:
+            if int(opcion) == (len(opciones)+1):
+                opcion = "Salir"
                 break
             else:
-                print("[*] Ingrese una opción válida.")
+                if int(opcion) <= len(opciones):
+                    opcion = opciones[int(opcion)-1]
+                    break
+                else:
+                    print("[*] Ingrese una opción válida\n")
+        except ValueError:
+            print("[*] Ingrese una opción válida\n")
     if opcion == "Unir VMs":            
         print("**Escriba ESC para poder salir de esta opción**")
         while True:
@@ -1281,10 +1312,10 @@ def editarSlice(keystone,neutron,nova):
                             return "Salir"
                         while True:
                             cidrRed = input("| Ingrese el CIDR de la red: ")
-                            if (cidrRed != ''):
-                                if(cidrRed == "ESC"):
-                                    print("[*] Ha salido de la opción de -Editar Slice- \n")
-                                    return "Salir"
+                            if(cidrRed == "ESC"):
+                                print("[*] Ha salido de la opción de -Editar Slice- \n")
+                                return "Salir"
+                            if validar_cidr(cidrRed):
                                 TopoConstructor.linkConstructor(neutron=neutron,nova=nova,VMs=[VM(name=nombre,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None),VM(name=nombre2,flavorID=None,imageID=None,keyPairID=None,securitygroupID=None)],network=[],CIDR=cidrRed)
                                 return "Salir"
                             else:
@@ -1507,8 +1538,7 @@ while(int(privilegios)<0):
                     resultado = menu2(opcion,"Menú",keystone,nova,glance,neutron)
                     if not (resultado):
                         break  
-            tokensito = keystone.updateToken()  
-            #print(tokensito)      
+            tokensito = keystone.updateToken()   
                     
     #Si tiene cuenta de Linux
     else:
