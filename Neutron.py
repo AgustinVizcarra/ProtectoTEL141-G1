@@ -143,20 +143,23 @@ class NeutronClient(object):
         else:
             raise Exception('Failed to update network. Status code: {}'.format(response.status_code))
 
-    def delete_network(self, project_id):
+    def delete_network(self,name ,project_id):
         # Primero, obtener la lista de todas las redes del proyecto
         url = self.neutron_url + 'networks?project_id=' + project_id
         response = requests.get(url, headers=self.headers)
 
         if response.status_code == 200:
             networks = response.json().get('networks', [])
-            # Si el proyecto tiene una red, eliminarla
-            if networks:
-                network_id = networks[0]['id']  # Obtener el ID de la primera red
-                url_eliminar=self.neutron_url + 'networks/' + network_id
-                response = requests.delete(url_eliminar, headers=self.headers)
-                print("La red provider",networks[0]['name'],"se ha eliminado exitosamente")
-                return True
+            for network in networks:
+                if network['name']==name:
+                    network_id = network['id']  # Obtener el ID de la red
+                    url_eliminar=self.neutron_url + 'networks/' + network_id
+                    response = requests.delete(url_eliminar, headers=self.headers)
+                    if response.status_code==204:
+                        print("La red",network['name'],"se ha eliminado exitosamente")
+                    elif response.status_code==409:
+                        print("La red", network['name'], "posee elementos en uso" )
+                    return True
         else:
             raise Exception('Failed to delete network. Status code: {}'.format(response.status_code))
 
