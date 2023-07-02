@@ -174,7 +174,7 @@ class NovaClient(object):
                 keypair_name = keypair.get('name')
                 keypair_key = keypair.get('public_key')
                 keypair_id = keypair.get('user_id')
-                print("[*] Keypair creado exitosamente")
+                print("[*] Keypair creado exitosamente\n")
                 
                 llave_name=keypair_name
                 
@@ -194,15 +194,15 @@ class NovaClient(object):
                 # Guardar la clave pública en un archivo
                 with open(ruta_archivo, "a") as file:
                     file.write(public_key)
-                    print("Clave pública guardada correctamente.")
+                    print("[*] Clave pública guardada correctamente\n")
                     
                     break
             elif response.status_code==409:
                 existing_name = response.json().get('conflictingRequest', {}).get('message')
-                print("La llave que está intentando crear ya existe:", existing_name)
+                print("[*] La llave que está intentando crear ya existe\n")
                 name = input("Escoja otro nombre: ")
                 if not name:
-                    print("Nombre inválido. Saliendo del programa.")
+                    print("[*] Nombre inválido. Saliendo del programa\n")
                     break
             
             else:
@@ -223,9 +223,9 @@ class NovaClient(object):
         response = requests.post(url, headers=self.headers, json=data)
         
         if response.status_code == 201:
-            print("Par de claves creado exitosamente.")
+            print("[*] Par de claves creado exitosamente\n")
         else:
-            print("Error al crear el par de claves:", response.status_code, response.text)
+            print("[*] Error al crear el par de claves\n")
 
 
 
@@ -245,20 +245,20 @@ class NovaClient(object):
                 info.append(keypair['created_at'])
                 return info
             else:
-                print("[*] No se encontró el Keypair especificado")
+                #print("[*] No se encontró el Keypair especificado")
                 return []
         else:
-            print("[*] Error al obtener la información del Keypair:", response.status_code)
+            print("[*] Error al obtener la información del Keypair\n")
             return []
     
 #Listar keypairs
-    def listarKeyPair(self, user):
+    def listarKeyPair(self,user):
         url = f"{self.nova_url}/v2.1/os-keypairs"
         response = requests.get(url, headers=self.headers)
         if response.status_code == 200:
             keypairs = response.json().get('keypairs', [])
             if len(keypairs) == 0:
-                print("[*] No cuenta con ninguna keypair, por favor cree una")
+                #print("[*] No cuenta con ninguna keypair, por favor cree una")
                 return []
             
             else:
@@ -275,7 +275,7 @@ class NovaClient(object):
                                 keypair_names.append(keypair_name)
 
                 if len(keypair_names) == 0:
-                    print("[*] No se encontraron keypairs para el usuario:", user)
+                    #print("[*] No se encontraron keypairs para el usuario:", user)
                     return []
                 
                 #else:
@@ -285,7 +285,7 @@ class NovaClient(object):
 
                 return keypair_names
         else:
-            print("[*] Error al listar los Keypairs:", response.status_code)
+            print("[*] Error al listar los Keypairs\n")
             return []
         
 #Borrar keypair
@@ -300,12 +300,12 @@ class NovaClient(object):
                 url_keypair = f"{url}"
                 response_borrar = requests.delete(url_keypair, headers=self.headers)
                 if response_borrar.status_code == 202:
-                    print("[*] Keypair eliminado exitosamente")
+                    print("[*] Keypair eliminado exitosamente\n")
                 else:
-                    print("[*] Error al eliminar el Keypair:", response_borrar.status_code)
+                    print("[*] Error al eliminar el Keypair\n")
                 return
         else:
-            print("[*] No se encontró el Keypair especificado")
+            print("[*] No se encontró el Keypair especificado\n")
 
 #Obtener ID de keypair
     def obtenerIDKeyPair(self,keypair,userId):
@@ -367,7 +367,7 @@ class NovaClient(object):
         url = f"{self.nova_url}/v2.1/os-security-groups"
         response = requests.get(url, headers=self.headers)
     
-
+        
         if response.status_code == 200:
             security_groups = response.json().get('security_groups', [])
             
