@@ -3,6 +3,7 @@ import json
 import threading
 from statsmodels.tsa.arima.model import ARIMA
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
+from datetime import datetime
 
 # Instaciacion Variables globales
 # CPU
@@ -44,7 +45,10 @@ def socket_listener(IP):
         #Recibiendo con buffer size de aprox 100 muestras
         data = client_socket.recv(6144)
         data = data.decode('utf-8')
-        informacion = json.loads(data)
+        try:
+            informacion = json.loads(data)
+        except:
+            print("El error ocurió a las "+strd(datetime.now().strftime("%d-%m-%Y %H:%M:%S"))+" y se recibio la siguiente data: "+ data)
         # Procesamos la información para crear los hilos respectivos
         # CPU
         input_core_0_percent = informacion['Core0(%)']
@@ -148,5 +152,5 @@ def estimarAlmacenamiento(input_almacenamiento_usado_GB,input_almacenamiento_usa
     estimacion_disco_usado_percent = model_fit.forecast()[0]
 
 if __name__ == "__main__":
-    IP = "10.0.0.30"
+    IP = "10.0.0.50"
     socket_listener(IP)
