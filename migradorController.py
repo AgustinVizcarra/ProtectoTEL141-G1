@@ -35,7 +35,7 @@ def obtener_VM_cargada(vm):
 #host_migrar: "10.0.1.x", destino: "10.0.1.y"
 
 
-app.post("/migrar")
+@app.post("/migrar")
 async def chamoDeVMs(body: dict):
     if not body:
         resp = {"mensaje": "papi para que me mandas tus webadas?"}
@@ -51,4 +51,4 @@ if __name__ == "__main__":
     import uvicorn
     #Inicializando servicio de socket
     #Inicalizando servicio de API
-    uvicorn.run(app,host="localhost",port=13000)
+    uvicorn.run(app,host="10.0.0.10",port=13000)
