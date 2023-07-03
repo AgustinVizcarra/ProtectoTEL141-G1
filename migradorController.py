@@ -16,7 +16,7 @@ hosts= {
 
 def migrarVM(id,hostDestino):
     #Aqui se activa el acto de migrar vm
-    
+    print(f"Migrar la vm con uuid: {id} al hostdestino {hostDestino}")
     #
     pass
 
