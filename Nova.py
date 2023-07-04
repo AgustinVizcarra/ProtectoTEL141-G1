@@ -609,12 +609,18 @@ class NovaClient(object):
             return []
         
     # Crear una instancia de VM
-    def create_instance(self, name, flavor_id, image_id, network_id,keypairID,securitygroupID,salidaInternet):
-
-        network_interfaces = []
+    def create_instance(self, name, flavor_id, image_id, network_id,keypairID,securitygroupID,AccesoInternet):
         
+        network_interfaces = []
+
+        if AccesoInternet==1:
+            internet="643a290f-4061-4fb1-9403-c39ae1d42693"
+            interface = {'uuid': internet}
+            network_interfaces.append(interface)
+
         interface = {'uuid': network_id}
         network_interfaces.append(interface)
+
 
         instance_data = {
             'server': {
@@ -631,7 +637,6 @@ class NovaClient(object):
             }
         }
 
-        print(instance_data)
         response = requests.post(self.nova_url + '/v2.1/servers', json=instance_data, headers=self.headers)
         if response.status_code == 202:
             instance = response.json()['server']
@@ -639,22 +644,17 @@ class NovaClient(object):
             while True:
                 estado = self.get_instance_estado(id_instance)
                 if estado == "active":
-                    print("Estamos aquí")
-                    #self.reboot_instance(id_instance)
+                    ip=self.get_instance_ip(id_instance)
+                    
                     break
-            #self.agregar_interfaz_to_VM_br_provider(id_instance)
-            
-            #while True:
-            #    estado = self.get_instance_estado(id_instance)
-            #    if estado == "active":
-            #        break
             print("[*] Instancia creada de manera exitosa")
             return instance
         else:
             raise Exception('Failed to create instance. Status code: {}'.format(response.status_code))
+        
     # Obtener detalles de una instancia de VM
     def get_instance(self, server_id):
-        url = f"{self.nova_url}/servers/{server_id}"
+        url = f"{self.nova_url}/v2.1/servers/{server_id}"
         response = requests.get(url, headers=self.headers)
 
         if response.status_code == 200:
@@ -683,6 +683,23 @@ class NovaClient(object):
                 print(f"  - {network}:")
                 for ip in ip_list:
                     print(f"    - IP: {ip.get('addr')}")
+        else:
+            print("Error al obtener los detalles del servidor:", response.status_code)
+
+    # Obtener detalles de una instancia de VM
+    def get_instance_ip(self, server_id):
+        url = f"{self.nova_url}/v2.1/servers/{server_id}"
+        response = requests.get(url, headers=self.headers)
+
+        if response.status_code == 200:
+            server_details = response.json().get('server', {})
+            
+            addresses = server_details.get('addresses', {})
+            
+            for network, ip_list in addresses.items():
+                for ip in ip_list:
+                    return ip.get('addr')
+    
         else:
             print("Error al obtener los detalles del servidor:", response.status_code)
             
