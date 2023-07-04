@@ -116,6 +116,7 @@ class NeutronClient(object):
                 username = 'ubuntu'
                 password = 'ubuntu'
                 port = 5001
+                command = "./creaar "
 
                 self.ssh_connect(hostname, username, password, port)
 
@@ -389,7 +390,7 @@ class NeutronClient(object):
         
 # SSH PARAMIKO
 
-    def ssh_connect(hostname, username, password, port):
+    def ssh_connect(hostname, username, password, port,command):
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         
@@ -397,9 +398,6 @@ class NeutronClient(object):
             ssh.connect(hostname, port=port, username=username, password=password)
             print("Conexión SSH exitosa.")
             # Realiza operaciones en la máquina virtual a través de la conexión SSH
-            
-            # Ejecutar un comando Bash en la máquina virtual
-            command = 'echo "Hello, World!"'
 
             # Ejemplo: Ejecutar un comando en la máquina virtual
             stdin, stdout, stderr = ssh.exec_command(command)
