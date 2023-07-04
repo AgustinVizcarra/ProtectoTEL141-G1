@@ -188,7 +188,7 @@ def crearRed(keystone,neutron,nova,glance):
                                     print("[*] Ha salido de la opción de -Crear Red- \n")
                                     return
                                 if validar_direccion_ip(gatewayIP):
-                                    neutron.create_network(red,subred,cidr)
+                                    neutron.create_network(red,subred,cidr,gatewayIP)
                                     return
                                 else:
                                     print("[*] Ingrese una IP válida\n")

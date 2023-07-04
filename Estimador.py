@@ -184,12 +184,18 @@ def sendDataToCompute(dataSegment,worker,port):
     client_socket.connect(('10.20.12.48',port))
     informacion=dataSegment
     ## Envío la información al nodo de computo
+    # Ahora hago el truco del almendruco
     data = json.dumps(informacion)
+    buffer_size = len(data.encode('utf-8')) + 1024
+    # Envío el buffer size
+    client_socket.sendall(str(buffer_size).encode('utf-8'))
+    response = client_socket.recv(1024)
+    # Posteriormente envío la data
     client_socket.sendall(data.encode('utf-8'))
     ## Recibo la respuesta
     response = client_socket.recv(1024)
     data = json.loads(response.decode('utf-8'))
-    print(data)         
+    #print(data)         
     client_socket.close()
     aux = {}
     ## CPU
@@ -204,9 +210,8 @@ def sendDataToCompute(dataSegment,worker,port):
     aux['Est_AlmacenamientoUsado(Gb)'] = data[worker]['AlmacenamientoUsado(Gb)'] 
     aux['Est_AlmacenamientoUsado(%)'] = data[worker]['AlmacenamientoUsado(%)'] 
     ## Aqui proceso la informacion y la guardo en base de datos
-    aux['timestamp'] = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-    worker_estimacion[worker] = aux
-    
+    #aux['timestamp'] = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+    worker_estimacion[worker] = aux    
     
 @app.on_event('startup')
 async def startup():
