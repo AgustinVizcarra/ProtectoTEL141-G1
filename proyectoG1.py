@@ -648,7 +648,18 @@ def crearVirtualMachine(nova,neutron,glance,keystone):
             networkID = getNetworkID(neutron,keystone)
             keyPairID = getKeyPairID(nova,keystone)
             securityGroupID = getSecurityGroupID(nova)
-            nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID)
+            tieneSalidaInternet = None
+            while True:
+                salidaInternet = input("| ¿Desea permitir acceso desde Internet a la VM?[Y/N]: ")
+                if salidaInternet == "Y" or salidaInternet == "y":
+                    tieneSalidaInternet = 1
+                elif salidaInternet == "N" or salidaInternet == "n":
+                    tieneSalidaInternet = 0
+                else:
+                    print("[*] Ingrese una opción correcta\n")
+                    continue
+                break
+            nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID,tieneSalidaInternet)
             break
         else:
             print("[*] Ingrese un nombre de VirtualMachine válido\n")

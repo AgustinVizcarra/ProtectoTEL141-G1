@@ -3,7 +3,8 @@ import requests
 import random
 import paramiko
 import re
-
+import subprocess
+import threading
 ###############RED################## 
 
 class NeutronClient(object):
@@ -116,19 +117,19 @@ class NeutronClient(object):
                 username = 'ubuntu'
                 password = 'ubuntu'
                 port = 5001
-                command = "./creaar "
-
-                self.ssh_connect(hostname, username, password, port)
-
-                print("[*] Red Provider creada exitosamente\n")
-
-
+                command = "./configurar_vlan.sh "+str(vlan_tag)+" "+str(cidr)+""
+                #self.ssh_connect(hostname, username, password, port,command)
+                self.ssh_connect(hostname,username,password,port,command)
+                #thread = threading.Thread(target=subprocess.call(command, shell=True), args=(command,))
+                #thread.start()
+                
+                print("[*] Red creada exitosamente\n")
                 return True
             else:
-                print("[*] Ha ocurrido un error al crear la redProvider\n")
+                print("[*] Ha ocurrido un error al crear la red\n")
                 return False
         else:
-            print("[*] Ha ocurrido un error al crear la redProvider\n")
+            print("[*] Ha ocurrido un error al crear la red\n")
             return False
 
 
@@ -389,13 +390,12 @@ class NeutronClient(object):
             return None
         
 # SSH PARAMIKO
-
-    def ssh_connect(hostname, username, password, port,command):
+    def ssh_connect(hostname,username,password,port,command):
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         
         try:
-            ssh.connect(hostname, port=port, username=username, password=password)
+            ssh.connect(hostname, port, username, password)
             print("Conexión SSH exitosa.")
             # Realiza operaciones en la máquina virtual a través de la conexión SSH
 
