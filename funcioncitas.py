@@ -13,3 +13,45 @@ def validar_direccion_ip(ip):
     if re.match(patron, ip):
         return True
     return False
+
+#Funcion que valida un puerto
+def validar_puerto(puerto):
+    patron = r"^[1-9]\d*$"
+    if re.match(patron, puerto):
+        return True
+    return False
+
+#Funcion que valida la RAM (MB)
+def validar_ram(ram):
+    patron = r"^[1-9]\d*$"
+    if re.match(patron, ram):
+        return True
+    return False
+
+#Funcion que valida los vCPUS
+def validar_vcpus(vcpus):
+    patron = r"^[1-9]$"
+    if re.match(patron, vcpus):
+        return True
+    return False
+
+#Funcion que valida el Disk (GB)
+def validar_disk(disk):
+    patron = r"^[1-9]\d*$"
+    if re.match(patron, disk):
+        return True
+    return False
+
+#Funcion que valida la cantidad de nodos
+def validar_cantidad_nodos(cantidad):
+    patron = r"^[1-9]\d*$"
+    if re.match(patron, cantidad):
+        return True
+    return False
+
+#Funcion que valida la cantida de niveles
+def validar_cantidad_niveles(cantidad):
+    patron = r"^[3-9]\d*$"
+    if re.match(patron, cantidad):
+        return True
+    return False

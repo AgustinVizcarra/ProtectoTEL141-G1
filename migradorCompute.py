@@ -46,7 +46,7 @@ def obtener_cpu_memoria(pid: str):
 def escoger_vm(lista: list):
     return max(lista, key=lambda x: float(x[1]))
 
-app.get("/")
+@app.get("/")
 async def soplonVMs():
     uuid_pid = obtener_uuids_pids()
     uwu = []
