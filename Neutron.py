@@ -7,6 +7,8 @@ import subprocess
 import threading
 ###############RED################## 
 
+vlan_tag = random.randint(1, 1000)
+
 class NeutronClient(object):
 
     def __init__(self, auth_token):
@@ -70,7 +72,7 @@ class NeutronClient(object):
 
     #Funcion que permite crear la redprovider
     def create_network(self,red,subred,cidr,gateway):
-        vlan_tag= random.randint(1, 1000)
+        
         
         network_data = {
             'network': {
@@ -106,18 +108,18 @@ class NeutronClient(object):
                     #'gateway_ip': gateway
                 }
             }
-            print(subnet_data)
+            
             
             response = requests.post(self.neutron_url + 'subnets', json=subnet_data, headers=self.headers)
             if response.status_code == 201:
                 self.NetworkID = network_id
                 
-                #Uso de SSH paramiko
+                '''#Uso de SSH paramiko
                 hostname = '10.20.12.188'
                 username = 'ubuntu'
                 password = 'ubuntu'
                 port = 5001
-                command = "./configurar_vlan.sh "+str(vlan_tag)+" "+str(cidr)+" "+str(gateway)+" "+"CREAR"
+                command = "echo ubuntu | sudo -S ./configurar_vlan.sh "+str(vlan_tag)+" "+str(cidr)+" "+str(gateway)+" "+"CREAR"
                 print(command)
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -130,28 +132,31 @@ class NeutronClient(object):
                     #stdin, stdout, stderr = ssh.exec_command(command)
                     
                     # Cambiar al usuario root
-                    stdin, stdout, stderr = ssh.exec_command("sudo -i")
+                    #stdin, stdout, stderr = ssh.exec_command("sudo -i")
     
                     # Enviar la contraseña de root
-                    stdin.write("ubuntu" + '\n')
-                    stdin.flush()
-                    
+                    #stdin.write("ubuntu" + '\n')
+                    #stdin.flush()
+                    #ssh.exec_command('echo' 'Hello world')
                     ssh.exec_command(command)
                     #print(stdout.read().decode())
                     
                 except paramiko.AuthenticationException:
+
                     print("Error de autenticación. Verifica las credenciales de SSH.")
+
                 except paramiko.SSHException as ssh_exception:
+
                     print("Error de conexión SSH:", str(ssh_exception))
-                except paramiko.ChannelException as channel_exception:
-                    print("Error de canal SSH:", str(channel_exception))
+
                 finally:
+
                     ssh.close()
                 
                 #self.ssh_connect(hostname, username, password, port,command)
                 #self.ssh_connect(hostname,username,password,port,command)
                 #thread = threading.Thread(target=subprocess.call(command, shell=True), args=(command,))
-                #thread.start()
+                #thread.start()'''
                 
                 print("[*] Red creada exitosamente\n")
                 return True
