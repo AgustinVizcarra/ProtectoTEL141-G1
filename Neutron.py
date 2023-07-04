@@ -117,9 +117,30 @@ class NeutronClient(object):
                 username = 'ubuntu'
                 password = 'ubuntu'
                 port = 5001
-                command = "./configurar_vlan.sh "+str(vlan_tag)+" "+str(cidr)+""
+                command = "./configurar_vlan.sh "+str(vlan_tag)+" "+str(cidr)+" "+str(gateway)
+                print(command)
+                ssh = paramiko.SSHClient()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                try:
+                    ssh.connect(hostname, port, username, password)
+                    print("Conexión SSH exitosa.")
+                    # Realiza operaciones en la máquina virtual a través de la conexión SSH
+
+                    # Ejemplo: Ejecutar un comando en la máquina virtual
+                    stdin, stdout, stderr = ssh.exec_command(command)
+                    #print(stdout.read().decode())
+                    
+                except paramiko.AuthenticationException:
+                    print("Error de autenticación. Verifica las credenciales de SSH.")
+                except paramiko.SSHException as ssh_exception:
+                    print("Error de conexión SSH:", str(ssh_exception))
+                except paramiko.ChannelException as channel_exception:
+                    print("Error de canal SSH:", str(channel_exception))
+                finally:
+                    ssh.close()
+                
                 #self.ssh_connect(hostname, username, password, port,command)
-                self.ssh_connect(hostname,username,password,port,command)
+                #self.ssh_connect(hostname,username,password,port,command)
                 #thread = threading.Thread(target=subprocess.call(command, shell=True), args=(command,))
                 #thread.start()
                 

@@ -609,7 +609,7 @@ class NovaClient(object):
             return []
         
     # Crear una instancia de VM
-    def create_instance(self, name, flavor_id, image_id, network_id,keypairID,securitygroupID):
+    def create_instance(self, name, flavor_id, image_id, network_id,keypairID,securitygroupID,salidaInternet):
 
         network_interfaces = []
         
