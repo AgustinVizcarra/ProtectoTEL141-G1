@@ -117,7 +117,7 @@ class NeutronClient(object):
                 username = 'ubuntu'
                 password = 'ubuntu'
                 port = 5001
-                command = "./configurar_vlan.sh "+str(vlan_tag)+" "+str(cidr)+" "+str(gateway)
+                command = "./configurar_vlan.sh "+str(vlan_tag)+" "+str(cidr)+" "+str(gateway)+" "+"CREAR"
                 print(command)
                 ssh = paramiko.SSHClient()
                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -127,7 +127,16 @@ class NeutronClient(object):
                     # Realiza operaciones en la máquina virtual a través de la conexión SSH
 
                     # Ejemplo: Ejecutar un comando en la máquina virtual
-                    stdin, stdout, stderr = ssh.exec_command(command)
+                    #stdin, stdout, stderr = ssh.exec_command(command)
+                    
+                    # Cambiar al usuario root
+                    stdin, stdout, stderr = ssh.exec_command("sudo -i")
+    
+                    # Enviar la contraseña de root
+                    stdin.write("ubuntu" + '\n')
+                    stdin.flush()
+                    
+                    ssh.exec_command(command)
                     #print(stdout.read().decode())
                     
                 except paramiko.AuthenticationException:
