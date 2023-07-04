@@ -1,6 +1,7 @@
 ###########################################NEUTRON###############################################
 import requests
 import random
+import paramiko
 import re
 
 ###############RED################## 
@@ -67,7 +68,8 @@ class NeutronClient(object):
             raise Exception('Failed to list networks. Status code: {}'.format(response.status_code))
 
     #Funcion que permite crear la redprovider
-    def create_network(self,red,subred,cidr):
+    def create_network(self,red,subred,cidr,gateway):
+        vlan_tag= random.randint(1, 1000)
         
         network_data = {
             'network': {
@@ -76,14 +78,13 @@ class NeutronClient(object):
                 "shared": True,
                 "provider:physical_network": "provider",
                 "provider:network_type": "vlan",
-                "provider:segmentation_id": random.randint(1, 1000)
+                "provider:segmentation_id": vlan_tag
                 #'project_id': project
             }
         }
-        print(network_data)
+        
         
         response = requests.post(self.neutron_url + 'networks', json=network_data, headers=self.headers)
-        print(response.json())
 
         cidr_regex = re.compile(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2}$')
         
@@ -107,10 +108,20 @@ class NeutronClient(object):
             print(subnet_data)
             
             response = requests.post(self.neutron_url + 'subnets', json=subnet_data, headers=self.headers)
-            print(response.json())
             if response.status_code == 201:
                 self.NetworkID = network_id
+                
+                #Uso de SSH paramiko
+                hostname = '10.20.12.188'
+                username = 'ubuntu'
+                password = 'ubuntu'
+                port = 5001
+
+                self.ssh_connect(hostname, username, password, port)
+
                 print("[*] Red Provider creada exitosamente\n")
+
+
                 return True
             else:
                 print("[*] Ha ocurrido un error al crear la redProvider\n")
@@ -375,3 +386,32 @@ class NeutronClient(object):
         else:
             print("Error al obtener la red:", response.status_code)
             return None
+        
+# SSH PARAMIKO
+
+    def ssh_connect(hostname, username, password, port):
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        
+        try:
+            ssh.connect(hostname, port=port, username=username, password=password)
+            print("Conexión SSH exitosa.")
+            # Realiza operaciones en la máquina virtual a través de la conexión SSH
+            
+            # Ejecutar un comando Bash en la máquina virtual
+            command = 'echo "Hello, World!"'
+
+            # Ejemplo: Ejecutar un comando en la máquina virtual
+            stdin, stdout, stderr = ssh.exec_command(command)
+            print(stdout.read().decode())
+            
+        except paramiko.AuthenticationException:
+            print("Error de autenticación. Verifica las credenciales de SSH.")
+        except paramiko.SSHException as ssh_exception:
+            print("Error de conexión SSH:", str(ssh_exception))
+        except paramiko.ChannelException as channel_exception:
+            print("Error de canal SSH:", str(channel_exception))
+        finally:
+            ssh.close()
+
+    

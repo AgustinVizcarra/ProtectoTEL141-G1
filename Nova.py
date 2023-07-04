@@ -613,13 +613,8 @@ class NovaClient(object):
 
         network_interfaces = []
         
-        br_provider="794ca462-47ec-4f90-8d1e-8be57004378a"
-        interface = {'uuid': br_provider}
-        network_interfaces.append(interface)
-
         interface = {'uuid': network_id}
         network_interfaces.append(interface)
-        print(network_interfaces)
 
         instance_data = {
             'server': {
