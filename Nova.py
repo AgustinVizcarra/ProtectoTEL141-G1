@@ -985,8 +985,11 @@ class NovaClient(object):
             }
         }
 
+       
+
         url = f"{self.nova_url}/v2.1/servers"
         response = requests.post(url, headers=self.headers, json=instance_data)
+        
 
         if response.status_code == 202:
             instance_id = response.json()['server']['id']
