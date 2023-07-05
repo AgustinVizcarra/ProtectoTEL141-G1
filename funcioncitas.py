@@ -55,3 +55,11 @@ def validar_cantidad_niveles(cantidad):
     if re.match(patron, cantidad):
         return True
     return False
+
+#Funcion que valida la dirección IPV4
+def validar_direccion_ip2(ip):
+    patron = r'^30\.\d{1,3}\.\d{1,3}\.\d{1,3}$'
+    if re.match(patron, ip):
+        return True
+    else:
+        return False

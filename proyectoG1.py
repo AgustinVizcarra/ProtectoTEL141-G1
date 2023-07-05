@@ -188,7 +188,7 @@ def crearRed(keystone,neutron,nova,glance):
                                     print("[*] Ha salido de la opción de -Crear Red- \n")
                                     return
                                 if validar_direccion_ip(gatewayIP):
-                                    neutron.create_network(red,subred,cidr)
+                                    neutron.create_network(red,subred,cidr,gatewayIP)
                                     return
                                 else:
                                     print("[*] Ingrese una IP válida\n")
@@ -648,7 +648,29 @@ def crearVirtualMachine(nova,neutron,glance,keystone):
             networkID = getNetworkID(neutron,keystone)
             keyPairID = getKeyPairID(nova,keystone)
             securityGroupID = getSecurityGroupID(nova)
-            nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID)
+            tieneSalidaInternet = None
+            while True:
+                salidaInternet = input("| ¿Desea permitir la salida a Internet?[Y/N]: ")
+                if salidaInternet == "Y" or salidaInternet == "y":
+                    tieneSalidaInternet = 1
+                elif salidaInternet == "N" or salidaInternet == "n":
+                    tieneSalidaInternet = 0
+                else:
+                    print("[*] Ingrese una opción correcta\n")
+                    continue
+                break
+            accesoDesdeInternet = None
+            while True:
+                accesoInternet = input("| ¿Desea permitir acceso desde Internet a la VM?[Y/N]: ")
+                if accesoInternet == "Y" or accesoInternet == "y":
+                    accesoDesdeInternet = 1
+                elif accesoInternet == "N" or accesoInternet == "n":
+                    accesoDesdeInternet = 0
+                else:
+                    print("[*] Ingrese una opción correcta\n")
+                    continue
+                break
+            nova.create_instance_internet(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID,tieneSalidaInternet,accesoDesdeInternet)
             break
         else:
             print("[*] Ingrese un nombre de VirtualMachine válido\n")
