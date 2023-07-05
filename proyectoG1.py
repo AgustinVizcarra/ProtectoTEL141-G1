@@ -1293,7 +1293,7 @@ def crearTopologia(keystone,neutron,nova,glance):
     
 #Funcion que permite editar un slice
 def editarSlice(keystone,neutron,nova):
-    opciones = ["Unir VMs","Unir VM a Red"]
+    opciones = ["Unir VMs","Unir VM a Red","Acceder a VM desde Internet"]
     while True:
         filas = []
         filasopt = []
@@ -1368,6 +1368,18 @@ def editarSlice(keystone,neutron,nova):
                     else:
                         print("[*] Ingrese un nombre de red válido\n")
                         continue    
+            else:
+                print("[*] Ingrese un nombre válido\n")
+                continue
+    if opcion == "Acceder a VM desde Internet":
+        print("**Escriba ESC para poder salir de esta opción**")
+        while True:
+            nombre = input("| Ingrese el nombre de la VM: ")
+            if(nombre != ''):
+                if(nombre == "ESC"):
+                    print("[*] Ha salido de la opción de -Editar Slice- \n")
+                    return "Salir"
+                #Funcion acceso desde internet
             else:
                 print("[*] Ingrese un nombre válido\n")
                 continue
