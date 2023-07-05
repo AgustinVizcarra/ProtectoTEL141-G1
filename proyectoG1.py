@@ -670,7 +670,7 @@ def crearVirtualMachine(nova,neutron,glance,keystone):
                     print("[*] Ingrese una opción correcta\n")
                     continue
                 break
-            nova.create_instance(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID,tieneSalidaInternet,accesoDesdeInternet)
+            nova.create_instance_internet(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID,tieneSalidaInternet,accesoDesdeInternet)
             break
         else:
             print("[*] Ingrese un nombre de VirtualMachine válido\n")

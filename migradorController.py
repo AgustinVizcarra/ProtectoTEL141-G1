@@ -16,9 +16,8 @@ hosts= {
 
 def migrarVM(id,hostDestino):
     #Aqui se activa el acto de migrar vm
-    print(f"Migrar la vm con uuid: {id} al hostdestino {hostDestino}")
+    return f"Migrar la vm con uuid: {id} al hostdestino {hostDestino}"
     #
-    pass
 
 def obtener_VM_cargada(vm):
     r = requests.get(f'http://{vm}:13001/')
@@ -43,7 +42,9 @@ async def chamoDeVMs(body: dict):
     else:
         if "host_migrar" in body and "destino" in body:
             id_vm = obtener_VM_cargada(body["host_migrar"])
-            migrarVM(id_vm,hosts["destino"])
+            data = migrarVM(id_vm,hosts[body["destino"]])
+            return JSONResponse(content=data,status_code=200)
+
 
 
 
