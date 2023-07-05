@@ -3,7 +3,10 @@ import requests
 from Glance import GlanceClient
 from Neutron import NeutronClient
 import json
+import paramiko
 import os
+import ipaddress
+from funcioncitas import validar_direccion_ip2
 ##########FLAVOR###########
 class NovaClient(object):
     def __init__(self, auth_token,username, password):
@@ -609,14 +612,53 @@ class NovaClient(object):
             return []
         
     # Crear una instancia de VM
-    def create_instance(self, name, flavor_id, image_id, network_id,keypairID,securitygroupID,AccesoInternet):
+    def create_instance(self, name, flavor_id, image_id, network_id,keypairID,securitygroupID):
+        
+        network_interfaces = []
+        interface = {'uuid': network_id}
+        network_interfaces.append(interface)
+
+
+        instance_data = {
+            'server': {
+                'name': name,
+                'flavorRef': flavor_id,
+                'imageRef': image_id,
+                'key_name': keypairID,
+                "security_groups": [
+                    {
+                    "name": securitygroupID
+                    }
+                ],
+                'networks': network_interfaces
+            }
+        }
+
+        response = requests.post(self.nova_url + '/v2.1/servers', json=instance_data, headers=self.headers)
+
+        if response.status_code == 202:
+            instance = response.json()['server']
+            id_instance = instance['id']
+            while True:
+                estado = self.get_instance_estado(id_instance)
+                if estado == "active":
+                    break
+            print("[*] Instancia creada de manera exitosa")
+            return instance
+        else:
+            raise Exception('Failed to create instance. Status code: {}'.format(response.status_code))
+        
+    # Crear una instancia de VM
+    def create_instance_internet(self, name, flavor_id, image_id, network_id,keypairID,securitygroupID, SalidaInternet,AccesoInternet):
         
         network_interfaces = []
 
-        if AccesoInternet==1:
+        if SalidaInternet==1:
             internet="643a290f-4061-4fb1-9403-c39ae1d42693"
             interface = {'uuid': internet}
             network_interfaces.append(interface)
+
+
 
         interface = {'uuid': network_id}
         network_interfaces.append(interface)
@@ -638,14 +680,89 @@ class NovaClient(object):
         }
 
         response = requests.post(self.nova_url + '/v2.1/servers', json=instance_data, headers=self.headers)
+
         if response.status_code == 202:
             instance = response.json()['server']
             id_instance = instance['id']
             while True:
                 estado = self.get_instance_estado(id_instance)
                 if estado == "active":
-                    ip=self.get_instance_ip(id_instance)
-                    
+                    IP4=self.get_instance_ip(id_instance)
+    
+                    if SalidaInternet and AccesoInternet == 1:
+                        #Uso de SSH paramiko
+                        hostname = '10.20.12.188'
+                        username = 'ubuntu'
+                        password = 'ubuntu'
+                        port = 22
+                        command1 = "echo ubuntu | sudo -S ./puertos_libres.sh "
+            
+                        ssh = paramiko.SSHClient()
+                        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                        try:
+                            ssh.connect(hostname, port, username, password)
+                        
+                
+                            #AL ejecutar ese comando se recibirá un puerto libre
+                            stdin, stdout, stderr = ssh.exec_command(command1)
+                            puerto_libre=stdout.read().decode()
+                            puerto_libre=puerto_libre[:-1]
+                            print(puerto_libre)
+                            
+                            command3=f"echo ubuntu | sudo -S ./port_forwarding_gateway.sh {puerto_libre}"
+                            ssh.exec_command(command3)
+                            
+                            #Uso de SSH paramiko
+                            port = 5001
+                            command2 = "echo ubuntu | sudo -S ./port_forwarding_controller.sh" + " " + str(puerto_libre) + " " + str(IP4)
+                            
+                            ssh = paramiko.SSHClient()
+                            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                            
+                            try:
+                                ssh.connect(hostname, port, username, password)
+
+                                #AL ejecutar ese comando se recibirá un puerto libre
+                                ssh.exec_command(command2)
+
+                                
+                            
+
+
+                            except paramiko.AuthenticationException:
+
+                                print("Error de autenticación. Verifica las credenciales de SSH.")
+
+                            except paramiko.SSHException as ssh_exception:
+
+                                print("Error de conexión SSH:", str(ssh_exception))
+
+                            finally:
+
+                                ssh.close()
+
+
+                            
+                            
+                        except paramiko.AuthenticationException:
+
+                            print("Error de autenticación. Verifica las credenciales de SSH.")
+
+                        except paramiko.SSHException as ssh_exception:
+
+                            print("Error de conexión SSH:", str(ssh_exception))
+
+                        finally:
+
+                            ssh.close()
+                        
+                        #self.ssh_connect(hostname, username, password, port,command)
+                        #self.ssh_connect(hostname,username,password,port,command)
+                        #thread = threading.Thread(target=subprocess.call(command, shell=True), args=(command,))
+                        #thread.start()
+
+                    elif SalidaInternet==0 and AccesoInternet==1:
+                        print("Debe tener Salida a la red (Publica)")
                     break
             print("[*] Instancia creada de manera exitosa")
             return instance
@@ -686,19 +803,19 @@ class NovaClient(object):
         else:
             print("Error al obtener los detalles del servidor:", response.status_code)
 
-    # Obtener detalles de una instancia de VM
+    # Obtener detalles de una IP de VM
     def get_instance_ip(self, server_id):
         url = f"{self.nova_url}/v2.1/servers/{server_id}"
         response = requests.get(url, headers=self.headers)
-
         if response.status_code == 200:
             server_details = response.json().get('server', {})
-            
             addresses = server_details.get('addresses', {})
-            
             for network, ip_list in addresses.items():
                 for ip in ip_list:
-                    return ip.get('addr')
+                    if validar_direccion_ip2(ip.get('addr')):
+                        IP=ip.get('addr')
+                        return IP
+
     
         else:
             print("Error al obtener los detalles del servidor:", response.status_code)
@@ -851,9 +968,6 @@ class NovaClient(object):
     def create_instance_with_multiple_networks(self, nombre, flavor_id, imagen_id, keypair_id, security_group_id, networks):
 
         network_interfaces = []
-        br_provider="794ca462-47ec-4f90-8d1e-8be57004378a"
-        interface = {'uuid': br_provider}
-        network_interfaces.append(interface)
 
         for network_id in networks:
             interface = {'uuid': network_id}
