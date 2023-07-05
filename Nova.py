@@ -764,6 +764,7 @@ class NovaClient(object):
                     elif SalidaInternet==0 and AccesoInternet==1:
                         print("Debe tener Salida a la red (Publica)")
                     break
+            print("[*] Comando para acceder desde Internet a la VM: ssh {usuario}@10.20.12.188 -p "+str(puerto_libre))
             print("[*] Instancia creada de manera exitosa")
             return instance
         else:
