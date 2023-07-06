@@ -708,13 +708,13 @@ class NovaClient(object):
                                 puerto_libre=puerto_libre[:-1]
                                 print(puerto_libre)
                                 
-                                command3=f"echo ubuntu | sudo -S ./port_forwarding_gateway.sh {puerto_libre}"
+                                command3=f"echo ubuntu | sudo -S ./port_forwarding_gateway.sh {puerto_libre}"+ " " + "CREAR"
                                 ssh.exec_command(command3)
                                 print(i)
                                 
                                 #Uso de SSH paramiko
                                 port = 5001
-                                command2 = "echo ubuntu | sudo -S ./port_forwarding_controller.sh" + " " + str(puerto_libre) + " " + str(IP4) + " " + str(i)
+                                command2 = "echo ubuntu | sudo -S ./port_forwarding_controller.sh" + " " + str(puerto_libre) + " " + str(IP4) + " " + str(i)+ " " + "CREAR"
                                 print(command2)
                                 ssh = paramiko.SSHClient()
                                 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
