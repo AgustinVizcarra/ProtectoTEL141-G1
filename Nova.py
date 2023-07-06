@@ -649,7 +649,7 @@ class NovaClient(object):
             raise Exception('Failed to create instance. Status code: {}'.format(response.status_code))
         
     # Crear una instancia de VM
-    def create_instance_internet(self, name, flavor_id, image_id, network_id,keypairID,securitygroupID, SalidaInternet,AccesoInternet):
+    def create_instance_internet(self, name, flavor_id, image_id, network_id,keypairID,securitygroupID, SalidaInternet,AccesoInternet,listaPuertos):
         
         network_interfaces = []
 
@@ -689,46 +689,56 @@ class NovaClient(object):
                 if estado == "active":
                     IP4=self.get_instance_ip(id_instance)
     
-                    if SalidaInternet and AccesoInternet == 1:
-                        #Uso de SSH paramiko
-                        hostname = '10.20.12.188'
-                        username = 'ubuntu'
-                        password = 'ubuntu'
-                        port = 22
-                        command1 = "echo ubuntu | sudo -S ./puertos_libres.sh "
-            
-                        ssh = paramiko.SSHClient()
-                        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                        try:
-                            ssh.connect(hostname, port, username, password)
-                        
-                
-                            #AL ejecutar ese comando se recibirá un puerto libre
-                            stdin, stdout, stderr = ssh.exec_command(command1)
-                            puerto_libre=stdout.read().decode()
-                            puerto_libre=puerto_libre[:-1]
-                            print(puerto_libre)
-                            
-                            command3=f"echo ubuntu | sudo -S ./port_forwarding_gateway.sh {puerto_libre}"
-                            ssh.exec_command(command3)
-                            
+                    if SalidaInternet ==1 and AccesoInternet == 1:
+                        for i in listaPuertos:
                             #Uso de SSH paramiko
-                            port = 5001
-                            command2 = "echo ubuntu | sudo -S ./port_forwarding_controller.sh" + " " + str(puerto_libre) + " " + str(IP4)
-                            
+                            hostname = '10.20.12.188'
+                            username = 'ubuntu'
+                            password = 'ubuntu'
+                            port = 22
+                            command1 = "echo ubuntu | sudo -S ./puertos_libres.sh "
+                
                             ssh = paramiko.SSHClient()
                             ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                            
                             try:
                                 ssh.connect(hostname, port, username, password)
-
                                 #AL ejecutar ese comando se recibirá un puerto libre
-                                ssh.exec_command(command2)
-
+                                stdin, stdout, stderr = ssh.exec_command(command1)
+                                puerto_libre=stdout.read().decode()
+                                puerto_libre=puerto_libre[:-1]
+                                print(puerto_libre)
                                 
+                                command3=f"echo ubuntu | sudo -S ./port_forwarding_gateway.sh {puerto_libre}"
+                                ssh.exec_command(command3)
+                                print(i)
+                                
+                                #Uso de SSH paramiko
+                                port = 5001
+                                command2 = "echo ubuntu | sudo -S ./port_forwarding_controller.sh" + " " + str(puerto_libre) + " " + str(IP4) + " " + str(i)
+                                print(command2)
+                                ssh = paramiko.SSHClient()
+                                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                                
+                                try:
+                                    ssh.connect(hostname, port, username, password)
+
+                                    #AL ejecutar ese comando se recibirá un puerto libre
+                                    stdin, stdout, stderr=ssh.exec_command(command2)
+                                    C2=stdout.read().decode()
+                                    print(C2)
+
+                                except paramiko.AuthenticationException:
+
+                                    print("Error de autenticación. Verifica las credenciales de SSH.")
+
+                                except paramiko.SSHException as ssh_exception:
+
+                                    print("Error de conexión SSH:", str(ssh_exception))
+
+                                finally:
+
+                                    ssh.close()
                             
-
-
                             except paramiko.AuthenticationException:
 
                                 print("Error de autenticación. Verifica las credenciales de SSH.")
@@ -740,21 +750,6 @@ class NovaClient(object):
                             finally:
 
                                 ssh.close()
-
-
-                            
-                            
-                        except paramiko.AuthenticationException:
-
-                            print("Error de autenticación. Verifica las credenciales de SSH.")
-
-                        except paramiko.SSHException as ssh_exception:
-
-                            print("Error de conexión SSH:", str(ssh_exception))
-
-                        finally:
-
-                            ssh.close()
                         
                         #self.ssh_connect(hostname, username, password, port,command)
                         #self.ssh_connect(hostname,username,password,port,command)

@@ -78,7 +78,7 @@ class NeutronClient(object):
             'network': {
                 "admin_state_up": True,
                 "name": red,
-                "shared": True,
+                "shared": False,
                 "provider:physical_network": "provider",
                 "provider:network_type": "vlan",
                 "provider:segmentation_id": vlan_tag
@@ -310,11 +310,11 @@ class NeutronClient(object):
                 
                 "admin_state_up": True,
                 "name": red,
-                "shared": True,
+                "shared": False,
                 "provider:physical_network": "provider",
                 "provider:network_type": "vlan",
                 "provider:segmentation_id": random.randint(1, 1000)
-                #'project_id': project
+                
             }
         }
         
