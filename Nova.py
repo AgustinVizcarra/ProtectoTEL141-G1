@@ -517,7 +517,19 @@ class NovaClient(object):
             security_group_rules = response.json().get('security_group_rules', [])
             for rule in security_group_rules:
                 if rule['security_group_id'] == id:
-                    rules.append([rule['id'],rule['direction'],rule['protocol'],rule['port_range_max'],rule['port_range_min']])
+                    if rule['protocol'] == None:
+                        protocol = "Any"  
+                    else:
+                        protocol = rule['protocol']   
+                    if rule['port_range_max'] == None:
+                        portmax = "Any"  
+                    else:
+                        protocol = rule['port_range_max']   
+                    if rule['port_range_min'] == None:
+                        portmin = "Any"  
+                    else:
+                        portmin = rule['port_range_min']
+                    rules.append([rule['id'],rule['ethertype'],rule['direction'],protocol,portmax,portmin])
             return rules
 
     

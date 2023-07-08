@@ -415,7 +415,7 @@ def infoSecurityGroup(nova):
             continue
     listado = nova.infoSecurityGroupRules(nombre)
     if len(listado) != 0:
-        cabeceras = ["ID","DIRECTION","PROTOCOL","PORT_RANGE_MAX","PORT_RANGE_MIN"]
+        cabeceras = ["ID","ETHERTYPE","DIRECTION","PROTOCOL","PORT_RANGE_MAX","PORT_RANGE_MIN"]
         print("\n")
         print(tabulate(listado,headers=cabeceras,tablefmt='grid',stralign='center')) 
     else:
