@@ -1225,7 +1225,7 @@ def crearTopologia(keystone,neutron,nova,glance):
             print("[*] Ingrese una opción válida\n")       
     if opcion == "Lineal" or opcion == "Anillo" or opcion == "Bus" or opcion == "Malla":
         while True:
-            cantidadNodos = input("| Ingrese la cantidad de nodos: ")
+            cantidadNodos = input("| Ingrese la cantidad de nodos (Mayor a 2): ")
             if validar_cantidad_nodos(cantidadNodos):
                 cantidadNodos = int(cantidadNodos)
                 break 
