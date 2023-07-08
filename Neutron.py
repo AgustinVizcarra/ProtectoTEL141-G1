@@ -7,7 +7,7 @@ import subprocess
 import threading
 ###############RED################## 
 
-vlan_tag = random.randint(1, 1000)
+vlan_tag = random.randint(1, 10000)
 
 class NeutronClient(object):
 
@@ -72,6 +72,7 @@ class NeutronClient(object):
 
     #Funcion que permite crear la redprovider
     def create_network(self,red,subred,cidr,gateway):
+        vlan_tag = random.randint(1, 10000)
         
         
         network_data = {
@@ -88,6 +89,8 @@ class NeutronClient(object):
         
         
         response = requests.post(self.neutron_url + 'networks', json=network_data, headers=self.headers)
+        print(response.json())
+        print(response.status_code)
 
         cidr_regex = re.compile(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2}$')
         
@@ -205,34 +208,6 @@ class NeutronClient(object):
                     response = requests.delete(url_eliminar, headers=self.headers)
                     if response.status_code==204:
                         print("[*] La red",network['name'],"se ha eliminado exitosamente")
-                        
-                        ## Eliminamos la interfaz y regla del controller
-                        ## Mapear la vlan_tag de la red , CIDR de la subred , IP del gateway
-                        
-                        #Uso de SSH paramiko
-                        hostname = '10.20.12.188'
-                        username = 'ubuntu'
-                        password = 'ubuntu'
-                        port = 5001
-                        command = "./configurar_vlan.sh "+str(vlan_tag)+" "+str(cidr)+" "+str(gateway)+" "+"DELETE"
-                        print(command)
-                        ssh = paramiko.SSHClient()
-                        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                        try:
-                            ssh.connect(hostname, port, username, password)
-                            print("Conexión SSH exitosa.")
-                            stdin, stdout, stderr = ssh.exec_command("sudo -i")
-                            stdin.write("ubuntu" + '\n')
-                            stdin.flush()
-                            ssh.exec_command(command)
-                        except paramiko.AuthenticationException:
-                            print("Error de autenticación. Verifica las credenciales de SSH.")
-                        except paramiko.SSHException as ssh_exception:
-                            print("Error de conexión SSH:", str(ssh_exception))
-                        except paramiko.ChannelException as channel_exception:
-                            print("Error de canal SSH:", str(channel_exception))
-                        finally:
-                            ssh.close()
                         
                     elif response.status_code==409:
                         print("[*] La red", network['name'], "posee elementos en uso" )
