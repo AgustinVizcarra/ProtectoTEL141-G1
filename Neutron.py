@@ -71,7 +71,7 @@ class NeutronClient(object):
             raise Exception('Failed to list networks. Status code: {}'.format(response.status_code))
 
     #Funcion que permite crear la redprovider
-    def create_network(self,red,subred,cidr,gateway):
+    def create_network(self,red,subred,cidr):
         vlan_tag = random.randint(1, 10000)
         
         
@@ -89,8 +89,6 @@ class NeutronClient(object):
         
         
         response = requests.post(self.neutron_url + 'networks', json=network_data, headers=self.headers)
-        print(response.json())
-        print(response.status_code)
 
         cidr_regex = re.compile(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2}$')
         
@@ -108,7 +106,7 @@ class NeutronClient(object):
                     "name": subred,
                     "ip_version": 4,
                     'cidr': cidr,
-                    #'gateway_ip': gateway
+                   
                 }
             }
             
