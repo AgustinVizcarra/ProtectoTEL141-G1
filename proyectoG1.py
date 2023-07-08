@@ -183,17 +183,8 @@ def crearRed(keystone,neutron,nova,glance):
                             print("[*] Ha salido de la opción de -Crear Red- \n")
                             return
                         if validar_cidr(cidr):
-                            while True:
-                                gatewayIP = input("| Ingrese una IP del gateway: ")
-                                if(gatewayIP == "ESC"):
-                                    print("[*] Ha salido de la opción de -Crear Red- \n")
-                                    return
-                                if validar_direccion_ip(gatewayIP):
-                                    neutron.create_network(red,subred,cidr,gatewayIP)
-                                    return
-                                else:
-                                    print("[*] Ingrese una IP válida\n")
-                                    continue
+                            neutron.create_network(red,subred,cidr)
+                            return
                         else:
                             print("[*] Ingrese un CIDR válido\n")
                             continue
