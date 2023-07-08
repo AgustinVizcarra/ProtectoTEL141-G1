@@ -11,6 +11,7 @@ from tabulate import tabulate
 from Classes.VM import VM
 from TopoHandler import TopoConstructor
 from funcioncitas import *
+from MonitoreoRecursos import obtenerInfoRemoto
 ############################################    F   U   N   C   I   O   N   E   S   ############################################
 #Funcion que muestra el menu de la lista de Proyectos
 def MenuListaProyectos(keystone):
@@ -51,8 +52,8 @@ def MenuListaProyectos(keystone):
    
 #Funcion que muestra el Menú Principal        
 def menuPrincipal(keystone):
-    opcionesAdmin = ["Usuario","Red","Topología","KeyPair","SecurityGroup","VirtualMachine","Flavors","Images"]
-    opcionesUsuario = ["Red","KeyPair","SecurityGroup","VirtualMachine"]
+    opcionesAdmin = ["Usuario","Red","Topología","KeyPair","SecurityGroup","VirtualMachine","Flavors","Images","Monitoreo de Recursos"]
+    opcionesUsuario = ["Red","KeyPair","SecurityGroup","VirtualMachine","Monitoreo de Recursos"]
     if keystone.getRolName() == "admin":
         opciones = opcionesAdmin
     else:
@@ -659,30 +660,34 @@ def crearVirtualMachine(nova,neutron,glance,keystone):
                     print("[*] Ingrese una opción correcta\n")
                     continue
                 break
-            accesoDesdeInternet = None
-            while True:
-                accesoInternet = input("| ¿Desea permitir acceso desde Internet a la VM?[Y/N]: ")
-                if accesoInternet == "Y" or accesoInternet == "y":
-                    accesoDesdeInternet = 1
-                elif accesoInternet == "N" or accesoInternet == "n":
-                    accesoDesdeInternet = 0
-                else:
-                    print("[*] Ingrese una opción correcta\n")
-                    continue
-                break
-            listaPuertos = []
-            if accesoDesdeInternet == 1:
+            if tieneSalidaInternet == 1:
+                accesoDesdeInternet = None
                 while True:
-                    print("**Escriba ESC para salir**")
-                    puerto = input("| Ingrese el puerto para acceder desde Internet: ")
-                    try:
-                        if puerto == "ESC":
-                            break
-                        puerto = int(puerto)
-                        listaPuertos.append(puerto)
-                    except ValueError:
-                        print("[*] Ingrese una opción válida\n")
+                    accesoInternet = input("| ¿Desea permitir acceso desde Internet a la VM?[Y/N]: ")
+                    if accesoInternet == "Y" or accesoInternet == "y":
+                        accesoDesdeInternet = 1
+                    elif accesoInternet == "N" or accesoInternet == "n":
+                        accesoDesdeInternet = 0
+                    else:
+                        print("[*] Ingrese una opción correcta\n")
                         continue
+                    break
+                listaPuertos = []
+                if accesoDesdeInternet == 1:
+                    while True:
+                        print("**Escriba ESC para salir**")
+                        puerto = input("| Ingrese el puerto para acceder desde Internet: ")
+                        try:
+                            if puerto == "ESC":
+                                break
+                            puerto = int(puerto)
+                            listaPuertos.append(puerto)
+                        except ValueError:
+                            print("[*] Ingrese una opción válida\n")
+                            continue
+            else:
+                accesoDesdeInternet = 0
+                listaPuertos = []
             nova.create_instance_internet(nombre, flavorID, imagenID, networkID,keyPairID,securityGroupID,tieneSalidaInternet,accesoDesdeInternet,listaPuertos)
             break
         else:
@@ -1386,6 +1391,93 @@ def editarSlice(keystone,neutron,nova):
                 continue
     return "Salir"
 
+#Función que muestra el Menú Recursos
+def menuRecursos(keystone):
+    opcionesAdmin = ["Info Servidores","Editar Nivel Máximo de Sobreaprovisionamiento","Mostrar Nivel Máximo de Sobreaprovisionamiento"]
+    opcionesUsuario = ["Info Servidores","Mostrar Nivel Máximo de Sobreaprovisionamiento"]
+    if keystone.getRolName() == "admin":
+        opciones = opcionesAdmin
+    else:
+        opciones = opcionesUsuario
+    while True:
+            filas = []
+            filasopt = []
+            i = 0
+            for opt in opciones:
+                filasopt.append("Opción "+str(i+1)+" -> "+str(opt))
+                i = i + 1   
+            filas.append(["\n".join(filasopt)])
+            filas.append(["Opción "+str(i+1)+" -> Salir"])
+            print("\n")
+            print(tabulate(filas,headers=[],tablefmt='fancy_grid',stralign='center'))
+            opcion = input("| Ingrese una opción: ")
+            try:
+                if int(opcion) == (len(opciones)+1):
+                    opcion = "Salir"
+                    break
+                else:
+                    if int(opcion) <= len(opciones):
+                        opcion = opciones[int(opcion)-1]
+                        break
+                    else:
+                        print("[*] Ingrese una opción válida\n")
+            except ValueError:
+                print("[*] Ingrese una opción válida\n")
+    return opcion
+
+#Funcion que muestra la informacion de servidores
+def obtenerInfoServidores():
+    informacion = obtenerInfoRemoto()
+    if len(informacion) != 0:
+        for datita in informacion:
+            print("\n")
+            print(tabulate(datita,headers=[],tablefmt='grid',stralign='left'))
+    else:
+        print("\n")
+        print(tabulate([["El servicio de monitoreo se encuentra caído."]],headers=[],tablefmt='grid',stralign='center'))
+
+#Funcion que muestra el nivel de sobreaprovisionamiento
+def mostrarNivelDeSobreaprovisionamiento():
+    global nivelMaximoAprovisionamiento
+    if(nivelMaximoAprovisionamiento==0):
+        print("\n")
+        print(tabulate([["Aún no se ha definido el nivel de aprovisionamiento en el sistema."]],headers=["Nivel de Sobreaprovisionamiento"],tablefmt='grid',stralign='center'))
+    else:
+        print("\n")
+        print(tabulate([["El nivel de aprovisionamiento máximo en el sistema es "+str(nivelMaximoAprovisionamiento)+"%"]],headers=["Nivel de Sobreaprovisionamiento"],tablefmt='grid',stralign='center'))
+
+#Funcion que permite editar el nivel de sobreaprovisionamiento
+def editarNivelDeSobreaprovisionamiento():
+    global nivelMaximoAprovisionamiento
+    if(nivelMaximoAprovisionamiento==0):
+        while True:
+            try:
+                nuevoNivel = int(input("| Ingrese el nivel de aprovisionamiento máximo en (%): "))
+                if(nuevoNivel>0 and nuevoNivel<100):
+                    nivelMaximoAprovisionamiento = nuevoNivel
+                    print("[*] Se añadio el nivel de aprovisionamiento exitosamente\n")
+                    return
+                else:
+                    print("[*] Debe ser un valor que se encuentre entre ]0;100[ (%)\n")
+                    continue
+            except ValueError:
+                print("[*] Debe ingresar un valor entero\n")
+                continue
+    else:
+        while True:
+            try:
+                nivelAprovisionamiento = int(input("| Edite el valor del nivel de aprovisionamiento(%): "))
+                if(nivelAprovisionamiento>0 and nivelAprovisionamiento<100):
+                    nivelMaximoAprovisionamiento = nivelAprovisionamiento
+                    print("[*] Se editó el nivel de aprovisionamiento exitosamente\n")
+                    return
+                else:
+                    print("[*] Debe ser un valor que se encuentre entre ]0;100[ (%)\n")
+                    continue
+            except ValueError:
+                print("[*] Debe ingresar un valor entero\n")
+                continue
+
 #Funcion SubMenú
 def menu2(opcion,nivel,keystone,nova,glance,neutron):
     if opcion == "Usuario":
@@ -1538,11 +1630,28 @@ def menu2(opcion,nivel,keystone,nova,glance,neutron):
             return False
         return True
     
+    elif opcion == "Monitoreo de Recursos":
+        if(nivel == "Menú"):
+           while True:
+                seleccion = menuRecursos(keystone)
+                resultado = menu2(opcion,seleccion,keystone,nova,glance,neutron)  
+                if not (resultado):
+                    break 
+        elif(nivel == "Info Servidores"):
+            obtenerInfoServidores()
+        elif(nivel == "Editar Nivel Máximo de Sobreaprovisionamiento"):
+            editarNivelDeSobreaprovisionamiento()
+        elif(nivel == "Mostrar Nivel Máximo de Sobreaprovisionamiento"):
+            mostrarNivelDeSobreaprovisionamiento()
+        elif(nivel == "Salir"):
+            return False
+        return True
     elif opcion == "Salir":
         return False  
     
 ############################################    M   A   I   N   ############################################      
 #Mensaje de bienvenida
+nivelMaximoAprovisionamiento = 0
 Cabecera1 = ["Ingeniería de Redes Cloud"]
 Filas1 = [["TEL141\nProyecto del Grupo 1\nProfesor: Cesar Santivañez\nAsesor: Fernando Guzman"] , ["Integrantes"], ["José Ortiz Velasquez\nAlonso Rosales Antunez\nRonny Pastor Kolmakov\nAgustin Vizcarra Lizarbe (L)"]]
 print(tabulate(Filas1,headers=Cabecera1,tablefmt='fancy_grid',stralign='center'))
