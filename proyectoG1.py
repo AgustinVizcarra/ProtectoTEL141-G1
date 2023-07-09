@@ -1046,7 +1046,7 @@ def borrarFlavor(nova):
 
 #Funcion que muestra el Menú Imagenes
 def menuImages():    
-    opciones = ["Crear Image","Listar Images","Editar Image","Eliminar Image"]
+    opciones = ["Crear Image","Listar Images","Eliminar Image"]
     while True:
         filas = []
         filasopt = []
@@ -1110,7 +1110,7 @@ def listarImages(glance):
         print(tabulate([["No hay imagenes creadas hasta el momento."]],headers=[],tablefmt='grid',stralign='center')) 
         
 #Funcion que permite editar Images
-def editarImage(glance):
+'''def editarImage(glance):
     print("**Escriba ESC para poder salir de esta opción**")
     while True:
         nombre = input("| Ingrese un nombre de image: ")
@@ -1147,7 +1147,7 @@ def editarImage(glance):
             break
         else:
             print("[*] Ingrese un nombre de image válido\n")
-            continue
+            continue'''
         
 #Funcion que permite eliminar Images
 def borrarImage(glance):
