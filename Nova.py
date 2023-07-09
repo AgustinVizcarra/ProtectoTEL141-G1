@@ -693,6 +693,7 @@ class NovaClient(object):
         }
 
         response = requests.post(self.nova_url + '/v2.1/servers', json=instance_data, headers=self.headers)
+       
 
         if response.status_code == 202:
             instance = response.json()['server']
@@ -1085,7 +1086,7 @@ class NovaClient(object):
         SalidaInternet=1
         AccesoInternet=1
         Listapuertos=[22]
-        internet="643a290f-4061-4fb1-9403-c39ae1d42693"
+        internet="f3fceab1-dd92-414b-9290-e9f1df8d9cfb"
         interface = {'uuid': internet}
         network_interfaces.append(interface)
 
