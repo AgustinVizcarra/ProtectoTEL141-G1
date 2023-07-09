@@ -72,7 +72,7 @@ class NeutronClient(object):
 
     #Funcion que permite crear la redprovider
     def create_network(self,red,subred,cidr):
-        vlan_tag = random.randint(1, 10000)
+        vlan_tag = random.randint(1, 800)
         
         
         network_data = {

@@ -415,7 +415,7 @@ def infoSecurityGroup(nova):
             continue
     listado = nova.infoSecurityGroupRules(nombre)
     if len(listado) != 0:
-        cabeceras = ["ID","DIRECTION","PROTOCOL","PORT_RANGE_MAX","PORT_RANGE_MIN"]
+        cabeceras = ["ID","ETHERTYPE","DIRECTION","PROTOCOL","PORT_RANGE_MAX","PORT_RANGE_MIN"]
         print("\n")
         print(tabulate(listado,headers=cabeceras,tablefmt='grid',stralign='center')) 
     else:
@@ -444,7 +444,7 @@ def editarSecurityGroup(nova):
                             if(nuevoNombre == "ESC"):
                                 print("[*] Ha salido de la opción de -Editar SecurityGroup-\n")
                                 return
-                            break
+                        break
                 elif(verificarNombre == "ESC"):
                     print("[*] Ha salido de la opción de -Editar SecurityGroup-\n")
                     return    
@@ -452,6 +452,8 @@ def editarSecurityGroup(nova):
                     break
                 else:
                     print("[*] Ingrese una opción correcta\n")
+                    continue
+                break
             while True:
                 verificarDescripcion = input("| ¿Desea cambiar la descripcion?[Y/N]: ")
                 descripcion = None
@@ -465,7 +467,7 @@ def editarSecurityGroup(nova):
                             if(descripcion == "ESC"):
                                 print("[*] Ha salido de la opción de -Editar SecurityGroup-\n")
                                 return 
-                            break 
+                        break 
                 elif(verificarDescripcion == "ESC"):
                     print("[*] Ha salido de la opción de -Editar SecurityGroup-\n")
                     return
@@ -473,6 +475,8 @@ def editarSecurityGroup(nova):
                     break
                 else:
                     print("[*] Ingrese una opción correcta\n")
+                    continue
+                break
             if (verificarNombre == "N" or verificarNombre == "n") and (verificarDescripcion=="N" or verificarDescripcion == "n"):
                 print("[*] Ha decidido no realizar ningún cambio al SecurityGroup\n")
                 break 
@@ -534,14 +538,14 @@ def configurarSecurityGroup(nova):
                                                 return 
                                             if validar_puerto(dest_port):
                                                 while True:
-                                                    verificar = input("| ¿Desea agregar permitir un CIDR ?[Y/N]: ")
+                                                    verificar = input("| ¿Desea agregar permitir un CIDR en especifico?[Y/N]: ")
                                                     cidr = None
                                                     if verificar == "Y" or verificar == "y":
                                                         while True:
                                                             cidr = input("| Ingrese un CIDR: ")
                                                             if(cidr == "ESC"):
                                                                 print("[*] Ha salido de la opción de -Añadir Regla-\n")
-                                                            return 
+                                                                return 
                                                             if validar_cidr(cidr):
                                                                 nova.agregarRegla(nombre,protocol_ip,from_port,dest_port,cidr)
                                                                 break
@@ -553,9 +557,11 @@ def configurarSecurityGroup(nova):
                                                         print("[*] Ha salido de la opción de -Añadir Regla-\n")
                                                         return
                                                     elif verificar == "N" or verificar == "n":
+                                                        nova.agregarRegla(nombre,protocol_ip,from_port,dest_port,"0.0.0.0/24")
                                                         break
                                                     else:
                                                         print("[*] Ingrese una opción correcta\n")
+                                                        continue
                                                     break
                                             else:
                                                 print("[*] Ingrese un puerto válido\n")

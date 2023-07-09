@@ -451,7 +451,7 @@ class NovaClient(object):
 #Eliminar securitygroup
     def eliminarSecurityGroup(self,name):
         id_security=self.obtenerIDSecurityGroupSDK(name)
-        print(id_security)
+        #print(id_security)
 
         if id_security==None:
             print("No existe el Grupo de seguridad especificado")
@@ -517,7 +517,19 @@ class NovaClient(object):
             security_group_rules = response.json().get('security_group_rules', [])
             for rule in security_group_rules:
                 if rule['security_group_id'] == id:
-                    rules.append([rule['id'],rule['direction'],rule['protocol'],rule['port_range_max'],rule['port_range_min']])
+                    if rule['protocol'] == None:
+                        protocol = "Any"  
+                    else:
+                        protocol = rule['protocol']   
+                    if rule['port_range_max'] == None:
+                        portmax = "Any"  
+                    else:
+                        protocol = rule['port_range_max']   
+                    if rule['port_range_min'] == None:
+                        portmin = "Any"  
+                    else:
+                        portmin = rule['port_range_min']
+                    rules.append([rule['id'],rule['ethertype'],rule['direction'],protocol,portmax,portmin])
             return rules
 
     
@@ -551,16 +563,17 @@ class NovaClient(object):
 
         if response.status_code == 200:
             security_group_rule = response.json().get('security_group_rule', {})
-            print("|-----------------------------------------------------|")
-            print("Regla de seguridad agregada exitosamente:")
-            print("Nombre del grupo de seguridad:", nombre)
-            print("Protocolo:", security_group_rule['ip_protocol'])
-            print("Puerto origen:", security_group_rule['from_port'])
-            print("Puerto destino:", security_group_rule['to_port'])
-            print("CIDR:", security_group_rule['ip_range']['cidr'])
-            print("|-----------------------------------------------------|")
+            print("[*] Regla de seguridad agregada exitosamente")
+            #print("|-----------------------------------------------------|")
+            #print("Regla de seguridad agregada exitosamente:")
+            #print("Nombre del grupo de seguridad:", nombre)
+            #print("Protocolo:", security_group_rule['ip_protocol'])
+            #print("Puerto origen:", security_group_rule['from_port'])
+            #print("Puerto destino:", security_group_rule['to_port'])
+            #print("CIDR:", security_group_rule['ip_range']['cidr'])
+            #print("|-----------------------------------------------------|")
         else:
-            print("Error al agregar la regla de seguridad:", response.status_code)
+            print("[*] Error al agregar la regla de seguridad:", response.status_code)
 
 #Eliminar regla
     def eliminarRegla(self,id):
@@ -585,9 +598,9 @@ class NovaClient(object):
         
 
         if response_eliminar.status_code == 202:
-            print("Regla de seguridad eliminada exitosamente")
+            print("[*] Regla de seguridad eliminada exitosamente")
         else:
-            print("Error al eliminar la regla de seguridad:", response_eliminar.status_code)
+            print("[*] Error al eliminar la regla de seguridad:", response_eliminar.status_code)
 
 
 
