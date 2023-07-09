@@ -635,6 +635,7 @@ def menuVirtualMachine():
 
 #Funcion que permite crear una VirtualMachine
 def crearVirtualMachine(nova,neutron,glance,keystone):
+    print("**Escriba ESC para poder salir de esta opción**")
     while True:
         nombre = input("| Ingrese un nombre de VirtualMachine: ")
         if(nombre != ''):
@@ -725,7 +726,7 @@ def editarVirtualMachine(nova,projectID):
                             if(nuevoNombre == "ESC"):
                                 print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
                                 return
-                            break
+                        break
                 elif(verificarNombre == "ESC"):
                     print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
                     return
@@ -733,6 +734,8 @@ def editarVirtualMachine(nova,projectID):
                     break
                 else:
                     print("[*] Ingrese una opción correcta\n")
+                    continue
+                break
             while True:
                 verificarDescripcion = input("| ¿Desea cambiar su descripcion?[Y/N]: ")
                 descripcion = None
@@ -746,7 +749,7 @@ def editarVirtualMachine(nova,projectID):
                             if(descripcion == "ESC"):
                                 print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
                                 return
-                            break
+                        break
                 elif(verificarDescripcion == "ESC"):
                     print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
                     return
@@ -754,6 +757,8 @@ def editarVirtualMachine(nova,projectID):
                     break
                 else:
                     print("[*] Ingrese una opción correcta\n")
+                    continue
+                break
             if (verificarNombre == "N" or verificarNombre == "n") and (verificarDescripcion=="N" or verificarDescripcion == "n"):
                 print("[*] Ha decidido no realizar ningún cambio a la VirtualMachine\n")
                 break   

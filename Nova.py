@@ -667,7 +667,7 @@ class NovaClient(object):
         network_interfaces = []
 
         if SalidaInternet==1:
-            internet="643a290f-4061-4fb1-9403-c39ae1d42693"
+            internet="f3fceab1-dd92-414b-9290-e9f1df8d9cfb"
             interface = {'uuid': internet}
             network_interfaces.append(interface)
 
@@ -882,6 +882,7 @@ class NovaClient(object):
 
         if response.status_code == 200:
             instance = response.json()['server']
+            print("[*] Instancia modificada exitosamente\n")
             return instance
         else:
             raise Exception('Failed to update instance. Status code: {}'.format(response.status_code))
@@ -966,7 +967,7 @@ class NovaClient(object):
 
                     ssh.close()
 
-            
+            print("[*] Instancia eliminada de manera exitosa\n")
         else:
             raise Exception('Failed to delete instance. Status code: {}'.format(response.status_code))
     
