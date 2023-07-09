@@ -141,7 +141,10 @@ class GlanceClient(object):
             print("Error al obtener información de la imagen:", response.status_code)
             return {}
     
-    def actualizar_informacion_imagen(self, imagen_id, nuevos_metadatos):
+    def update(self, nombre, nuevos_metadatos):
+        print("Llegamos hast aquí")
+
+        imagen_id=self.obtenerIdImagen(nombre)
 
         url = f"{self.glance_url}/images/{imagen_id}"
         headers = {
