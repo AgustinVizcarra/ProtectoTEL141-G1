@@ -44,7 +44,7 @@ def validar_disk(disk):
 
 #Funcion que valida la cantidad de nodos
 def validar_cantidad_nodos(cantidad):
-    patron = r"^[1-9]\d*$"
+    patron = r"^[2-9]\d*$"
     if re.match(patron, cantidad):
         return True
     return False
@@ -55,3 +55,11 @@ def validar_cantidad_niveles(cantidad):
     if re.match(patron, cantidad):
         return True
     return False
+
+#Funcion que valida la dirección IPV4
+def validar_direccion_ip2(ip):
+    patron = r'^30\.\d{1,3}\.\d{1,3}\.\d{1,3}$'
+    if re.match(patron, ip):
+        return True
+    else:
+        return False

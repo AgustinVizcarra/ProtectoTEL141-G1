@@ -1,9 +1,13 @@
 ###########################################NEUTRON###############################################
 import requests
 import random
+import paramiko
 import re
-
+import subprocess
+import threading
 ###############RED################## 
+
+vlan_tag = random.randint(1, 10000)
 
 class NeutronClient(object):
 
@@ -68,22 +72,23 @@ class NeutronClient(object):
 
     #Funcion que permite crear la redprovider
     def create_network(self,red,subred,cidr):
+        vlan_tag = random.randint(1, 800)
+        
         
         network_data = {
             'network': {
                 "admin_state_up": True,
                 "name": red,
-                "shared": True,
+                "shared": False,
                 "provider:physical_network": "provider",
                 "provider:network_type": "vlan",
-                "provider:segmentation_id": random.randint(1, 1000)
+                "provider:segmentation_id": vlan_tag
                 #'project_id': project
             }
         }
-        print(network_data)
+        
         
         response = requests.post(self.neutron_url + 'networks', json=network_data, headers=self.headers)
-        print(response.json())
 
         cidr_regex = re.compile(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2}$')
         
@@ -101,22 +106,66 @@ class NeutronClient(object):
                     "name": subred,
                     "ip_version": 4,
                     'cidr': cidr,
-                    #'gateway_ip': gateway
+                   
                 }
             }
-            print(subnet_data)
+            
             
             response = requests.post(self.neutron_url + 'subnets', json=subnet_data, headers=self.headers)
-            print(response.json())
             if response.status_code == 201:
                 self.NetworkID = network_id
-                print("[*] Red Provider creada exitosamente\n")
+                
+                '''#Uso de SSH paramiko
+                hostname = '10.20.12.188'
+                username = 'ubuntu'
+                password = 'ubuntu'
+                port = 5001
+                command = "echo ubuntu | sudo -S ./configurar_vlan.sh "+str(vlan_tag)+" "+str(cidr)+" "+str(gateway)+" "+"CREAR"
+                print(command)
+                ssh = paramiko.SSHClient()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                try:
+                    ssh.connect(hostname, port, username, password)
+                    print("Conexión SSH exitosa.")
+                    # Realiza operaciones en la máquina virtual a través de la conexión SSH
+
+                    # Ejemplo: Ejecutar un comando en la máquina virtual
+                    #stdin, stdout, stderr = ssh.exec_command(command)
+                    
+                    # Cambiar al usuario root
+                    #stdin, stdout, stderr = ssh.exec_command("sudo -i")
+    
+                    # Enviar la contraseña de root
+                    #stdin.write("ubuntu" + '\n')
+                    #stdin.flush()
+                    #ssh.exec_command('echo' 'Hello world')
+                    ssh.exec_command(command)
+                    #print(stdout.read().decode())
+                    
+                except paramiko.AuthenticationException:
+
+                    print("Error de autenticación. Verifica las credenciales de SSH.")
+
+                except paramiko.SSHException as ssh_exception:
+
+                    print("Error de conexión SSH:", str(ssh_exception))
+
+                finally:
+
+                    ssh.close()
+                
+                #self.ssh_connect(hostname, username, password, port,command)
+                #self.ssh_connect(hostname,username,password,port,command)
+                #thread = threading.Thread(target=subprocess.call(command, shell=True), args=(command,))
+                #thread.start()'''
+                
+                print("[*] Red creada exitosamente\n")
                 return True
             else:
-                print("[*] Ha ocurrido un error al crear la redProvider\n")
+                print("[*] Ha ocurrido un error al crear la red\n")
                 return False
         else:
-            print("[*] Ha ocurrido un error al crear la redProvider\n")
+            print("[*] Ha ocurrido un error al crear la red\n")
             return False
 
 
@@ -156,9 +205,10 @@ class NeutronClient(object):
                     url_eliminar=self.neutron_url + 'networks/' + network_id
                     response = requests.delete(url_eliminar, headers=self.headers)
                     if response.status_code==204:
-                        print("La red",network['name'],"se ha eliminado exitosamente")
+                        print("[*] La red",network['name'],"se ha eliminado exitosamente")
+                        
                     elif response.status_code==409:
-                        print("La red", network['name'], "posee elementos en uso" )
+                        print("[*] La red", network['name'], "posee elementos en uso" )
                     return True
         else:
             raise Exception('Failed to delete network. Status code: {}'.format(response.status_code))
@@ -233,11 +283,11 @@ class NeutronClient(object):
                 
                 "admin_state_up": True,
                 "name": red,
-                "shared": True,
+                "shared": False,
                 "provider:physical_network": "provider",
                 "provider:network_type": "vlan",
                 "provider:segmentation_id": random.randint(1, 1000)
-                #'project_id': project
+                
             }
         }
         
@@ -375,3 +425,28 @@ class NeutronClient(object):
         else:
             print("Error al obtener la red:", response.status_code)
             return None
+        
+# SSH PARAMIKO
+    def ssh_connect(hostname,username,password,port,command):
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        
+        try:
+            ssh.connect(hostname, port, username, password)
+            print("Conexión SSH exitosa.")
+            # Realiza operaciones en la máquina virtual a través de la conexión SSH
+
+            # Ejemplo: Ejecutar un comando en la máquina virtual
+            stdin, stdout, stderr = ssh.exec_command(command)
+            print(stdout.read().decode())
+            
+        except paramiko.AuthenticationException:
+            print("Error de autenticación. Verifica las credenciales de SSH.")
+        except paramiko.SSHException as ssh_exception:
+            print("Error de conexión SSH:", str(ssh_exception))
+        except paramiko.ChannelException as channel_exception:
+            print("Error de canal SSH:", str(channel_exception))
+        finally:
+            ssh.close()
+
+    

@@ -41,10 +41,10 @@ def socket_listener():
     #Aceptamos las conexiones
     while True:
         client_socket, client_add = server_socket.accept()
-        print("Conexione entrante de "+str(client_add[0])+ ":"+str(client_add[1]))
+        # print("Conexione entrante de "+str(client_add[0])+ ":"+str(client_add[1]))
         #Recibiendo con buffer 1024 bytes
         data = client_socket.recv(1024).decode('utf-8')
-        print(json.loads(data))
+        # print(json.loads(data))
         #Almacenamiento de datos en mongo
         mycol = mydb[collection[client_add[0]]]
         x = mycol.insert_one(json.loads(data))

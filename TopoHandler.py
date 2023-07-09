@@ -100,75 +100,38 @@ class TopoConstructor:
         pass
     
     def meshConstructorV2(self,VMs,CIDR,neutron,nova):
-        ### Primero debemos mapear la relación entre VM's y el número de vertices de una red MESH
-        ## para eso se realiza lo siguiente:
         mapVMVertice = {}
         ## Enlaces mapean los valores contiguos
-        enlacesContiguos = {}
-        enlacesCruzados = {}
-        mapVMNetwork = {}
         i = 1
+        enlaces_vm={}
         for vm in VMs:
             mapVMVertice[i] = vm
+            enlaces_vm[i] = []
             i+=1
-        ## Esto se mapea de la siguiente manera p.e {Vertice: 1, VM: VM1}
-        ## Ahora si quere mapear los enlaces perimetrales se hace de la siguiente manera
-        ## Si la secuencia a nivel de vertices es 1-2-3-4-5-6-1 (Para tener una figura cerrada) (Siendo N=6)
-        for iterador in mapVMVertice.keys():
-            ##Definimos los casos aislado
-            if iterador == 1:
-                ## para este caso los enlaces adyacentes son N-1 y 1-2 por lo que se define la creacion de esos enlaces
-                ## Será bueno usar una colección que permita mapear la VM junto con las redes creadas
-                enlacesContiguos[iterador] = [len(mapVMVertice),iterador + 1]
-                ## Solo se mapea la creacion del valor con el nodo vecino inferior o sea 6-1/1-2/2-3/... etc
-                mapVMNetwork[iterador] = networkConstructor(CIDR,neutron,nova)
-            elif iterador == len(mapVMVertice):
-                ## En la logica generica ya se mapea el escenario del ultimo enlace N-1 y N, sin embargo añadimos los adyacentes
-                enlacesContiguos[iterador] = [iterador-1,1]
-                ## Creacion del enlace N-1-N
-                mapVMNetwork[iterador] = networkConstructor(CIDR,neutron,nova)
-            else:
-                ## Logica generica: enlaces n-1_n y n_n+1
-                enlacesContiguos[iterador]=[iterador-1,iterador+1]
-                ## Creacion del enlace n-1-n
-                mapVMNetwork[iterador] = networkConstructor(CIDR,neutron,nova)
-        ## Una vez que tenemos mapeados los enlaces contiguos ahora podemos crear los enlaces cruzados (o sea los valores que no son contiguos)
-        for v in enlacesContiguos.keys():
-            ## Verificamos los enlaces que no sean contiguos
-            ## Siendo i {1,2,3,...,N}
-            for i in mapVMVertice.keys():
-                ## Enlaces contiguos v {1:[6,2]}
-                if i not in enlacesContiguos[v]:
-                    ## Verificamos que no sea un enlace repetido 1-4 / 4-1:
-                    if len(enlacesCruzados.keys()) ==0:
-                        ## Quiere decir que el diccionario está vacío
-                        enlacesCruzados[[v,i]] = networkConstructor(CIDR,neutron,nova)
-                    else:
-                        for j in enlacesCruzados.keys():
-                            # Siendo J una lista de enlaces [1,4],[1,5]
-                            if i not in j:
-                                ## Añadimos el enlace junto con la creacion
-                                enlacesCruzados[[v,i]] = networkConstructor(CIDR,neutron,nova)
-        ## Finalmente procedemos a la creacion de las VMs junto con sus redes contiguos y cruzadas
-        for i in mapVMVertice.keys():
-            ## Definimos un vector auxiliar que contenga todas las redes para la creacion de la VM
-            aux = []
-            ## Verificamos los enlaces contiguos
-            for j in enlacesContiguos.keys():
-                if j == i:
-                    ## Verificamos el contenido de los enlaces contiguos
-                    aux.append(mapVMNetwork[i]) ## enlace n-1 y n
-                    aux.append(mapVMNetwork[i+1]) ## enlace
-                if j == len(enlacesContiguos):
-                    aux.append(mapVMNetwork[i])
-                    ## Cierro el contorno de la figura
-                    aux.append(mapVMNetwork[1])
-            for k in enlacesCruzados.keys():
-                if i in k:
-                    ## Verifico que i se encuentre en la dupla k o sea si i es 1 y k es [1,4] verifico que esté ahí
-                    aux.append(mapVMNetwork[k])
-            ## Una vez tenido todas las redes creadas se procede a crear las vm's junto con sus redes contiguas y cruzadas
-            VMConstructor.createVM(mapVMVertice[i],aux,neutron,nova)
+        # Considero todas la relaciones cruzadas y contiguas
+        # Enlaces
+        enlaces=[]
+        for vm in mapVMVertice.keys():
+            for vecino in mapVMVertice.keys():
+                if vm == vecino:
+                    pass
+                else:
+                    # Creo Enlaces
+                    enlace_vm_vecino=[vm,vecino]
+                    if (enlace_vm_vecino not in [[x[0],x[1]]for x in enlaces]) and (enlace_vm_vecino not in [[x[1],x[0]]for x in enlaces]):
+                        enlaces.append(enlace_vm_vecino)
+                        # Creación de la red
+                        nameNetwork = str(uuid.uuid4())
+                        nameSubnet = str(uuid.uuid4())
+                        red = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
+                        NetworkConstructor.createNetwork(red,neutron,nova)
+                        # Añado las redes a las VMs
+                        enlaces_vm[vm].append(nameNetwork)
+                        enlaces_vm[vecino].append(nameNetwork)
+        # Creo las VMs
+        for vertice in mapVMVertice:
+            # Creando las VMs
+            VMConstructor.createVM(mapVMVertice[vertice],enlaces_vm[vertice],neutron,nova)
 
     def treeConstructor(self,VMs,CIDR,neutron,nova,niveles):
             # Definimos la cantidad de Vm's por nivel para eso consideramos lo siguiente
@@ -189,10 +152,10 @@ class TopoConstructor:
                     # No se considera el 1 puesto que no se tendría una serie geométrica y no se podría sumar los términos
                     suma=int((1 * (math.pow(i, niveles )-1)) / (i-1))
                     # Hallamos el valor que más se acerca a la cantidad de vms para ello
-                    diferencia= cantidad_vms-suma
+                    diferencia= abs(cantidad_vms-suma)
                     map_diferencias[i]=diferencia
                 # hallo el indice de la cantidad de nodos por nivel y la diferencia que este tiene con respecto a la cantidad de VM's
-                cantidad_nodos_vm = min(map_diferencias,key=abs(map_diferencias.get))
+                cantidad_nodos_vm = min(map_diferencias,key=map_diferencias.get)
                 # Ahora tenemos 2 casuisticas de
                 if(map_diferencias[cantidad_nodos_vm]==0):
                     # Quiere decir que la suma de la progresion geométrica cuya razon es la cantidad de nodos por VM es la cantidad de nodos o vms en total
@@ -208,7 +171,8 @@ class TopoConstructor:
                                     nameNetwork = str(uuid.uuid4())
                                     nameSubnet = str(uuid.uuid4())
                                     network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-                                    enlaces[network]=[nodo,vecino]
+                                    NetworkConstructor.createNetwork(network,neutron,nova)
+                                    enlaces[nameNetwork]=[nodo,vecino]
                             elif(n>0 and n < (niveles-1)):
                                 nodo = int(((cantidad_nodos_vm**n-1)/(cantidad_nodos_vm-1))+k+1)
                                 for i in range(cantidad_nodos_vm):
@@ -216,7 +180,8 @@ class TopoConstructor:
                                     nameNetwork = str(uuid.uuid4())
                                     nameSubnet = str(uuid.uuid4())
                                     network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-                                    enlaces[network]=[nodo,vecino]
+                                    NetworkConstructor.createNetwork(network,neutron,nova)
+                                    enlaces[nameNetwork]=[nodo,vecino]
                                 j+=1
                         # Una vez que conozco en que nodo me encuentro procedo a ver los vecinos
                         nodo_enlace = {}    
@@ -238,7 +203,8 @@ class TopoConstructor:
                     # Quiere decir que la suma no cuadra con la cantidad de nodos
                     # Primero analizamos la suma total más proxima a la cantidad de nodos
                     nodos_general=int((1 * (cantidad_nodos_vm**niveles)-1)/(cantidad_nodos_vm-1))
-                    if(map_diferencias[cantidad_nodos_vm]<0):
+                    diferencia = int((1 * (math.pow(cantidad_nodos_vm, niveles )-1)) / (cantidad_nodos_vm-1)) - cantidad_vms 
+                    if(diferencia>0):
                         # Quiere decir que tengo una cantidad que es menor a mi total con esto en cuenta
                         enlaces = {}
                         for n in range(niveles):
@@ -253,7 +219,8 @@ class TopoConstructor:
                                             nameNetwork = str(uuid.uuid4())
                                             nameSubnet = str(uuid.uuid4())
                                             network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-                                            enlaces[network]=[nodo,vecino]
+                                            NetworkConstructor.createNetwork(network,neutron,nova)
+                                            enlaces[nameNetwork]=[nodo,vecino]
                                 elif(n>0 and n < (niveles-1)):
                                     nodo = int(((cantidad_nodos_vm**n-1)/(cantidad_nodos_vm-1))+k+1)
                                     for i in range(cantidad_nodos_vm):
@@ -263,7 +230,8 @@ class TopoConstructor:
                                             nameNetwork = str(uuid.uuid4())
                                             nameSubnet = str(uuid.uuid4())
                                             network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-                                            enlaces[network]=[nodo,vecino]
+                                            NetworkConstructor.createNetwork(network,neutron,nova)
+                                            enlaces[nameNetwork]=[nodo,vecino]
                                     j+=1
                         # Una vez que conozco en que nodo me encuentro procedo a ver los vecinos
                         nodo_enlace = {}    
@@ -294,7 +262,8 @@ class TopoConstructor:
                                         nameNetwork = str(uuid.uuid4())
                                         nameSubnet = str(uuid.uuid4())
                                         network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-                                        enlaces[network]=[nodo,vecino]
+                                        NetworkConstructor.createNetwork(network,neutron,nova)
+                                        enlaces[nameNetwork]=[nodo,vecino]
                                 elif(n>0 and n < (niveles-1)):
                                     nodo = int(((cantidad_nodos_vm**n-1)/(cantidad_nodos_vm-1))+k+1)
                                     for i in range(cantidad_nodos_vm):
@@ -302,7 +271,8 @@ class TopoConstructor:
                                         nameNetwork = str(uuid.uuid4())
                                         nameSubnet = str(uuid.uuid4())
                                         network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-                                        enlaces[network]=[nodo,vecino]
+                                        NetworkConstructor.createNetwork(network,neutron,nova)
+                                        enlaces[nameNetwork]=[nodo,vecino]
                                     j+=1
                         # Hasta aquí se tendría el mapeo de los nodos en general (ahora adicionalmente):
                         # Tener en cuenta lo siguiente la cantidad de nodos máxima de nodos queda definida en un factor n+1
@@ -335,7 +305,8 @@ class TopoConstructor:
                                                 nameNetwork = str(uuid.uuid4())
                                                 nameSubnet = str(uuid.uuid4())
                                                 network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-                                                enlaces[network]=[nodo,reOrdenamiento[vecino]]
+                                                NetworkConstructor.createNetwork(network,neutron,nova)
+                                                enlaces[nameNetwork]=[nodo,reOrdenamiento[vecino]]
                                         except:
                                             pass
                                 elif(n>0 and n < (niveles-1)):
@@ -347,7 +318,8 @@ class TopoConstructor:
                                                 nameNetwork = str(uuid.uuid4())
                                                 nameSubnet = str(uuid.uuid4())
                                                 network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-                                                enlaces[network]=[reOrdenamiento[nodo],reOrdenamiento[vecino]]
+                                                NetworkConstructor.createNetwork(network,neutron,nova)
+                                                enlaces[nameNetwork]=[reOrdenamiento[nodo],reOrdenamiento[vecino]]
                                         except:
                                             pass
                                     j+=1

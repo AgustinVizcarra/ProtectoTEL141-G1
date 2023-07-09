@@ -16,9 +16,8 @@ hosts= {
 
 def migrarVM(id,hostDestino):
     #Aqui se activa el acto de migrar vm
-    
+    return f"Migrar la vm con uuid: {id} al hostdestino {hostDestino}"
     #
-    pass
 
 def obtener_VM_cargada(vm):
     r = requests.get(f'http://{vm}:13001/')
@@ -35,7 +34,7 @@ def obtener_VM_cargada(vm):
 #host_migrar: "10.0.1.x", destino: "10.0.1.y"
 
 
-app.post("/migrar")
+@app.post("/migrar")
 async def chamoDeVMs(body: dict):
     if not body:
         resp = {"mensaje": "papi para que me mandas tus webadas?"}
@@ -43,7 +42,9 @@ async def chamoDeVMs(body: dict):
     else:
         if "host_migrar" in body and "destino" in body:
             id_vm = obtener_VM_cargada(body["host_migrar"])
-            migrarVM(id_vm,hosts["destino"])
+            data = migrarVM(id_vm,hosts[body["destino"]])
+            return JSONResponse(content=data,status_code=200)
+
 
 
 
@@ -51,4 +52,4 @@ if __name__ == "__main__":
     import uvicorn
     #Inicializando servicio de socket
     #Inicalizando servicio de API
-    uvicorn.run(app,host="localhost",port=13000)
+    uvicorn.run(app,host="10.0.0.10",port=13000)
