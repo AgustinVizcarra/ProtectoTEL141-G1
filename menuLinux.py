@@ -3,7 +3,7 @@ from AutheticationDriver import AuthenticationManager
 from NetworkingDriver import NetworkingManager
 from PlacementDriver import PlacementManager
 from ProvisionInstancesDriver import ProvisionInstancesManager
-#from tabulate import tabulate
+from tabulate import tabulate
 class Usuario:
     def __init__(self,id):
         self.id = id
@@ -989,7 +989,7 @@ def eliminarVMxTopologia(idtopo,idproyecto):
         print(tabulate(filas,headers=cabeceras,tablefmt='fancy_grid',stralign='center'))         
         vm_id = input("| Ingrese el ID de la VM que desea eliminar: ")
         if vm_id in idsVMs:
-            confirmacion = input("| Desea editar el nombre de la VM [S/n]?: ")
+            confirmacion = input("| Desea eliminar la VM indicada [S/n]?: ")
             eliminacionconfirmacion = confirmacion == "S" or confirmacion == "s" 
             if  eliminacionconfirmacion:
                 # def delete_vm(self, vm_id):
@@ -1106,8 +1106,8 @@ def agregarImagenXTopologiaXProyecto(id):
             ## Aqui comienza la creación
                 imagen = input("| Ingrese el valor de la imagen incluyendo el formato a considerar (.img,.qcow2,.vhd): ")
                 try:
-                    terminacion = imagen.split('.')[2]
-                    if terminacion == 'img' or terminacion == 'vhd' or terminacion == 'qcow2':
+                    #terminacion = imagen.split('.')[2]
+                    if True:
                         ## Quiere decir que todo esta bien
                         print("[*] Añadiendo la imagen...")
                         # add_imagen(self, user_id, project_id,imagen):
