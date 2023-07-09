@@ -61,9 +61,8 @@ def limpiarBaseDeDatos():
         longitudes={}
         for workerIP in collection:
             col = mydb[collection[workerIP]]
-            result= col.find()
             # Match entre worker y longitudes
-            longitudes[collection[workerIP]] = result.count()
+            longitudes[collection[workerIP]] = col.count_documents({})
         # Se debe eliminar la información
         # print(longitudes)
         for worker in longitudes:
