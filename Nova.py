@@ -886,6 +886,7 @@ class NovaClient(object):
 
         if response.status_code == 200:
             instance = response.json()['server']
+            print("[*] Instancia modificada exitosamente\n")
             return instance
         else:
             raise Exception('Failed to update instance. Status code: {}'.format(response.status_code))
@@ -970,7 +971,7 @@ class NovaClient(object):
 
                     ssh.close()
 
-            
+            print("[*] Instancia eliminada de manera exitosa\n")
         else:
             raise Exception('Failed to delete instance. Status code: {}'.format(response.status_code))
     
