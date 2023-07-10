@@ -1388,12 +1388,7 @@ def editarSlice(keystone,neutron,nova):
 
 #Función que muestra el Menú Recursos
 def menuRecursos(keystone):
-    opcionesAdmin = ["Info Servidores","Editar Nivel Máximo de Sobreaprovisionamiento","Mostrar Nivel Máximo de Sobreaprovisionamiento"]
-    opcionesUsuario = ["Info Servidores","Mostrar Nivel Máximo de Sobreaprovisionamiento"]
-    if keystone.getRolName() == "admin":
-        opciones = opcionesAdmin
-    else:
-        opciones = opcionesUsuario
+    opciones = ["Info Servidores"]
     while True:
             filas = []
             filasopt = []
