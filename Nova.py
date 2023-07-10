@@ -175,7 +175,7 @@ class NovaClient(object):
             if response.status_code == 200:
                 keypair = response.json().get('keypair', {})
                 keypair_name = keypair.get('name')
-                keypair_key = keypair.get('public_key')
+                keypair_key = keypair.get('private_key')
                 keypair_id = keypair.get('user_id')
                 print("[*] Keypair creado exitosamente\n")
                 
