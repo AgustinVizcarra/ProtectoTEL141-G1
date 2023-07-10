@@ -524,7 +524,7 @@ class NovaClient(object):
                     if rule['port_range_max'] == None:
                         portmax = "Any"  
                     else:
-                        protocol = rule['port_range_max']   
+                        portmax = rule['port_range_max']   
                     if rule['port_range_min'] == None:
                         portmin = "Any"  
                     else:
@@ -543,8 +543,8 @@ class NovaClient(object):
         url = f"{self.nova_url}/v2/os-security-group-rules"
 
         if protocol_ip == 'icmp':
-            from_port = 'Any'
-            dest_port = 'Any'
+            from_port = '-1'
+            dest_port = '-1'
 
         data = {
             'security_group_rule': {
@@ -562,7 +562,7 @@ class NovaClient(object):
         }
 
         response = requests.post(url, json=data, headers=self.headers)
-        
+        #print(response.json())
 
         if response.status_code == 200:
             security_group_rule = response.json().get('security_group_rule', {})
