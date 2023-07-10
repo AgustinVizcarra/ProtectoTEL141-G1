@@ -276,6 +276,7 @@ def crearKeyPair(keystone,nova):
                 else:
                     print("[*] Ingrese una ruta válida\n")
                     continue
+            break
         else:
             print("[*] Ingrese un nombre de keypair válido\n")
             continue
@@ -530,46 +531,38 @@ def configurarSecurityGroup(nova):
                                     if(from_port == "ESC"):
                                         print("[*] Ha salido de la opción de -Añadir Regla-\n")
                                         return
-                                    if validar_puerto(from_port):
+                                    while True:
+                                        dest_port = input("| Ingrese el dest port: ")
+                                        if(dest_port == "ESC"):
+                                            print("[*] Ha salido de la opción de -Añadir Regla-\n")
+                                            return 
                                         while True:
-                                            dest_port = input("| Ingrese el dest port: ")
-                                            if(dest_port == "ESC"):
-                                                print("[*] Ha salido de la opción de -Añadir Regla-\n")
-                                                return 
-                                            if validar_puerto(dest_port):
+                                            verificar = input("| ¿Desea agregar permitir un CIDR en especifico?[Y/N]: ")
+                                            cidr = None
+                                            if verificar == "Y" or verificar == "y":
                                                 while True:
-                                                    verificar = input("| ¿Desea agregar permitir un CIDR en especifico?[Y/N]: ")
-                                                    cidr = None
-                                                    if verificar == "Y" or verificar == "y":
-                                                        while True:
-                                                            cidr = input("| Ingrese un CIDR: ")
-                                                            if(cidr == "ESC"):
-                                                                print("[*] Ha salido de la opción de -Añadir Regla-\n")
-                                                                return 
-                                                            if validar_cidr(cidr):
-                                                                nova.agregarRegla(nombre,protocol_ip,from_port,dest_port,cidr)
-                                                                break
-                                                            else:
-                                                                print("[*] Ingrese un CIDR válido\n")
-                                                                continue
-                                                            break
-                                                    elif(verificar == "ESC"):
+                                                    cidr = input("| Ingrese un CIDR: ")
+                                                    if(cidr == "ESC"):
                                                         print("[*] Ha salido de la opción de -Añadir Regla-\n")
-                                                        return
-                                                    elif verificar == "N" or verificar == "n":
-                                                        nova.agregarRegla(nombre,protocol_ip,from_port,dest_port,"0.0.0.0/24")
+                                                        return 
+                                                    if validar_cidr(cidr):
+                                                        nova.agregarRegla(nombre,protocol_ip,from_port,dest_port,cidr)
                                                         break
                                                     else:
-                                                        print("[*] Ingrese una opción correcta\n")
+                                                        print("[*] Ingrese un CIDR válido\n")
                                                         continue
                                                     break
+                                            elif(verificar == "ESC"):
+                                                print("[*] Ha salido de la opción de -Añadir Regla-\n")
+                                                return
+                                            elif verificar == "N" or verificar == "n":
+                                                nova.agregarRegla(nombre,protocol_ip,from_port,dest_port,"0.0.0.0/24")
+                                                break
                                             else:
-                                                print("[*] Ingrese un puerto válido\n")
+                                                print("[*] Ingrese una opción correcta\n")
                                                 continue
                                             break
-                                    else:
-                                        print("[*] Ingrese un puerto válido\n")
-                                        continue
+                                        break
                                     break
                             else:
                                 print("[*] Ingrese un protocolo IP válido\n")
