@@ -542,6 +542,9 @@ class NovaClient(object):
 
         url = f"{self.nova_url}/v2/os-security-group-rules"
 
+        if protocol_ip == 'icmp':
+            from_port = 'Any'
+            dest_port = 'Any'
 
         data = {
             'security_group_rule': {
