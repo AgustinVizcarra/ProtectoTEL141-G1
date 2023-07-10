@@ -896,7 +896,8 @@ class NovaClient(object):
         instance_id=self.get_instance_id(name)
         ipv4=self.get_instance_ip(instance_id)
         response = requests.delete(self.nova_url + '/v2.1/servers/{}'.format(instance_id), headers=self.headers)
-        
+        print(response.status_code)
+        print(response.text)
         
         if response.status_code == 204:
             while True:
