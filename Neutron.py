@@ -196,6 +196,7 @@ class NeutronClient(object):
         # Primero, obtener la lista de todas las redes del proyecto
         url = self.neutron_url + 'networks?project_id=' + project_id
         response = requests.get(url, headers=self.headers)
+        
 
         if response.status_code == 200:
             networks = response.json().get('networks', [])

@@ -276,6 +276,7 @@ def crearKeyPair(keystone,nova):
                 else:
                     print("[*] Ingrese una ruta válida\n")
                     continue
+            break
         else:
             print("[*] Ingrese un nombre de keypair válido\n")
             continue
@@ -530,46 +531,38 @@ def configurarSecurityGroup(nova):
                                     if(from_port == "ESC"):
                                         print("[*] Ha salido de la opción de -Añadir Regla-\n")
                                         return
-                                    if validar_puerto(from_port):
+                                    while True:
+                                        dest_port = input("| Ingrese el dest port: ")
+                                        if(dest_port == "ESC"):
+                                            print("[*] Ha salido de la opción de -Añadir Regla-\n")
+                                            return 
                                         while True:
-                                            dest_port = input("| Ingrese el dest port: ")
-                                            if(dest_port == "ESC"):
-                                                print("[*] Ha salido de la opción de -Añadir Regla-\n")
-                                                return 
-                                            if validar_puerto(dest_port):
+                                            verificar = input("| ¿Desea agregar permitir un CIDR en especifico?[Y/N]: ")
+                                            cidr = None
+                                            if verificar == "Y" or verificar == "y":
                                                 while True:
-                                                    verificar = input("| ¿Desea agregar permitir un CIDR en especifico?[Y/N]: ")
-                                                    cidr = None
-                                                    if verificar == "Y" or verificar == "y":
-                                                        while True:
-                                                            cidr = input("| Ingrese un CIDR: ")
-                                                            if(cidr == "ESC"):
-                                                                print("[*] Ha salido de la opción de -Añadir Regla-\n")
-                                                                return 
-                                                            if validar_cidr(cidr):
-                                                                nova.agregarRegla(nombre,protocol_ip,from_port,dest_port,cidr)
-                                                                break
-                                                            else:
-                                                                print("[*] Ingrese un CIDR válido\n")
-                                                                continue
-                                                            break
-                                                    elif(verificar == "ESC"):
+                                                    cidr = input("| Ingrese un CIDR: ")
+                                                    if(cidr == "ESC"):
                                                         print("[*] Ha salido de la opción de -Añadir Regla-\n")
-                                                        return
-                                                    elif verificar == "N" or verificar == "n":
-                                                        nova.agregarRegla(nombre,protocol_ip,from_port,dest_port,"0.0.0.0/24")
+                                                        return 
+                                                    if validar_cidr(cidr):
+                                                        nova.agregarRegla(nombre,protocol_ip,from_port,dest_port,cidr)
                                                         break
                                                     else:
-                                                        print("[*] Ingrese una opción correcta\n")
+                                                        print("[*] Ingrese un CIDR válido\n")
                                                         continue
                                                     break
+                                            elif(verificar == "ESC"):
+                                                print("[*] Ha salido de la opción de -Añadir Regla-\n")
+                                                return
+                                            elif verificar == "N" or verificar == "n":
+                                                nova.agregarRegla(nombre,protocol_ip,from_port,dest_port,"0.0.0.0/24")
+                                                break
                                             else:
-                                                print("[*] Ingrese un puerto válido\n")
+                                                print("[*] Ingrese una opción correcta\n")
                                                 continue
                                             break
-                                    else:
-                                        print("[*] Ingrese un puerto válido\n")
-                                        continue
+                                        break
                                     break
                             else:
                                 print("[*] Ingrese un protocolo IP válido\n")
@@ -635,6 +628,7 @@ def menuVirtualMachine():
 
 #Funcion que permite crear una VirtualMachine
 def crearVirtualMachine(nova,neutron,glance,keystone):
+    print("**Escriba ESC para poder salir de esta opción**")
     while True:
         nombre = input("| Ingrese un nombre de VirtualMachine: ")
         if(nombre != ''):
@@ -725,7 +719,7 @@ def editarVirtualMachine(nova,projectID):
                             if(nuevoNombre == "ESC"):
                                 print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
                                 return
-                            break
+                        break
                 elif(verificarNombre == "ESC"):
                     print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
                     return
@@ -733,6 +727,8 @@ def editarVirtualMachine(nova,projectID):
                     break
                 else:
                     print("[*] Ingrese una opción correcta\n")
+                    continue
+                break
             while True:
                 verificarDescripcion = input("| ¿Desea cambiar su descripcion?[Y/N]: ")
                 descripcion = None
@@ -746,7 +742,7 @@ def editarVirtualMachine(nova,projectID):
                             if(descripcion == "ESC"):
                                 print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
                                 return
-                            break
+                        break
                 elif(verificarDescripcion == "ESC"):
                     print("[*] Ha salido de la opción de -Editar VirtualMachine-\n")
                     return
@@ -754,6 +750,8 @@ def editarVirtualMachine(nova,projectID):
                     break
                 else:
                     print("[*] Ingrese una opción correcta\n")
+                    continue
+                break
             if (verificarNombre == "N" or verificarNombre == "n") and (verificarDescripcion=="N" or verificarDescripcion == "n"):
                 print("[*] Ha decidido no realizar ningún cambio a la VirtualMachine\n")
                 break   
@@ -1046,7 +1044,7 @@ def borrarFlavor(nova):
 
 #Funcion que muestra el Menú Imagenes
 def menuImages():    
-    opciones = ["Crear Image","Listar Images","Editar Image","Eliminar Image"]
+    opciones = ["Crear Image","Listar Images","Eliminar Image"]
     while True:
         filas = []
         filasopt = []
@@ -1110,7 +1108,7 @@ def listarImages(glance):
         print(tabulate([["No hay imagenes creadas hasta el momento."]],headers=[],tablefmt='grid',stralign='center')) 
         
 #Funcion que permite editar Images
-def editarImage(glance):
+'''def editarImage(glance):
     print("**Escriba ESC para poder salir de esta opción**")
     while True:
         nombre = input("| Ingrese un nombre de image: ")
@@ -1147,7 +1145,7 @@ def editarImage(glance):
             break
         else:
             print("[*] Ingrese un nombre de image válido\n")
-            continue
+            continue'''
         
 #Funcion que permite eliminar Images
 def borrarImage(glance):
@@ -1390,12 +1388,7 @@ def editarSlice(keystone,neutron,nova):
 
 #Función que muestra el Menú Recursos
 def menuRecursos(keystone):
-    opcionesAdmin = ["Info Servidores","Editar Nivel Máximo de Sobreaprovisionamiento","Mostrar Nivel Máximo de Sobreaprovisionamiento"]
-    opcionesUsuario = ["Info Servidores","Mostrar Nivel Máximo de Sobreaprovisionamiento"]
-    if keystone.getRolName() == "admin":
-        opciones = opcionesAdmin
-    else:
-        opciones = opcionesUsuario
+    opciones = ["Info Servidores"]
     while True:
             filas = []
             filasopt = []

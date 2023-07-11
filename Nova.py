@@ -175,7 +175,7 @@ class NovaClient(object):
             if response.status_code == 200:
                 keypair = response.json().get('keypair', {})
                 keypair_name = keypair.get('name')
-                keypair_key = keypair.get('public_key')
+                keypair_key = keypair.get('private_key')
                 keypair_id = keypair.get('user_id')
                 print("[*] Keypair creado exitosamente\n")
                 
@@ -524,7 +524,7 @@ class NovaClient(object):
                     if rule['port_range_max'] == None:
                         portmax = "Any"  
                     else:
-                        protocol = rule['port_range_max']   
+                        portmax = rule['port_range_max']   
                     if rule['port_range_min'] == None:
                         portmin = "Any"  
                     else:
@@ -542,6 +542,9 @@ class NovaClient(object):
 
         url = f"{self.nova_url}/v2/os-security-group-rules"
 
+        if protocol_ip == 'icmp':
+            from_port = '-1'
+            dest_port = '-1'
 
         data = {
             'security_group_rule': {
@@ -559,7 +562,7 @@ class NovaClient(object):
         }
 
         response = requests.post(url, json=data, headers=self.headers)
-        
+        #print(response.json())
 
         if response.status_code == 200:
             security_group_rule = response.json().get('security_group_rule', {})
@@ -667,7 +670,7 @@ class NovaClient(object):
         network_interfaces = []
 
         if SalidaInternet==1:
-            internet="643a290f-4061-4fb1-9403-c39ae1d42693"
+            internet="f3fceab1-dd92-414b-9290-e9f1df8d9cfb"
             interface = {'uuid': internet}
             network_interfaces.append(interface)
 
@@ -693,6 +696,7 @@ class NovaClient(object):
         }
 
         response = requests.post(self.nova_url + '/v2.1/servers', json=instance_data, headers=self.headers)
+       
 
         if response.status_code == 202:
             instance = response.json()['server']
@@ -882,6 +886,7 @@ class NovaClient(object):
 
         if response.status_code == 200:
             instance = response.json()['server']
+            print("[*] Instancia modificada exitosamente\n")
             return instance
         else:
             raise Exception('Failed to update instance. Status code: {}'.format(response.status_code))
@@ -891,7 +896,8 @@ class NovaClient(object):
         instance_id=self.get_instance_id(name)
         ipv4=self.get_instance_ip(instance_id)
         response = requests.delete(self.nova_url + '/v2.1/servers/{}'.format(instance_id), headers=self.headers)
-        
+        print(response.status_code)
+        print(response.text)
         
         if response.status_code == 204:
             while True:
@@ -966,7 +972,7 @@ class NovaClient(object):
 
                     ssh.close()
 
-            
+            print("[*] Instancia eliminada de manera exitosa\n")
         else:
             raise Exception('Failed to delete instance. Status code: {}'.format(response.status_code))
     
@@ -1084,7 +1090,7 @@ class NovaClient(object):
         SalidaInternet=1
         AccesoInternet=1
         Listapuertos=[22]
-        internet="643a290f-4061-4fb1-9403-c39ae1d42693"
+        internet="f3fceab1-dd92-414b-9290-e9f1df8d9cfb"
         interface = {'uuid': internet}
         network_interfaces.append(interface)
 
