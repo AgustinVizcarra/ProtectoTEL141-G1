@@ -1,4 +1,4 @@
-# ProtectoTEL141-G1
+# ProyectoTEL141-G1
 Este repositorio corresponde al proyecto del curso de Ingeniería de Redes Cloud (TEL141) del grupo 1. Conformado por Ronny Pastor, Alonso Rosales, Jose Ortiz y Agustin Vizcarra. Deben tener en cuenta lo siguiente:
 - Para OpenStack se hace uso de un SDK para los servicios de Glance,Nova y Neutron
 - Se tiene implementado un scheduler que funciona con API's para hacer trazabilidad y monitoreo de funcionamiento
