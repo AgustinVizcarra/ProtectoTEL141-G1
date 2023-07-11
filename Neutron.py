@@ -7,7 +7,7 @@ import subprocess
 import threading
 ###############RED################## 
 
-vlan_tag = random.randint(1, 1000)
+vlan_tag = random.randint(1, 10000)
 
 class NeutronClient(object):
 
@@ -71,14 +71,15 @@ class NeutronClient(object):
             raise Exception('Failed to list networks. Status code: {}'.format(response.status_code))
 
     #Funcion que permite crear la redprovider
-    def create_network(self,red,subred,cidr,gateway):
+    def create_network(self,red,subred,cidr):
+        vlan_tag = random.randint(1, 800)
         
         
         network_data = {
             'network': {
                 "admin_state_up": True,
                 "name": red,
-                "shared": True,
+                "shared": False,
                 "provider:physical_network": "provider",
                 "provider:network_type": "vlan",
                 "provider:segmentation_id": vlan_tag
@@ -105,7 +106,7 @@ class NeutronClient(object):
                     "name": subred,
                     "ip_version": 4,
                     'cidr': cidr,
-                    #'gateway_ip': gateway
+                   
                 }
             }
             
@@ -206,34 +207,6 @@ class NeutronClient(object):
                     if response.status_code==204:
                         print("[*] La red",network['name'],"se ha eliminado exitosamente")
                         
-                        ## Eliminamos la interfaz y regla del controller
-                        ## Mapear la vlan_tag de la red , CIDR de la subred , IP del gateway
-                        
-                        #Uso de SSH paramiko
-                        hostname = '10.20.12.188'
-                        username = 'ubuntu'
-                        password = 'ubuntu'
-                        port = 5001
-                        command = "./configurar_vlan.sh "+str(vlan_tag)+" "+str(cidr)+" "+str(gateway)+" "+"DELETE"
-                        print(command)
-                        ssh = paramiko.SSHClient()
-                        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                        try:
-                            ssh.connect(hostname, port, username, password)
-                            print("Conexión SSH exitosa.")
-                            stdin, stdout, stderr = ssh.exec_command("sudo -i")
-                            stdin.write("ubuntu" + '\n')
-                            stdin.flush()
-                            ssh.exec_command(command)
-                        except paramiko.AuthenticationException:
-                            print("Error de autenticación. Verifica las credenciales de SSH.")
-                        except paramiko.SSHException as ssh_exception:
-                            print("Error de conexión SSH:", str(ssh_exception))
-                        except paramiko.ChannelException as channel_exception:
-                            print("Error de canal SSH:", str(channel_exception))
-                        finally:
-                            ssh.close()
-                        
                     elif response.status_code==409:
                         print("[*] La red", network['name'], "posee elementos en uso" )
                     return True
@@ -310,11 +283,11 @@ class NeutronClient(object):
                 
                 "admin_state_up": True,
                 "name": red,
-                "shared": True,
+                "shared": False,
                 "provider:physical_network": "provider",
                 "provider:network_type": "vlan",
                 "provider:segmentation_id": random.randint(1, 1000)
-                #'project_id': project
+                
             }
         }
         

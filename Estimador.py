@@ -75,7 +75,7 @@ def alertarMigrador():
         # Hallamos el porcentaje de disco disponible (consideramos el porcentaje de disco)
         conteo_disco = worker_estimacion[worker]['Est_AlmacenamientoUsado(%)']
         # Realizamos el análisis
-        if conteo_cpu >= 390 or conteo_memoria <= 200 or conteo_disco >= 98:
+        if conteo_cpu >= 300 or conteo_memoria <= 200 or conteo_disco >= 98:
             # Se debe migrar urgentemente
             worker_sobrecargados[worker] = collection_compute[worker]
     # Renicio mis variables auxiliares
@@ -122,7 +122,7 @@ def alertarMigrador():
                     "destino": worker_libre[cons_worker]
                 }
                 print("Realizando la migracion de "+worker_sobrecargado+" a "+cons_worker+" a las "+str(datetime.now().strftime("%d-%m-%Y %H:%M:%S")))
-                endpoint = "http://localhost:13000/migrar"
+                endpoint = "http://10.0.0.10:13000/migrar"
                 response = requests.post(endpoint, json=body)
                 print(response.text)
         

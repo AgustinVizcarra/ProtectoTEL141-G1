@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from datetime import datetime
 
 import requests
 
@@ -16,6 +17,7 @@ hosts= {
 
 def migrarVM(id,hostDestino):
     #Aqui se activa el acto de migrar vm
+    dt = datetime.now()
     print (f"{dt}: Migrar la vm con uuid: {id} al hostdestino {hostDestino}")
     return f"Migrar la vm con uuid: {id} al hostdestino {hostDestino}"
     #

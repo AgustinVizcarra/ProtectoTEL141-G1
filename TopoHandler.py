@@ -124,9 +124,10 @@ class TopoConstructor:
                         nameNetwork = str(uuid.uuid4())
                         nameSubnet = str(uuid.uuid4())
                         red = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
+                        NetworkConstructor.createNetwork(red,neutron,nova)
                         # Añado las redes a las VMs
-                        enlaces_vm[vm].append(red)
-                        enlaces_vm[vecino].append(red)
+                        enlaces_vm[vm].append(nameNetwork)
+                        enlaces_vm[vecino].append(nameNetwork)
         # Creo las VMs
         for vertice in mapVMVertice:
             # Creando las VMs
@@ -170,7 +171,8 @@ class TopoConstructor:
                                     nameNetwork = str(uuid.uuid4())
                                     nameSubnet = str(uuid.uuid4())
                                     network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-                                    enlaces[network]=[nodo,vecino]
+                                    NetworkConstructor.createNetwork(network,neutron,nova)
+                                    enlaces[nameNetwork]=[nodo,vecino]
                             elif(n>0 and n < (niveles-1)):
                                 nodo = int(((cantidad_nodos_vm**n-1)/(cantidad_nodos_vm-1))+k+1)
                                 for i in range(cantidad_nodos_vm):
@@ -178,7 +180,8 @@ class TopoConstructor:
                                     nameNetwork = str(uuid.uuid4())
                                     nameSubnet = str(uuid.uuid4())
                                     network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-                                    enlaces[network]=[nodo,vecino]
+                                    NetworkConstructor.createNetwork(network,neutron,nova)
+                                    enlaces[nameNetwork]=[nodo,vecino]
                                 j+=1
                         # Una vez que conozco en que nodo me encuentro procedo a ver los vecinos
                         nodo_enlace = {}    
@@ -216,7 +219,8 @@ class TopoConstructor:
                                             nameNetwork = str(uuid.uuid4())
                                             nameSubnet = str(uuid.uuid4())
                                             network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-                                            enlaces[network]=[nodo,vecino]
+                                            NetworkConstructor.createNetwork(network,neutron,nova)
+                                            enlaces[nameNetwork]=[nodo,vecino]
                                 elif(n>0 and n < (niveles-1)):
                                     nodo = int(((cantidad_nodos_vm**n-1)/(cantidad_nodos_vm-1))+k+1)
                                     for i in range(cantidad_nodos_vm):
@@ -226,7 +230,8 @@ class TopoConstructor:
                                             nameNetwork = str(uuid.uuid4())
                                             nameSubnet = str(uuid.uuid4())
                                             network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-                                            enlaces[network]=[nodo,vecino]
+                                            NetworkConstructor.createNetwork(network,neutron,nova)
+                                            enlaces[nameNetwork]=[nodo,vecino]
                                     j+=1
                         # Una vez que conozco en que nodo me encuentro procedo a ver los vecinos
                         nodo_enlace = {}    
@@ -257,7 +262,8 @@ class TopoConstructor:
                                         nameNetwork = str(uuid.uuid4())
                                         nameSubnet = str(uuid.uuid4())
                                         network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-                                        enlaces[network]=[nodo,vecino]
+                                        NetworkConstructor.createNetwork(network,neutron,nova)
+                                        enlaces[nameNetwork]=[nodo,vecino]
                                 elif(n>0 and n < (niveles-1)):
                                     nodo = int(((cantidad_nodos_vm**n-1)/(cantidad_nodos_vm-1))+k+1)
                                     for i in range(cantidad_nodos_vm):
@@ -265,7 +271,8 @@ class TopoConstructor:
                                         nameNetwork = str(uuid.uuid4())
                                         nameSubnet = str(uuid.uuid4())
                                         network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-                                        enlaces[network]=[nodo,vecino]
+                                        NetworkConstructor.createNetwork(network,neutron,nova)
+                                        enlaces[nameNetwork]=[nodo,vecino]
                                     j+=1
                         # Hasta aquí se tendría el mapeo de los nodos en general (ahora adicionalmente):
                         # Tener en cuenta lo siguiente la cantidad de nodos máxima de nodos queda definida en un factor n+1
@@ -298,7 +305,8 @@ class TopoConstructor:
                                                 nameNetwork = str(uuid.uuid4())
                                                 nameSubnet = str(uuid.uuid4())
                                                 network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-                                                enlaces[network]=[nodo,reOrdenamiento[vecino]]
+                                                NetworkConstructor.createNetwork(network,neutron,nova)
+                                                enlaces[nameNetwork]=[nodo,reOrdenamiento[vecino]]
                                         except:
                                             pass
                                 elif(n>0 and n < (niveles-1)):
@@ -310,7 +318,8 @@ class TopoConstructor:
                                                 nameNetwork = str(uuid.uuid4())
                                                 nameSubnet = str(uuid.uuid4())
                                                 network = Network(nameNetwork=nameNetwork,CIDR=CIDR,nameSubnet=nameSubnet)
-                                                enlaces[network]=[reOrdenamiento[nodo],reOrdenamiento[vecino]]
+                                                NetworkConstructor.createNetwork(network,neutron,nova)
+                                                enlaces[nameNetwork]=[reOrdenamiento[nodo],reOrdenamiento[vecino]]
                                         except:
                                             pass
                                     j+=1
