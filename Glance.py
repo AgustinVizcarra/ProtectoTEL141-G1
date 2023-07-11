@@ -1,7 +1,7 @@
 import requests
 import time
 import json
-
+from urllib.parse import urlparse
 #########################################GLANCE###################################################
 class GlanceClient(object):
     def __init__(self,auth_token):
@@ -50,16 +50,53 @@ class GlanceClient(object):
         if formato is None:
             print("Formato de imagen no compatible.")
             return
+        
+        
+        if urlparse(ruta_archivo).scheme == 'http' or urlparse(ruta_archivo).scheme == 'https':
+        
+            url = f"{self.glance_url}/images"
 
-        url = f"{self.glance_url}/images"
+            data = {
+                'name': nombre,
+                'visibility': 'public',
+                'disk_format': formato,
+                'container_format': 'bare',
+            }
 
-        data = {
-            'name': nombre,
-            'visibility': 'public',
-            'disk_format': formato,
-            'container_format': 'bare',
-        }
+            response = requests.post(url, headers=self.headers, json=data)
 
+            if response.status_code == 201:
+                print("[*] Imagen creada exitosamente.")
+                image_id = response.json()['id']
+
+                # Cargar los datos de la imagen desde la URL
+                url = f"{self.glance_url}/images/{image_id}/file"
+
+                self.headers['Content-Type'] = 'application/octet-stream'
+                response = requests.put(url, headers=self.headers, data=requests.get(ruta_archivo).content)
+
+                if response.status_code == 204:
+                    print("[*] Datos de la imagen cargados exitosamente.")
+                else:
+                    print("[*] Error al cargar los datos de la imagen:", response.status_code)
+
+            else:
+                print("[*] Error al crear la imagen:", response.status_code)
+
+        
+        else:
+
+            # Cargar desde archivo local
+            url = f"{self.glance_url}/images"
+
+            data = {
+                'name': nombre,
+                'visibility': 'public',
+                'disk_format': formato,
+                'container_format': 'bare',
+            }
+
+        
         #DISK-FORMAT
         #ami: Formato de imagen utilizado por el servicio de Amazon Machine Image (AMI) en Amazon Web Services (AWS).
         #vdi: Formato de disco utilizado por el hipervisor VirtualBox.  
@@ -68,26 +105,29 @@ class GlanceClient(object):
         #raw: Imagen sin formato, que puede ser utilizada por varios hipervisores.
 
         # Crear la imagen
-        response = requests.post(url, headers=self.headers, json=data)
-        #print(response.json)
+            response = requests.post(url, headers=self.headers, json=data)
+            #print(response.json)
 
-        if response.status_code == 201:
-            print("[*] Imagen creada exitosamente.")
-            image_id = response.json()['id']
+            if response.status_code == 201:
+                print("[*] Imagen creada exitosamente.")
+                image_id = response.json()['id']
 
-            # Subir los datos de la imagen
-            url = f"{self.glance_url}/images/{image_id}/file"
+                # Subir los datos de la imagen
+                url = f"{self.glance_url}/images/{image_id}/file"
 
-            self.headers['Content-Type'] = 'application/octet-stream'
-            with open(ruta_archivo, 'rb') as f:
-                response = requests.put(url, headers=self.headers, data=f)
+                self.headers['Content-Type'] = 'application/octet-stream'
+                with open(ruta_archivo, 'rb') as f:
+                    response = requests.put(url, headers=self.headers, data=f)
 
-            if response.status_code == 204:
-                print("[*] Datos de la imagen cargados exitosamente.")
+                if response.status_code == 204:
+                    print("[*] Datos de la imagen cargados exitosamente.")
+                else:
+                    print("[*] Error al cargar los datos de la imagen:", response.status_code)
             else:
-                print("[*] Error al cargar los datos de la imagen:", response.status_code)
-        else:
-            print("[*] Error al crear la imagen:", response.status_code)
+                print("[*] Error al crear la imagen:", response.status_code)
+
+
+
 
     def obtener_informacion_imagen(self, imagen_id):
 
@@ -101,7 +141,10 @@ class GlanceClient(object):
             print("Error al obtener información de la imagen:", response.status_code)
             return {}
     
-    def actualizar_informacion_imagen(self, imagen_id, nuevos_metadatos):
+    def update(self, nombre, nuevos_metadatos):
+        print("Llegamos hast aquí")
+
+        imagen_id=self.obtenerIdImagen(nombre)
 
         url = f"{self.glance_url}/images/{imagen_id}"
         headers = {

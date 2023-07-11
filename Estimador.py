@@ -75,7 +75,7 @@ def alertarMigrador():
         # Hallamos el porcentaje de disco disponible (consideramos el porcentaje de disco)
         conteo_disco = worker_estimacion[worker]['Est_AlmacenamientoUsado(%)']
         # Realizamos el análisis
-        if conteo_cpu >= 390 or conteo_memoria <= 200 or conteo_disco >= 98:
+        if conteo_cpu >= 300 or conteo_memoria <= 200 or conteo_disco >= 98:
             # Se debe migrar urgentemente
             worker_sobrecargados[worker] = collection_compute[worker]
     # Renicio mis variables auxiliares
@@ -121,8 +121,10 @@ def alertarMigrador():
                     "host_migrar": worker_sobrecargados[worker_sobrecargado],
                     "destino": worker_libre[cons_worker]
                 }
-                endpoint = "http://localhost:13000/migrar"
+                print("Realizando la migracion de "+worker_sobrecargado+" a "+cons_worker+" a las "+str(datetime.now().strftime("%d-%m-%Y %H:%M:%S")))
+                endpoint = "http://10.0.0.10:13000/migrar"
                 response = requests.post(endpoint, json=body)
+                print(response.text)
         
 def getInfoPorWorker(worker,connection):
     global worker_info
@@ -256,6 +258,9 @@ async def allocateVM(body: dict):
             conteo_memoria = 0
             conteo_disco = 0
             cons_worker = ''
+            cons_cpu = 0
+            cons_memoria = 0
+            cons_disco =0
             if body['estilo'] == 'besteffort':
                 # Dimensionamos en funcion de best effort
                 # Para la cantidad de vCPU's*10 + 10 (hipervisor + I/O)
