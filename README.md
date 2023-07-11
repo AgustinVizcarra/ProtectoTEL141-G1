@@ -6,4 +6,6 @@ Este repositorio corresponde al proyecto del curso de Ingeniería de Redes Cloud
 - Se tiene scripts en bash que permite rutinas para el mapeo de puertos que habiliten conexiones externas con la creación de VM's
 - El servicio de monitoreo y estimación, funciona con sockets por lo que se debe tener mapeados las direcciones IP's y los puertos.
 - Para el servicio de monitoreo es necesario una base de datos
+
+
 Para dudas y/o consultas escribir al siguiente número: +51 973132409
